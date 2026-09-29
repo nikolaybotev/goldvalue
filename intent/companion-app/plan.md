@@ -14,7 +14,8 @@
 4. **No live network in automated tests.** Python and TS tests use the frozen fixtures in `testdata/` (Phase 1). Only `tools/snapshot/sync_data.sh` and manual `--fetch-only`/`--refresh` touch the network.
 5. **Docs stay current.** Each phase updates `AGENTS.md` (Commands / Architecture), and `SKILL.md` / `reference.md` where CLI behavior changes. A phase is not done until docs match the code.
 6. **Checkpoints.** At the end of Phases 1, 4, and 6 the builder pushes, runs the full DoD, and writes a short status note to `intent/companion-app/status.md` (what shipped, what departed from the plan, open issues). It then continues. It stops and asks the human only for: an action that needs credentials or settings it does not have; a spec contradiction it cannot resolve by the spec's own precedence rules; a failing DoD after three distinct fix attempts.
-7. **Toolchain pins** (set in Phase 0, never floated): Node `>=22` (`engines`, `.nvmrc` = 22), pnpm via Corepack (`packageManager` field, pnpm 10.x), TypeScript 5.x, Vite 6.x or later stable, Preact 10.x, `@preact/signals` 2.x, Vitest current stable, Playwright current stable, Biome 2.x, Python 3.9+ for `goldvalue.py` (stdlib only), pytest for tests only. Commit `pnpm-lock.yaml`.
+7. **Data-licensing hold (spec V3).** LBMA Gold Price data is licensed by ICE Benchmark Administration; redistribution needs a paid licence and LBMA's historical tables are limited to licensees and self-certified non-commercial/educational users. **Until the owner records a decision in this file, do not commit or publish any LBMA-derived data** (`testdata/cache/lbma_daily.csv`, `apps/web/public/data/lbma_daily.csv`, vectors containing real LBMA prices). Steps that would do so are marked **[HOLD-V3]** below. Work not touching LBMA-derived files may proceed.
+8. **Toolchain pins** (set in Phase 0, never floated): Node `>=22` (`engines`, `.nvmrc` = 22), pnpm via Corepack (`packageManager` field, pnpm 10.x), TypeScript 5.x, Vite 6.x or later stable, Preact 10.x, `@preact/signals` 2.x, Vitest current stable, Playwright current stable, Biome 2.x, Python 3.9+ for `goldvalue.py` (stdlib only), pytest for tests only. Commit `pnpm-lock.yaml`.
 
 ## Target repository layout
 
@@ -61,14 +62,14 @@ CI green on the branch.
 
 Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `.../tests/test_goldvalue.py`, `testdata/**`, `test-vectors/gold-usd.json`, `tools/snapshot/sync_data.sh`, `SKILL.md`, `AGENTS.md`.
 
-1. **Freeze test data.** Copy the current cache into `testdata/cache/{lbma_daily,monthly}.csv` and commit it. It is only ever changed by a deliberate PR.
+1. **[HOLD-V3] Freeze test data.** Copy the current cache into `testdata/cache/{lbma_daily,monthly}.csv` and commit it. It is only ever changed by a deliberate PR.
 2. **Batch/JSON contract (spec §5.6 items 2–3, FR14, FR15).**
    - `run_batch` output columns become exactly `date, amount, currency, label(if present as passthrough), <passthrough…>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`. `currency` = the `--from` unit's currency (`USD` in v1); `fx_*` are empty strings until Phase 5. Rename `amount_<unit>` → `amount`; add `granularity` and `note` (from `info["granularity"]`, `info["note"]`).
    - Input detection: define one shared constant `COMPUTED_COLUMNS = {effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note}`; **drop those columns before** detecting the date column (`date|period|month|year`) and amount column (`amount|usd|value|price`), case-insensitive. Consequence: an exported file re-imports with `amount` chosen and computed columns ignored.
    - `--json` uses the same names (`granularity`, `note`, `price_source`, `gold_usd_per_oz`, `troy_oz`, `GB`, `GBD`, `USD`); keep the existing `price_note` key only if `SKILL.md` documents it, else rename and document.
 3. **`--vectors OUT.json`** (spec §5.7). Requires `GOLD_PRICE_CACHE_DIR` to point at `testdata/cache` (exit non-zero otherwise) and performs **no network access** (fail if a fetch would be attempted). Emits vectors in the §5.7 schema covering all required families; `today` is never used. Add `--vectors-check` that regenerates in memory and diffs against the committed file.
 4. **pytest** (`tests/test_goldvalue.py`), network-free (set `GOLD_PRICE_CACHE_DIR`, monkeypatch `urllib`): `parse_period` (all forms in FR2), `parse_amount`, every resolution branch, roll-back boundary (9 days), after-latest-fix note, future-date rejection, unit conversions, batch schema/order, FR14 ignore-computed-columns, **export → import → export byte-identical**, error paths (`testdata/bad-batch/`), vectors regenerate identically.
-5. **`tools/snapshot/sync_data.sh`** (D14): with `GOLD_PRICE_CACHE_DIR=$(mktemp -d)`, run `goldvalue.py --refresh --fetch-only`, copy `lbma_daily.csv` and `monthly.csv` verbatim to `apps/web/public/data/`, and write `manifest.json` = `{"generated": ISO date, "files": {name: {"rows": n, "last_date": "...", "sha256": "..."}}}`. Assert combined gzip size of the two CSVs ≤ 100 KB (measured 76 KB) and fail otherwise.
+5. **[HOLD-V3] `tools/snapshot/sync_data.sh`** (D14): with `GOLD_PRICE_CACHE_DIR=$(mktemp -d)`, run `goldvalue.py --refresh --fetch-only`, copy `lbma_daily.csv` and `monthly.csv` verbatim to `apps/web/public/data/`, and write `manifest.json` = `{"generated": ISO date, "files": {name: {"rows": n, "last_date": "...", "sha256": "..."}}}`. Assert combined gzip size of the two CSVs ≤ 100 KB (measured 76 KB) and fail otherwise.
 6. **Docs:** update `SKILL.md` (batch schema, new column names), `AGENTS.md` Commands (pytest, vectors, sync), `reference.md` if needed. **Do this in this phase**, since the schema change is breaking.
 
 **Definition of done**
@@ -121,7 +122,7 @@ pnpm --filter @goldvalue/web test
 pnpm --filter @goldvalue/web build && pnpm --filter @goldvalue/web preview &   # then:
 pnpm --filter @goldvalue/web exec playwright test e2e/smoke.spec.ts e2e/ac12.spec.ts
 ```
-`smoke.spec.ts` covers AC1 (with a stubbed clock and stubbed LBMA responses), AC2, AC6; `ac12.spec.ts` covers AC12 (FR12, FR17 at 899 px, FR18 keys, FR2a future date, axe-core on the sheet via `@axe-core/playwright`, zero violations). Playwright fixtures serve `testdata/cache` CSVs as the data files so no live network is used.
+`smoke.spec.ts` covers AC1 (with a stubbed clock and stubbed LBMA responses), AC2, AC6; `ac12.spec.ts` covers AC7a (FR12, FR17 at 899 px, FR18 keys, FR2a future date, axe-core on the sheet via `@axe-core/playwright`, zero violations). Playwright fixtures serve `testdata/cache` CSVs as the data files so no live network is used.
 
 ## Phase 4 — Import/export, downloads, offline
 
@@ -142,8 +143,8 @@ pnpm --filter @goldvalue/web exec playwright test e2e/io.spec.ts e2e/offline.spe
 Files: `.github/workflows/{data-refresh,deploy-pages,ci}.yml`, `README.md`, `apps/web/public/robots.txt`, `scripts/check-size.mjs`.
 
 1. **Size budget (NFR1).** `scripts/check-size.mjs` gzips every file in `apps/web/dist` (excluding `fx_*.csv`) and fails if the total exceeds 250 KB; run in `ci.yml` after `pnpm build`.
-2. **`deploy-pages.yml`:** on push to `main` and `workflow_dispatch`; permissions `contents: read, pages: write, id-token: write`; build `apps/web` with `base: '/goldvalue/'`; `actions/upload-pages-artifact` + `actions/deploy-pages`. Enable Pages with source "GitHub Actions" via `gh api -X POST repos/nikolaybotev/goldvalue/pages -f build_type=workflow` (repo setting; the builder may do this with the authenticated `gh`, since the owner asked for GitHub Pages hosting).
-3. **`data-refresh.yml`:** cron `30 16 * * 1-5` (after the London PM fix) and `workflow_dispatch`; permissions `contents: write` only; runs `tools/snapshot/sync_data.sh`; commits **only** `apps/web/public/data/*` when it changed, with a bot identity, directly to `main`; the push triggers `deploy-pages.yml`. No secrets are required. If branch protection later blocks bot pushes, switch to a PR-per-refresh and note it in `status.md`.
+2. **[HOLD-V3] `deploy-pages.yml` with LBMA data:** on push to `main` and `workflow_dispatch`; permissions `contents: read, pages: write, id-token: write`; build `apps/web` with `base: '/goldvalue/'`; `actions/upload-pages-artifact` + `actions/deploy-pages`. Enable Pages with source "GitHub Actions" via `gh api -X POST repos/nikolaybotev/goldvalue/pages -f build_type=workflow` (repo setting; the builder may do this with the authenticated `gh`, since the owner asked for GitHub Pages hosting).
+3. **[HOLD-V3] `data-refresh.yml`:** cron `30 16 * * 1-5` (after the London PM fix) and `workflow_dispatch`; permissions `contents: write` only; runs `tools/snapshot/sync_data.sh`; commits **only** `apps/web/public/data/*` when it changed, with a bot identity, directly to `main`; the push triggers `deploy-pages.yml`. No secrets are required. If branch protection later blocks bot pushes, switch to a PR-per-refresh and note it in `status.md`.
 4. README: Pages URL, `pnpm` scripts, shared-hosting recipe (`pnpm build`, upload `apps/web/dist/` under the chosen path; adjust Vite `base` accordingly), optional nginx `Dockerfile` for Cloud Run, data-terms notice (LBMA personal/non-commercial; PDDL monthly series).
 5. Failure surfacing only in the freshness indicator (no telemetry).
 
@@ -154,7 +155,7 @@ gh workflow run data-refresh.yml && gh run watch    # succeeds; data files curre
 gh workflow run deploy-pages.yml && gh run watch    # succeeds
 curl -sI https://nikolaybotev.github.io/goldvalue/ | head -1   # HTTP/2 200
 ```
-Then run the AC1–AC7 and AC12 Playwright suites against the production URL (`BASE_URL=https://nikolaybotev.github.io/goldvalue/ pnpm --filter @goldvalue/web exec playwright test`). **v1 is complete here.** Write the checkpoint note and stop unless asked to continue to Phase 5.
+Then run the AC1–AC7 and AC7a Playwright suites against the production URL (`BASE_URL=https://nikolaybotev.github.io/goldvalue/ pnpm --filter @goldvalue/web exec playwright test`). **v1 is complete here.** Write the checkpoint note and stop unless asked to continue to Phase 5.
 
 ## Phase 5 — Multi-currency (v1.1, G7)
 
