@@ -9,7 +9,7 @@ planned (see `intent/companion-app/`).
 - Run CLI: `python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py AMOUNT DATE`
 - Prefetch/refresh price cache: `... goldvalue.py --fetch-only` / `--refresh`
 - Batch: `... goldvalue.py --batch rows.csv > out.csv`
-- Tests: none yet (Phase 1 adds `pytest .agents/skills/`; later `pnpm test`)
+- Tests: none yet (plan Phase 1a adds `pytest tests/python -q`; later `pnpm test`)
 - Use a throwaway cache in tests: `GOLD_PRICE_CACHE_DIR=/tmp/gv python3 ...`
 
 ## Conventions
@@ -17,7 +17,7 @@ planned (see `intent/companion-app/`).
 - Python: standard library only in `goldvalue.py`; Python 3.9+ syntax; `from __future__ import annotations`.
 - Every price used carries `effective`, `source`, `granularity`, `note`; never print a gold value without them.
 - Gold price is always USD per troy oz from the LBMA benchmark (PM fix, AM fallback) or the monthly series pre-1968. Never use non-USD LBMA fixes or dealer quotes.
-- Non-USD amounts convert to USD at the historical FX rate first, then to gold (USD-routing tenet). Curated currencies: USD, EUR, GBP, CHF, DEM. Pre-1971 uses a Bretton Woods parity table; pre-1999 EUR is synthetic via DEM at 1.95583; every non-daily FX value carries an `fx_mode` flag and is shown with an amber ⚠.
+- Non-USD amounts convert to USD at the historical FX rate first, then to gold (USD-routing tenet). Curated currencies: USD, EUR, GBP, CHF, DEM. Parity-table values apply only before each currency's first BIS observation (1953) and are flagged; pre-1999 EUR is synthetic via DEM at 1.95583; every non-daily FX value carries an `fx_mode` flag and is shown with an amber ⚠.
 - Site data files are the CLI's cache CSVs copied verbatim (`lbma_daily.csv`, `monthly.csv`, `fx_*.csv`); never introduce a second data format.
 - Comparisons are gold-denominated, not CPI. Say so when the user asked about "inflation" or "purchasing power".
 - Dates: ISO forms `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, plus `Mon YYYY` and `today`. Year/month queries average daily fixes; days roll back to the previous fix.
