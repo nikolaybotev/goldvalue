@@ -1,0 +1,58 @@
+name: deploy-pages
+
+# Publishes apps/web/dist to GitHub Pages (spec D12): on every push to main, daily so the
+# monthly series stays current (the manifest changes when it does), and on demand.
+# The job commits nothing: data is synced into the build and only ever lives in the artifact.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "30 16 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pnpm install --frozen-lockfile
+      - name: Real monthly data into apps/web/public/data (never LBMA, spec D15)
+        run: python3 tools/snapshot/sync_data.py
+      - name: Production build (VITE_LBMA_BASE must be unset)
+        env:
+          VITE_BASE: /goldvalue/
+        run: |
+          test -z "${VITE_LBMA_BASE:-}"
+          pnpm build
+      - name: Initial-load budget and no-LBMA-data guard (NFR1, D15)
+        run: node scripts/check-size.mjs --require-data
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

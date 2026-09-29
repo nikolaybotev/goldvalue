@@ -1,0 +1,35 @@
+name: live-check
+
+# AC1 live check (spec 12): the reference CLI against the real LBMA feed must still report
+# 80000 / 2018-12 = 63,979.53 GB. Non-blocking, and nothing is stored: the price cache lives
+# in the runner's temp directory and is never uploaded or committed (spec D15).
+on:
+  schedule:
+    - cron: "43 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: 80000 2018-12 is 63,979.53 GB against live LBMA data
+        env:
+          GOLD_PRICE_CACHE_DIR: ${{ runner.temp }}/goldvalue-live-cache
+        run: |
+          python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py --json 80000 2018-12 > "$RUNNER_TEMP/live.json"
+          python3 - <<'PY'
+          import json, os, sys
+          out = json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "live.json")))
+          gb = out["GB"]
+          print(f"price_source={out['price_source']} GB={gb:.2f} note={out['note']}")
+          if out["price_source"] != "LBMA" or abs(gb - 63979.53) > 0.01:
+              sys.exit(f"expected 63,979.53 GB from LBMA, got {gb:.2f} ({out['price_source']})")
+          PY

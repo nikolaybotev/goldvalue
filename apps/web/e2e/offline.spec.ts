@@ -3,49 +3,20 @@ import {
   cell,
   expectDisplayed,
   FIXTURE_LAST_FIX,
-  LBMA_URL,
-  lbmaFixtureBody,
+  goOffline,
   monthlyPrice,
-  PINNED_NOW,
+  type Network,
   pasteText,
+  visitWithWorker,
 } from "./support";
 
 test.use({ serviceWorkers: "allow" });
 
 const DAY_ROW = { amount: "1000", date: "2018-12-14" };
 
-interface Network {
-  lbmaHits: string[];
-  offline: boolean;
-}
-
-/**
- * Go offline. `setOffline` does not stop responses that Playwright fulfils itself, so the
- * LBMA stub is told too and fails like a dead network would.
- */
-async function goOffline(page: Page, network: Network) {
-  network.offline = true;
-  await page.context().setOffline(true);
-}
-
-/** First visit online: the real preview server supplies the shell and data; LBMA is stubbed. */
+/** First visit online, then two rows: a month (daily mean) and a day (single fix). */
 async function firstVisit(page: Page): Promise<Network> {
-  const network: Network = { lbmaHits: [], offline: false };
-  await page.context().route(LBMA_URL, (route) => {
-    const url = route.request().url();
-    if (network.offline) return route.abort("internetdisconnected");
-    network.lbmaHits.push(url);
-    return route.fulfill({
-      contentType: "application/json",
-      headers: { "access-control-allow-origin": "*" },
-      body: lbmaFixtureBody(url),
-    });
-  });
-  await page.clock.setFixedTime(new Date(PINNED_NOW));
-  await page.goto("/");
-  await expect(page.getByRole("grid")).toBeVisible();
-  await expect(page.getByTestId("data-status")).toContainText(`loaded through ${FIXTURE_LAST_FIX}`);
-  await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+  const network = await visitWithWorker(page);
   await cell(page, 0, "amount").focus();
   await pasteText(page, `Amount,Date\n80000,2018-12\n${DAY_ROW.amount},${DAY_ROW.date}`);
   await expect(cell(page, 1, "gb")).not.toHaveText("");
