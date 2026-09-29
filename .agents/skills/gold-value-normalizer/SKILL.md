@@ -67,7 +67,7 @@ For a series of dollar values over time (prices, wages, budgets, index levels), 
 python3 scripts/goldvalue.py --batch series.csv > series_gold.csv   # or --batch - for stdin
 ```
 
-Input header detection is case-insensitive: the date column is the first of `date`, `period`, `month`, `year`; the amount column is the first of `amount`, `usd`, `value`, `price`. A `label` column is optional. Columns produced by the batch output (`effective`, `troy_oz`, `GB`, ...) and `currency` are ignored on input, so an output file can be fed back in unchanged.
+Input header detection is case-insensitive: the date column is the first of `date`, `period`, `month`, `year`; the amount column is the first of `amount`, `usd`, `value`, `price`. A `label` column is optional. Columns produced by the batch output (`effective`, `troy_oz`, `GB`, ...) and `currency` are ignored on input, so an output file can be fed back in unchanged. If a header name repeats (case-insensitively) the first column wins; passthrough columns named like an output column are dropped.
 
 Output columns, in order: `date, amount, currency, label, <passthrough...>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`. `amount` echoes the input text; `currency` is `USD` (or the `--from` unit code); `label` is empty when the input has none; `fx_*` are empty for now. Numbers are fixed-point (GB 3 decimals, GBD 4, oz 6, USD 2, price 4), output uses LF line endings. Plot or tabulate `GB` or `GBD` against `date` for the gold-denominated view; keep `amount` alongside if the user wants nominal vs gold.
 

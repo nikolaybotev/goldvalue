@@ -136,6 +136,18 @@ Files: `packages/core/src/*.ts`, `packages/core/test/*.test.ts`.
 
 DoD: `pnpm --filter @goldvalue/core test` green; `tsc --noEmit` clean; no DOM imports. `AGENTS.md`: core commands and the no-DOM rule.
 
+Build notes (Phase 2) — decisions and deviations:
+
+- **API.** `parseDate(text, today)`, `parseAmount`, `parseUnit`/`toOz`/`fromOz`, `parseDataCsv`, `GoldTable` (`fromCsv` or constructed from entries), `priceForDay/Month/Year` + `resolve`, `convert(table, amount, unit, period, today)` and `convertQuery(table, {amount, date, from, today})`, `importCsv`/`exportCsv`/`runBatch`/`batchLayout`, and `fetchLbmaSince`/`parseLbmaJson`/`mergeLbma`/`lbmaToDaily`. The result of `convert` has the CLI `--json` keys (`gold_usd_per_oz`, `troy_oz`, `GB`, ...). Errors are typed (`DateParseError`, `FutureDateError`, `AmountParseError`, `PriceNotFoundError`, ...).
+- **`today` is an explicit parameter** everywhere the CLI reads the clock (keywords, future-date rule, MTD/YTD notes), matching `input.today` in the vectors.
+- **Date parser.** `dates.ts` rebuilds Python's `strptime` regexes (same alternation order, `re.IGNORECASE`, `\s+` for spaces, "match a prefix then reject leftovers", the ` [1-9]` day alternative) and Python's `str.strip()` set. Verified by a differential fuzz run against `parse_period` (49,279 generated strings, 26,959 accepted, zero mismatches) plus the committed 106-string oracle. The fuzz harness is not committed. No `Date` objects: years 1 to 9999 use pure calendar arithmetic.
+- **Numeric parity.** `fsum.ts` ports CPython's `math.fsum` (period means are exactly rounded like `statistics.fmean`); `formatFixed` formats doubles like Python's `f"{x:.Nf}"` with exact ties-to-even (JavaScript's `toFixed` rounds exact ties up). Both were fuzzed against Python (3,000 sums, 20,000 formatting cases, 40,000 amount strings, zero mismatches). TypeScript batch output is byte-identical to `goldvalue.py --batch` for all four `batch-*-in.csv` vectors, and each output re-imports unchanged (AC3).
+- **CSV.** Papaparse only parses (delimiter fixed to `,`, `step` mode to recover physical line numbers like `csv.reader`); the writer is our own (`quoteField` = `csv.writer` QUOTE_MINIMAL) because `Papa.unparse` quotes differently (leading/trailing spaces) and would break byte parity.
+- **The plan's "dedupe rule" is undefined in the spec; the project's reading, implemented in Python and TypeScript:** header names compare trimmed and case-insensitively and the first column wins; passthrough columns named like any FR15 output column are dropped (so a `USD`, `Note`, or second `amount` column never duplicates an output header). Python `run_batch` now uses `csv.reader` (not `DictReader`, which keeps the last duplicate). New vector pair `batch-dedupe-*.csv` covers it.
+- **Empty daily table.** `GoldTable` with no daily rows (LBMA not loaded yet, spec 6.3) resolves LBMA-era queries from the monthly series and appends "daily LBMA prices not loaded" to the note (day: "daily LBMA prices not loaded; used the monthly price"). Python cannot be in this state, so there is no vector; it is unit-tested. Pre-1968 queries keep their usual notes.
+- **`lbma.ts`** tolerates extra JSON keys and null USD/EUR entries (see Phase 1b) and rejects other malformed shapes; `fetch` is the injected minimal `FetchLike` (no DOM types).
+- **TS projects.** Root `tsconfig.json` references `packages/core`, `packages/core/test` (adds Node types for fixture loading) and `apps/web`. A scan test asserts `src/` has no DOM or Node imports.
+
 ## Phase 3a — App shell, store, sheet
 
 Files: `apps/web/**` scaffold (Vite + Preact + signals, `build.target: 'safari16'`, `base: process.env.VITE_BASE ?? './'`, runtime URLs via `import.meta.env.BASE_URL`).
