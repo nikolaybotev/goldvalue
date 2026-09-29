@@ -15,6 +15,9 @@ planned (see `intent/companion-app/`).
 - Core tests: `pnpm --filter @goldvalue/core test` (Vitest loads `test-vectors/*` and compares with Python at 1e-9 relative on numbers, exact on text and on batch CSV bytes)
 - Node/pnpm: Node 26 (`.nvmrc`), pnpm 12 (`packageManager` in `package.json`; `npm i -g pnpm@12.6.0` if `pnpm` is missing)
 - Install: `pnpm install --frozen-lockfile`; lint: `pnpm lint` (Biome; `pnpm format` fixes); types: `pnpm typecheck` (`tsc -b`); tests: `pnpm test` (Vitest per package); build: `pnpm build`
+- Web app (`apps/web`, Vite + Preact + signals): `pnpm dev` (Vite dev server), `pnpm build` (`apps/web/dist`), `pnpm preview` (serve `dist`). The site needs `apps/web/public/data/{monthly.csv,manifest.json}`; generate them first with `python3 tools/snapshot/sync_data.py` (network) or `--source-dir test-vectors/snapshot` (synthetic, offline). `VITE_BASE` sets Vite's `base` (default `./`, works from any folder; GitHub Pages will use `/goldvalue/`); every runtime URL is built from `import.meta.env.BASE_URL`.
+- Web unit tests: `pnpm --filter @goldvalue/web test` (Vitest, pure modules; `compute.test.ts` replays the golden vectors through the sheet's row logic).
+- End-to-end: `pnpm test:e2e` (Playwright, chromium; first time `pnpm --filter @goldvalue/web exec playwright install --with-deps chromium`). It builds and serves `vite preview` on 127.0.0.1:4173. Tests stub `**/data/manifest.json`, `**/data/monthly.csv` and `https://prices.lbma.org.uk/json/*.json` with `page.route` from `test-vectors/snapshot/` (helpers in `apps/web/e2e/support.ts`: `openApp`, `typeRow`, `pasteText`, `cell`), pin the clock with `page.clock.setFixedTime` and expect values from `test-vectors/gold-usd.json`. Never let a test reach the real LBMA.
 - Python tests: `python3 -m pip install pytest && python3 -m pytest tests/python -q` (network tests are excluded; `-m network` runs the live smoke test)
 - Use a throwaway cache in tests: `GOLD_PRICE_CACHE_DIR=/tmp/gv python3 ...`
 - Env hooks: `GOLDVALUE_TODAY=YYYY-MM-DD` pins "today" (`today` keyword, future-date check, month/year-to-date notes); `GOLDVALUE_OFFLINE=1` or `--no-refresh` blocks all network use and stale refresh (missing cache is an error). pytest sets both; never let tests hit the network.
@@ -39,7 +42,7 @@ planned (see `intent/companion-app/`).
 ## Architecture
 
 - `.agents/skills/gold-value-normalizer/` — the shipping unit for agents: `SKILL.md` (loaded by agents), `reference.md` (sources/method), `historical-notes.md` (pre-1974 caveats), `scripts/goldvalue.py` (reference implementation).
-- `intent/companion-app/` — spec and plan for the SPA. Packages: `packages/core` (TS port, no DOM), `apps/web` (Vite + Preact, planned), `tools/snapshot` (`sync_data.py`: free CSVs → `apps/web/public/data/`; `check_drift.py`), `test-vectors/` (synthetic fixture in `snapshot/`, `make_fixture.py`, `cases.json`, generated `gold-usd.json`, `dates.json`, `batch-*-out.csv`), `tests/python/` (pytest).
+- `intent/companion-app/` — spec and plan for the SPA. Packages: `packages/core` (TS port, no DOM), `apps/web` (Vite + Preact SPA: `src/{lib,store,sheet}`, `e2e/`), `tools/snapshot` (`sync_data.py`: free CSVs → `apps/web/public/data/`; `check_drift.py`), `test-vectors/` (synthetic fixture in `snapshot/`, `make_fixture.py`, `cases.json`, generated `gold-usd.json`, `dates.json`, `batch-*-out.csv`), `tests/python/` (pytest).
 - Cache: `~/.cache/gold-value/{lbma_daily.csv,monthly.csv}`; override with `GOLD_PRICE_CACHE_DIR`.
 
 ## Things agents get wrong
@@ -52,6 +55,7 @@ planned (see `intent/companion-app/`).
 - The euro did not start 1:1 with the Deutsche Mark (1 EUR = 1.95583 DEM). The Mark der DDR is out of scope.
 - Keep `SKILL.md` under 500 lines and its `description` under 1024 characters; put background in `reference.md` / `historical-notes.md`.
 - Do not commit the price cache or generated `dist/`.
+- In `apps/web` the LBMA table exists only in the visitor's IndexedDB; never write it to `public/`, never let a service worker cache it, and never fetch it in tests (stub it). Keep computation in `@goldvalue/core`; the app only formats and lays out.
 - Data CSVs (`apps/web/public/data/*.csv`, `test-vectors/snapshot/*.csv`) are never re-encoded or reformatted; `.gitattributes` marks them `-text` so line endings stay byte-exact. Biome ignores them.
 - `packages/core` must not use DOM types or globals (`lib: ES2022`, no `dom`); `apps/web` is the only package with DOM.
 - **Never commit or publish LBMA price data** (spec D15: licensed by ICE Benchmark Administration). Tests use the synthetic fixture in `test-vectors/snapshot/`; the browser fetches LBMA itself; `sync_data.py` must never copy `lbma_daily.csv`.
