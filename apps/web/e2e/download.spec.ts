@@ -182,10 +182,8 @@ test.describe("FR13: pixel dimensions are shown before download", () => {
     };
     await expect(label).toHaveText(await read());
     await page.setViewportSize({ width: 700, height: 900 });
+    await expect.poll(async () => (await chartSize(page)).width).toBeLessThan(700);
     await expect.poll(async () => (await label.textContent()) === (await read())).toBe(true);
-    const narrow = await chartSize(page);
-    expect(narrow.width).toBeLessThan(700);
-    await expect(label).toContainText(`PNG ${narrow.width * 2} \u00d7 ${narrow.height * 2} px`);
   });
 
   test("no download buttons before there is a chart", async ({ page }) => {

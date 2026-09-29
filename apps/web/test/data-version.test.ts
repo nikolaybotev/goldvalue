@@ -8,12 +8,19 @@ const manifest = (files: Record<string, string>) => ({
 });
 
 test("the data version is the sorted name:sha256 pairs and ignores other fields", () => {
-  expect(dataVersionOf(manifest({ "monthly.csv": "aa", "fx_eur.csv": "bb" }))).toBe(
-    "fx_eur.csv:bb|monthly.csv:aa",
+  expect(dataVersionOf(manifest({ "monthly.csv": "aa", "other.csv": "bb" }))).toBe(
+    "monthly.csv:aa|other.csv:bb",
   );
   expect(dataVersionOf({ files: { "monthly.csv": { sha256: "aa", rows: 5 } } })).toBe(
     "monthly.csv:aa",
   );
+});
+
+test("fx_*.csv files never change the data version (they update with every BIS refresh)", () => {
+  const base = manifest({ "monthly.csv": "aa" });
+  const withFx = manifest({ "monthly.csv": "aa", "fx_eur.csv": "bb", "fx_gbp.csv": "cc" });
+  expect(dataVersionOf(withFx)).toBe(dataVersionOf(base));
+  expect(dataVersionOf(manifest({ "fx_eur.csv": "bb" }))).toBeNull();
 });
 
 test("a manifest without hashes has no version", () => {

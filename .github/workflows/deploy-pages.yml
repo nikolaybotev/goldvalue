@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pnpm install --frozen-lockfile
-      - name: Real monthly data into apps/web/public/data (never LBMA, spec D15)
+      - name: Real monthly and BIS FX data into apps/web/public/data (never LBMA, spec D15)
         run: python3 tools/snapshot/sync_data.py
       - name: Production build (VITE_LBMA_BASE must be unset)
         env:
@@ -42,7 +42,7 @@ jobs:
           test -z "${VITE_LBMA_BASE:-}"
           pnpm build
       - name: Initial-load budget and no-LBMA-data guard (NFR1, D15)
-        run: node scripts/check-size.mjs --require-data
+        run: node scripts/check-size.mjs --require-data --require-fx
       - uses: actions/upload-pages-artifact@v5
         with:
           path: apps/web/dist

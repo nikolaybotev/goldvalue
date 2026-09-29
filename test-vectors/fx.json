@@ -1,0 +1,3485 @@
+[
+  {
+    "expected": {
+      "GB": 114978.60199714695,
+      "GBD": 5748.930099857348,
+      "USD": 4030.0000000000005,
+      "effective": "1940-01",
+      "fx_effective": "1940-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $4.03 (1940-01-01 to 1949-09-17).",
+      "fx_rate": 4.03,
+      "gold_usd_per_oz": 35.05,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 114.97860199714695
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1940-01-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1940-01-01"
+  },
+  {
+    "expected": {
+      "GB": 115044.24778761063,
+      "GBD": 5752.212389380531,
+      "USD": 4030.0000000000005,
+      "effective": "1949-09",
+      "fx_effective": "1940-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $4.03 (1940-01-01 to 1949-09-17).",
+      "fx_rate": 4.03,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 115.04424778761063
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1949-09-17",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1949-09-17"
+  },
+  {
+    "expected": {
+      "GB": 79931.4872966029,
+      "GBD": 3996.5743648301454,
+      "USD": 2800.0,
+      "effective": "1949-09",
+      "fx_effective": "1949-09-18",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $2.80 (1949-09-18 to 1953-08-09).",
+      "fx_rate": 2.8,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.93148729660291
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1949-09-18",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1949-09-18"
+  },
+  {
+    "expected": {
+      "GB": 80045.74042309892,
+      "GBD": 4002.287021154946,
+      "USD": 2800.0,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-18",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $2.80 (1949-09-18 to 1953-08-09).",
+      "fx_rate": 2.8,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 80.04574042309892
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1950-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1950-06-15"
+  },
+  {
+    "expected": {
+      "GB": 79977.14938588974,
+      "GBD": 3998.857469294487,
+      "USD": 2800.0,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-18",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $2.80 (1949-09-18 to 1953-08-09).",
+      "fx_rate": 2.8,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.97714938588975
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953-08-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953-08-09"
+  },
+  {
+    "expected": {
+      "GB": 79977.14938588974,
+      "GBD": 3998.857469294487,
+      "USD": 2800.0,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-18",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $2.80 (1949-09-18 to 1953-08-09).",
+      "fx_rate": 2.8,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.97714938588975
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953-08-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953-08-08 Saturday before first BIS observation"
+  },
+  {
+    "expected": {
+      "GB": 6528.27231598528,
+      "GBD": 326.413615799264,
+      "USD": 228.68537922896436,
+      "effective": "1949-01",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity CHF 1 = $0.2287 (4.37282 CHF per USD) (1949-01-01 to 1953-08-31).",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.52827231598528
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1949-01-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1949-01-01"
+  },
+  {
+    "expected": {
+      "GB": 6530.136471415315,
+      "GBD": 326.5068235707658,
+      "USD": 228.68537922896436,
+      "effective": "1948-12",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1949-01-01; the earliest entry CHF 1 = $0.2287 (4.37282 CHF per USD) is used.",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 35.02,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.530136471415315
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1948-12-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1948-12-31"
+  },
+  {
+    "expected": {
+      "GB": 6537.6037515427215,
+      "GBD": 326.88018757713604,
+      "USD": 228.68537922896436,
+      "effective": "1950-06",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity CHF 1 = $0.2287 (4.37282 CHF per USD) (1949-01-01 to 1953-08-31).",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.537603751542721
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1950-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1950-06-15"
+  },
+  {
+    "expected": {
+      "GB": 6532.001691772761,
+      "GBD": 326.600084588638,
+      "USD": 228.68537922896434,
+      "effective": "1953-08",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity CHF 1 = $0.2287 (4.37282 CHF per USD) (1949-01-01 to 1953-08-31).",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.532001691772761
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1953-08-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1953-08-31"
+  },
+  {
+    "expected": {
+      "GB": 8575.108517998295,
+      "GBD": 428.75542589991477,
+      "USD": 300.3003003003003,
+      "effective": "1948-06",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.3003 (3.33 DM per USD) (1948-06-21 to 1949-09-27).",
+      "fx_rate": 0.3003003003003003,
+      "gold_usd_per_oz": 35.02,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 8.575108517998295
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1948-06-21",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1948-06-21"
+  },
+  {
+    "expected": {
+      "GB": 8572.660585221249,
+      "GBD": 428.6330292610624,
+      "USD": 300.30030030030036,
+      "effective": "1949-09",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.3003 (3.33 DM per USD) (1948-06-21 to 1949-09-27).",
+      "fx_rate": 0.3003003003003003,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 8.572660585221248
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1949-09-27",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1949-09-27"
+  },
+  {
+    "expected": {
+      "GB": 6796.89517828256,
+      "GBD": 339.84475891412796,
+      "USD": 238.09523809523807,
+      "effective": "1949-09",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.2381 (4.20 DM per USD) (1949-09-28 to 1953-08-31).",
+      "fx_rate": 0.23809523809523808,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.7968951782825595
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1949-09-28",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1949-09-28"
+  },
+  {
+    "expected": {
+      "GB": 6806.610580195485,
+      "GBD": 340.3305290097743,
+      "USD": 238.09523809523807,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.2381 (4.20 DM per USD) (1949-09-28 to 1953-08-31).",
+      "fx_rate": 0.23809523809523808,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.8066105801954855
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1950-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1950-06-15"
+  },
+  {
+    "expected": {
+      "GB": 6800.77800900423,
+      "GBD": 340.0389004502115,
+      "USD": 238.09523809523807,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.2381 (4.20 DM per USD) (1949-09-28 to 1953-08-31).",
+      "fx_rate": 0.23809523809523808,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.80077800900423
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1953-08-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1953-08-31"
+  },
+  {
+    "expected": {
+      "GB": 16771.454492756602,
+      "GBD": 838.5727246378302,
+      "USD": 587.3363363363363,
+      "effective": "1948-06",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.5873 (via DM 1 = $0.3003 at 1 \u20ac = 1.95583 DM) (1948-06-21 to 1949-09-27). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.5873363363363363,
+      "gold_usd_per_oz": 35.02,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 16.771454492756604
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1948-06-21",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1948-06-21"
+  },
+  {
+    "expected": {
+      "GB": 16766.66675239327,
+      "GBD": 838.3333376196636,
+      "USD": 587.3363363363363,
+      "effective": "1949-09",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.5873 (via DM 1 = $0.3003 at 1 \u20ac = 1.95583 DM) (1948-06-21 to 1949-09-27). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.5873363363363363,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 16.76666675239327
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1949-09-27",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1949-09-27"
+  },
+  {
+    "expected": {
+      "GB": 13293.571496540379,
+      "GBD": 664.6785748270189,
+      "USD": 465.6738095238095,
+      "effective": "1949-09",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.293571496540379
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1949-09-28",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1949-09-28"
+  },
+  {
+    "expected": {
+      "GB": 13312.573171063737,
+      "GBD": 665.6286585531869,
+      "USD": 465.6738095238095,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.312573171063738
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1950-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1950-06-15"
+  },
+  {
+    "expected": {
+      "GB": 13301.165653350743,
+      "GBD": 665.0582826675371,
+      "USD": 465.6738095238095,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.301165653350743
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1953-08-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1953-08-31"
+  },
+  {
+    "expected": {
+      "GB": 80045.74042309892,
+      "GBD": 4002.287021154946,
+      "USD": 2800.0,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-18",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $2.80 (1949-09-18 to 1953-08-09).",
+      "fx_rate": 2.8,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 80.04574042309892
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1950-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1950-06 month"
+  },
+  {
+    "expected": {
+      "GB": 80045.74042309892,
+      "GBD": 4002.287021154946,
+      "USD": 2800.0,
+      "effective": "1950",
+      "fx_effective": "1949-09-18",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $2.80 (1949-09-18 to 1953-08-09).",
+      "fx_rate": 2.8,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 80.04574042309892
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1950",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1950 year"
+  },
+  {
+    "expected": {
+      "GB": 6537.6037515427215,
+      "GBD": 326.88018757713604,
+      "USD": 228.68537922896436,
+      "effective": "1950-06",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity CHF 1 = $0.2287 (4.37282 CHF per USD) (1949-01-01 to 1953-08-31).",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.537603751542721
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1950-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1950-06 month"
+  },
+  {
+    "expected": {
+      "GB": 6537.6037515427215,
+      "GBD": 326.88018757713604,
+      "USD": 228.68537922896436,
+      "effective": "1950",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity CHF 1 = $0.2287 (4.37282 CHF per USD) (1949-01-01 to 1953-08-31).",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.537603751542721
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1950",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1950 year"
+  },
+  {
+    "expected": {
+      "GB": 6806.610580195485,
+      "GBD": 340.3305290097743,
+      "USD": 238.09523809523807,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.2381 (4.20 DM per USD) (1949-09-28 to 1953-08-31).",
+      "fx_rate": 0.23809523809523808,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.8066105801954855
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1950-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1950-06 month"
+  },
+  {
+    "expected": {
+      "GB": 6806.610580195485,
+      "GBD": 340.3305290097743,
+      "USD": 238.09523809523807,
+      "effective": "1950",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.2381 (4.20 DM per USD) (1949-09-28 to 1953-08-31).",
+      "fx_rate": 0.23809523809523808,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.8066105801954855
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1950",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1950 year"
+  },
+  {
+    "expected": {
+      "GB": 13312.573171063737,
+      "GBD": 665.6286585531869,
+      "USD": 465.6738095238095,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.312573171063738
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1950-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1950-06 month"
+  },
+  {
+    "expected": {
+      "GB": 13312.573171063737,
+      "GBD": 665.6286585531869,
+      "USD": 465.6738095238095,
+      "effective": "1950",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.312573171063738
+    },
+    "family": "fx-parity-steps",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1950",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1950 year"
+  },
+  {
+    "expected": {
+      "GB": 79570.97972007998,
+      "GBD": 3978.548986003999,
+      "USD": 2785.7799999999997,
+      "effective": "1953-08",
+      "fx_effective": "1953-08-10",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 2.78578,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.57097972007998
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953-08-10",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953-08-10 (first observation)"
+  },
+  {
+    "expected": {
+      "GB": 79564.41016852329,
+      "GBD": 3978.220508426165,
+      "USD": 2785.5500000000006,
+      "effective": "1953-08",
+      "fx_effective": "1953-08-11",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 2.78555,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.5644101685233
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953-08-11",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953-08-11 (day after)"
+  },
+  {
+    "expected": {
+      "GB": 6532.001691772761,
+      "GBD": 326.600084588638,
+      "USD": 228.68537922896434,
+      "effective": "1953-08",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity CHF 1 = $0.2287 (4.37282 CHF per USD) (1949-01-01 to 1953-08-31).",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.532001691772761
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1953-08-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1953-08-31 (day before)"
+  },
+  {
+    "expected": {
+      "GB": 6665.58126249643,
+      "GBD": 333.2790631248215,
+      "USD": 233.36200000000002,
+      "effective": "1953-09",
+      "fx_effective": "1953-09-01",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.233362,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.66558126249643
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1953-09-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1953-09-01 (first observation)"
+  },
+  {
+    "expected": {
+      "GB": 6666.1239645815485,
+      "GBD": 333.30619822907744,
+      "USD": 233.381,
+      "effective": "1953-09",
+      "fx_effective": "1953-09-02",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.233381,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.666123964581549
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1953-09-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1953-09-02 (day after)"
+  },
+  {
+    "expected": {
+      "GB": 13301.165653350743,
+      "GBD": 665.0582826675371,
+      "USD": 465.6738095238095,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.301165653350743
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1953-08-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1953-08-31 (day before)"
+  },
+  {
+    "expected": {
+      "GB": 13300.14281633819,
+      "GBD": 665.0071408169094,
+      "USD": 465.638,
+      "effective": "1953-09",
+      "fx_effective": "1953-09-01",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.465638,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.30014281633819
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1953-09-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1953-09-01 (first observation)"
+  },
+  {
+    "expected": {
+      "GB": 13301.171093973151,
+      "GBD": 665.0585546986575,
+      "USD": 465.674,
+      "effective": "1953-09",
+      "fx_effective": "1953-09-02",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.465674,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.301171093973151
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1953-09-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1953-09-02 (day after)"
+  },
+  {
+    "expected": {
+      "GB": 6800.77800900423,
+      "GBD": 340.0389004502115,
+      "USD": 238.09523809523807,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.2381 (4.20 DM per USD) (1949-09-28 to 1953-08-31).",
+      "fx_rate": 0.23809523809523808,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.80077800900423
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1953-08-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1953-08-31 (day before)"
+  },
+  {
+    "expected": {
+      "GB": 6800.255040743925,
+      "GBD": 340.0127520371962,
+      "USD": 238.07692897644478,
+      "effective": "1953-09",
+      "fx_effective": "1953-09-01",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.23807692897644478,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.800255040743925
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1953-09-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1953-09-01 (first observation)"
+  },
+  {
+    "expected": {
+      "GB": 6800.780790750296,
+      "GBD": 340.0390395375148,
+      "USD": 238.09533548416786,
+      "effective": "1953-09",
+      "fx_effective": "1953-09-02",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.23809533548416784,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.800780790750296
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1953-09-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1953-09-02 (day after)"
+  },
+  {
+    "expected": {
+      "GB": 79977.14938588974,
+      "GBD": 3998.857469294487,
+      "USD": 2800.0,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-18",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $2.80 (1949-09-18 to 1953-08-09).",
+      "fx_rate": 2.8,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.97714938588975
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953-08-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953-08-09 (day before first observation)"
+  },
+  {
+    "expected": {
+      "GB": 79544.64795772635,
+      "GBD": 3977.232397886318,
+      "USD": 2784.8581249999993,
+      "effective": "1953-08",
+      "fx_effective": "1953-08",
+      "fx_mode": "daily",
+      "fx_note": "period starts before the first BIS observation (1953-08-10); average of the observations from that date",
+      "fx_rate": 2.784858125,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.54464795772635
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953-08 month around the first observation"
+  },
+  {
+    "expected": {
+      "GB": 79560.76186024772,
+      "GBD": 3978.038093012386,
+      "USD": 2785.4222727272727,
+      "effective": "1953-09",
+      "fx_effective": "1953-09",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 2.785422272727273,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.56076186024772
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953-09 month"
+  },
+  {
+    "expected": {
+      "GB": 79579.6513062842,
+      "GBD": 3978.98256531421,
+      "USD": 2786.0835922330098,
+      "effective": "1953",
+      "fx_effective": "1953",
+      "fx_mode": "daily",
+      "fx_note": "period starts before the first BIS observation (1953-08-10); average of the observations from that date",
+      "fx_rate": 2.78608359223301,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 79.5796513062842
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1953",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1953 year straddling the first observation"
+  },
+  {
+    "expected": {
+      "GB": 6532.001691772761,
+      "GBD": 326.600084588638,
+      "USD": 228.68537922896434,
+      "effective": "1953-08",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity CHF 1 = $0.2287 (4.37282 CHF per USD) (1949-01-01 to 1953-08-31).",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.532001691772761
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1953-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1953-08 month around the first observation"
+  },
+  {
+    "expected": {
+      "GB": 6668.284386279245,
+      "GBD": 333.41421931396223,
+      "USD": 233.45663636363636,
+      "effective": "1953-09",
+      "fx_effective": "1953-09",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.23345663636363637,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.668284386279245
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1953-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1953-09 month"
+  },
+  {
+    "expected": {
+      "GB": 6668.643770088677,
+      "GBD": 333.4321885044339,
+      "USD": 233.4692183908046,
+      "effective": "1953",
+      "fx_effective": "1953",
+      "fx_mode": "daily",
+      "fx_note": "period starts before the first BIS observation (1953-09-01); average of the observations from that date",
+      "fx_rate": 0.2334692183908046,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.668643770088678
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1953",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1953 year straddling the first observation"
+  },
+  {
+    "expected": {
+      "GB": 13301.165653350743,
+      "GBD": 665.0582826675371,
+      "USD": 465.6738095238095,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.301165653350743
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1953-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1953-08 month around the first observation"
+  },
+  {
+    "expected": {
+      "GB": 13302.897873334892,
+      "GBD": 665.1448936667446,
+      "USD": 465.7344545454545,
+      "effective": "1953-09",
+      "fx_effective": "1953-09",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.46573445454545453,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.302897873334892
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1953-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1953-09 month"
+  },
+  {
+    "expected": {
+      "GB": 13295.488645280331,
+      "GBD": 664.7744322640166,
+      "USD": 465.4750574712644,
+      "effective": "1953",
+      "fx_effective": "1953",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ. period starts before the first BIS observation (1953-09-01); average of the observations from that date",
+      "fx_rate": 0.4654750574712644,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.295488645280331
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1953",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1953 year straddling the first observation"
+  },
+  {
+    "expected": {
+      "GB": 6800.77800900423,
+      "GBD": 340.0389004502115,
+      "USD": 238.09523809523807,
+      "effective": "1953-08",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity DM 1 = $0.2381 (4.20 DM per USD) (1949-09-28 to 1953-08-31).",
+      "fx_rate": 0.23809523809523808,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.80077800900423
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1953-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1953-08 month around the first observation"
+  },
+  {
+    "expected": {
+      "GB": 6801.66367901857,
+      "GBD": 340.0831839509285,
+      "USD": 238.12624540244013,
+      "effective": "1953-09",
+      "fx_effective": "1953-09",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.23812624540244015,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.801663679018571
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1953-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1953-09 month"
+  },
+  {
+    "expected": {
+      "GB": 6797.875400868343,
+      "GBD": 339.89377004341713,
+      "USD": 237.99361778440064,
+      "effective": "1953",
+      "fx_effective": "1953",
+      "fx_mode": "daily",
+      "fx_note": "period starts before the first BIS observation (1953-09-01); average of the observations from that date",
+      "fx_rate": 0.23799361778440067,
+      "gold_usd_per_oz": 35.01,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.797875400868342
+    },
+    "family": "fx-first-observation",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1953",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1953 year straddling the first observation"
+  },
+  {
+    "expected": {
+      "GB": 4053.8284703801946,
+      "GBD": 202.69142351900973,
+      "USD": 1146.22,
+      "effective": "1998-12-30",
+      "fx_effective": "1998-12-30",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 1.14622,
+      "gold_usd_per_oz": 282.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 4.053828470380195
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1998-12-30",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1998-12-30"
+  },
+  {
+    "expected": {
+      "GB": 4050.2688552426775,
+      "GBD": 202.51344276213388,
+      "USD": 1144.93,
+      "effective": "1998-12-31",
+      "fx_effective": "1998-12-31",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 1.14493,
+      "gold_usd_per_oz": 282.68,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 4.0502688552426775
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1998-12-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1998-12-31"
+  },
+  {
+    "expected": {
+      "GB": 4050.2688552426775,
+      "GBD": 202.51344276213388,
+      "USD": 1144.93,
+      "effective": "1998-12-31",
+      "fx_effective": "1998-12-31",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ. no FX rate on 1999-01-01 (non-trading day); used previous rate from 1998-12-31",
+      "fx_rate": 1.14493,
+      "gold_usd_per_oz": 282.68,
+      "granularity": "day",
+      "note": "no LBMA fix on 1999-01-01 (non-trading day); used previous fix from 1998-12-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 4.0502688552426775
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1999-01-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1999-01-01"
+  },
+  {
+    "expected": {
+      "GB": 4050.2688552426775,
+      "GBD": 202.51344276213388,
+      "USD": 1144.93,
+      "effective": "1998-12-31",
+      "fx_effective": "1998-12-31",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ. no FX rate on 1999-01-02 (non-trading day); used previous rate from 1998-12-31",
+      "fx_rate": 1.14493,
+      "gold_usd_per_oz": 282.68,
+      "granularity": "day",
+      "note": "no LBMA fix on 1999-01-02 (non-trading day); used previous fix from 1998-12-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 4.0502688552426775
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1999-01-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1999-01-02"
+  },
+  {
+    "expected": {
+      "GB": 4054.1202356448302,
+      "GBD": 202.7060117822415,
+      "USD": 1142.3700000000001,
+      "effective": "1999-01-04",
+      "fx_effective": "1999-01-04",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.14237,
+      "gold_usd_per_oz": 281.78,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 4.05412023564483
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1999-01-04",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1999-01-04"
+  },
+  {
+    "expected": {
+      "GB": 4044.7254998940157,
+      "GBD": 202.23627499470078,
+      "USD": 1144.9,
+      "effective": "1999-01-05",
+      "fx_effective": "1999-01-05",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.1449,
+      "gold_usd_per_oz": 283.06,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 4.044725499894016
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1999-01-05",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1999-01-05"
+  },
+  {
+    "expected": {
+      "GB": 4131.788124794275,
+      "GBD": 206.58940623971372,
+      "USD": 1152.5472727272727,
+      "effective": "1998-12",
+      "fx_effective": "1998-12",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 1.1525472727272728,
+      "gold_usd_per_oz": 278.9463636363636,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 4.131788124794275
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1998-12",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1998-12 month"
+  },
+  {
+    "expected": {
+      "GB": 4110.8323425775925,
+      "GBD": 205.5416171288796,
+      "USD": 1144.4844999999998,
+      "effective": "1999-01",
+      "fx_effective": "1999-01",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.1444845,
+      "gold_usd_per_oz": 278.40700000000004,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 4.110832342577592
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1999-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1999-01 month"
+  },
+  {
+    "expected": {
+      "GB": 3973.6911241142434,
+      "GBD": 198.68455620571217,
+      "USD": 1137.0333590733592,
+      "effective": "1998",
+      "fx_effective": "1998",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 1.1370333590733592,
+      "gold_usd_per_oz": 286.1403474903475,
+      "granularity": "year",
+      "note": "average of 259 LBMA daily fixes",
+      "points": 259,
+      "price_source": "LBMA",
+      "troy_oz": 3.9736911241142434
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1998",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1998 year"
+  },
+  {
+    "expected": {
+      "GB": 3703.9180695369455,
+      "GBD": 185.19590347684726,
+      "USD": 1057.1802730769232,
+      "effective": "1999",
+      "fx_effective": "1999",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.057180273076923,
+      "gold_usd_per_oz": 285.42215384615383,
+      "granularity": "year",
+      "note": "average of 260 LBMA daily fixes",
+      "points": 260,
+      "price_source": "LBMA",
+      "troy_oz": 3.7039180695369454
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1999",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1999 year"
+  },
+  {
+    "expected": {
+      "GB": 2072.6895846674784,
+      "GBD": 103.63447923337392,
+      "USD": 586.0529800647296,
+      "effective": "1998-12-30",
+      "fx_effective": "1998-12-30",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.5860529800647296,
+      "gold_usd_per_oz": 282.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.0726895846674784
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1998-12-30",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1998-12-30"
+  },
+  {
+    "expected": {
+      "GB": 2070.8695823474827,
+      "GBD": 103.54347911737413,
+      "USD": 585.3934135379865,
+      "effective": "1998-12-31",
+      "fx_effective": "1998-12-31",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.5853934135379865,
+      "gold_usd_per_oz": 282.68,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.0708695823474828
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1998-12-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1998-12-31"
+  },
+  {
+    "expected": {
+      "GB": 2070.8695823474827,
+      "GBD": 103.54347911737413,
+      "USD": 585.3934135379865,
+      "effective": "1998-12-31",
+      "fx_effective": "1998-12-31",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 1999-01-01 (non-trading day); used previous rate from 1998-12-31",
+      "fx_rate": 0.5853934135379865,
+      "gold_usd_per_oz": 282.68,
+      "granularity": "day",
+      "note": "no LBMA fix on 1999-01-01 (non-trading day); used previous fix from 1998-12-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.0708695823474828
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1999-01-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1999-01-01"
+  },
+  {
+    "expected": {
+      "GB": 2070.8695823474827,
+      "GBD": 103.54347911737413,
+      "USD": 585.3934135379865,
+      "effective": "1998-12-31",
+      "fx_effective": "1998-12-31",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 1999-01-02 (non-trading day); used previous rate from 1998-12-31",
+      "fx_rate": 0.5853934135379865,
+      "gold_usd_per_oz": 282.68,
+      "granularity": "day",
+      "note": "no LBMA fix on 1999-01-02 (non-trading day); used previous fix from 1998-12-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.0708695823474828
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1999-01-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1999-01-02"
+  },
+  {
+    "expected": {
+      "GB": 2072.838761878502,
+      "GBD": 103.6419380939251,
+      "USD": 584.0845063221243,
+      "effective": "1999-01-04",
+      "fx_effective": "1999-01-04",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.5840845063221242,
+      "gold_usd_per_oz": 281.78,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.072838761878502
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1999-01-04",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1999-01-04"
+  },
+  {
+    "expected": {
+      "GB": 2068.0353097631264,
+      "GBD": 103.40176548815631,
+      "USD": 585.3780747815506,
+      "effective": "1999-01-05",
+      "fx_effective": "1999-01-05",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.5853780747815506,
+      "gold_usd_per_oz": 283.06,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.0680353097631263
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1999-01-05",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1999-01-05"
+  },
+  {
+    "expected": {
+      "GB": 2112.5497230302603,
+      "GBD": 105.62748615151303,
+      "USD": 589.2880632402984,
+      "effective": "1998-12",
+      "fx_effective": "1998-12",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.5892880632402984,
+      "gold_usd_per_oz": 278.9463636363636,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 2.1125497230302606
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1998-12",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1998-12 month"
+  },
+  {
+    "expected": {
+      "GB": 2101.835201718755,
+      "GBD": 105.09176008593775,
+      "USD": 585.1656330049135,
+      "effective": "1999-01",
+      "fx_effective": "1999-01",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.5851656330049135,
+      "gold_usd_per_oz": 278.40700000000004,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 2.101835201718755
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1999-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1999-01 month"
+  },
+  {
+    "expected": {
+      "GB": 2031.7160101410877,
+      "GBD": 101.58580050705439,
+      "USD": 581.3559251434732,
+      "effective": "1998",
+      "fx_effective": "1998",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.5813559251434732,
+      "gold_usd_per_oz": 286.1403474903475,
+      "granularity": "year",
+      "note": "average of 259 LBMA daily fixes",
+      "points": 259,
+      "price_source": "LBMA",
+      "troy_oz": 2.031716010141088
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1998",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1998 year"
+  },
+  {
+    "expected": {
+      "GB": 1893.7832375702108,
+      "GBD": 94.68916187851055,
+      "USD": 540.527690585032,
+      "effective": "1999",
+      "fx_effective": "1999",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.540527690585032,
+      "gold_usd_per_oz": 285.42215384615383,
+      "granularity": "year",
+      "note": "average of 260 LBMA daily fixes",
+      "points": 260,
+      "price_source": "LBMA",
+      "troy_oz": 1.8937832375702108
+    },
+    "family": "fx-euro-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1999",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1999 year"
+  },
+  {
+    "expected": {
+      "GB": 13312.573171063737,
+      "GBD": 665.6286585531869,
+      "USD": 465.6738095238095,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.312573171063738
+    },
+    "family": "fx-euro-pre1953",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1950-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1950-06-15 day (parity and synthetic)"
+  },
+  {
+    "expected": {
+      "GB": 13312.573171063737,
+      "GBD": 665.6286585531869,
+      "USD": 465.6738095238095,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.312573171063738
+    },
+    "family": "fx-euro-pre1953",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1950-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1950-06 month (parity and synthetic)"
+  },
+  {
+    "expected": {
+      "GB": 13312.573171063737,
+      "GBD": 665.6286585531869,
+      "USD": 465.6738095238095,
+      "effective": "1950",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.312573171063738
+    },
+    "family": "fx-euro-pre1953",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1950",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1950 year (parity and synthetic)"
+  },
+  {
+    "expected": {
+      "GB": 13312.573171063737,
+      "GBD": 665.6286585531869,
+      "USD": 465.6738095238095,
+      "effective": "1950-06",
+      "fx_effective": "1949-09-28",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM) (1949-09-28 to 1953-08-31). Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.4656738095238095,
+      "gold_usd_per_oz": 34.98,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 13.312573171063738
+    },
+    "family": "fx-euro-pre1953",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1950-06-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1950-06-01 day"
+  },
+  {
+    "expected": {
+      "GB": 2382.043769110336,
+      "GBD": 119.10218845551681,
+      "USD": 728.0157,
+      "effective": "1985-06",
+      "fx_effective": "1985-06",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.7280157,
+      "gold_usd_per_oz": 305.62649999999996,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 2.382043769110336
+    },
+    "family": "fx-euro-synthetic",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1985-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1985-06 month (AC10 synthetic)"
+  },
+  {
+    "expected": {
+      "GB": 2313.9550714771954,
+      "GBD": 115.69775357385976,
+      "USD": 713.832,
+      "effective": "1985-06-03",
+      "fx_effective": "1985-06-03",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.713832,
+      "gold_usd_per_oz": 308.49,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.3139550714771953
+    },
+    "family": "fx-euro-synthetic",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1985-06-03",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1985-06-03 day"
+  },
+  {
+    "expected": {
+      "GB": 3052.891504605937,
+      "GBD": 152.64457523029685,
+      "USD": 1193.0700000000002,
+      "effective": "1990-06-01",
+      "fx_effective": "1990-06-01",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 1.19307,
+      "gold_usd_per_oz": 390.8,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 3.052891504605937
+    },
+    "family": "fx-euro-synthetic",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1990-06-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1990-06-01 day"
+  },
+  {
+    "expected": {
+      "GB": 5093.567283897619,
+      "GBD": 254.6783641948809,
+      "USD": 779.5213139534883,
+      "effective": "1975",
+      "fx_effective": "1975",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.7795213139534883,
+      "gold_usd_per_oz": 153.0403488372093,
+      "granularity": "year",
+      "note": "average of 258 LBMA daily fixes",
+      "points": 258,
+      "price_source": "LBMA",
+      "troy_oz": 5.0935672838976185
+    },
+    "family": "fx-euro-synthetic",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1975",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1975 year"
+  },
+  {
+    "expected": {
+      "GB": 1560.9186404779234,
+      "GBD": 78.04593202389617,
+      "USD": 610.0070046987724,
+      "effective": "1990-06-01",
+      "fx_effective": "1990-06-01",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.6100070046987724,
+      "gold_usd_per_oz": 390.8,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.5609186404779234
+    },
+    "family": "fx-euro-synthetic",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1990-06-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1990-06-01 day (daily, derived from EUR)"
+  },
+  {
+    "expected": {
+      "GB": 1383.0953107287182,
+      "GBD": 69.15476553643592,
+      "USD": 655.0383399189278,
+      "effective": "2005-06",
+      "fx_effective": "2005-06",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.6550383399189278,
+      "gold_usd_per_oz": 473.60318181818184,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 1.3830953107287183
+    },
+    "family": "fx-euro-synthetic",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "2005-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 2005-06 month (AC10 synthetic)"
+  },
+  {
+    "expected": {
+      "GB": 194968.55345911952,
+      "GBD": 9748.427672955975,
+      "USD": 4030.0000000000005,
+      "effective": "1900-01",
+      "fx_effective": "1940-01-01",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1940-01-01; the earliest entry \u00a31 = $4.03 is used. Indicative only: sterling was about $4.87 on the gold standard before 1931 and floated in the 1930s.",
+      "fx_rate": 4.03,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 194.9685534591195
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1900-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1900-01 month (AC11 extrapolated)"
+  },
+  {
+    "expected": {
+      "GB": 194968.55345911952,
+      "GBD": 9748.427672955975,
+      "USD": 4030.0000000000005,
+      "effective": "1900",
+      "fx_effective": "1940-01-01",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1940-01-01; the earliest entry \u00a31 = $4.03 is used. Indicative only: sterling was about $4.87 on the gold standard before 1931 and floated in the 1930s.",
+      "fx_rate": 4.03,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 194.9685534591195
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1900",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1900 year"
+  },
+  {
+    "expected": {
+      "GB": 194968.55345911952,
+      "GBD": 9748.427672955975,
+      "USD": 4030.0000000000005,
+      "effective": "1900-01",
+      "fx_effective": "1940-01-01",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1940-01-01; the earliest entry \u00a31 = $4.03 is used. Indicative only: sterling was about $4.87 on the gold standard before 1931 and floated in the 1930s.",
+      "fx_rate": 4.03,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 194.9685534591195
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1900-01-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1900-01-15 day"
+  },
+  {
+    "expected": {
+      "GB": 115241.63568773236,
+      "GBD": 5762.081784386618,
+      "USD": 4030.0000000000005,
+      "effective": "1939-12",
+      "fx_effective": "1940-01-01",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1940-01-01; the earliest entry \u00a31 = $4.03 is used. Indicative only: sterling was about $4.87 on the gold standard before 1931 and floated in the 1930s.",
+      "fx_rate": 4.03,
+      "gold_usd_per_oz": 34.97,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 115.24163568773236
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1939-12-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1939-12-31 day before the table"
+  },
+  {
+    "expected": {
+      "GB": 114978.60199714695,
+      "GBD": 5748.930099857348,
+      "USD": 4030.0000000000005,
+      "effective": "1940",
+      "fx_effective": "1940-01-01",
+      "fx_mode": "parity",
+      "fx_note": "Bretton Woods parity \u00a31 = $4.03 (1940-01-01 to 1949-09-17).",
+      "fx_rate": 4.03,
+      "gold_usd_per_oz": 35.05,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 114.97860199714695
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1940",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1940 year (midpoint inside the table)"
+  },
+  {
+    "expected": {
+      "GB": 11063.637117995371,
+      "GBD": 553.1818558997686,
+      "USD": 228.68537922896434,
+      "effective": "1900-01",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1949-01-01; the earliest entry CHF 1 = $0.2287 (4.37282 CHF per USD) is used.",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 11.063637117995372
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1900-01-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1900-01-15 day"
+  },
+  {
+    "expected": {
+      "GB": 6530.136471415315,
+      "GBD": 326.5068235707658,
+      "USD": 228.68537922896436,
+      "effective": "1948-12",
+      "fx_effective": "1949-01-01",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1949-01-01; the earliest entry CHF 1 = $0.2287 (4.37282 CHF per USD) is used.",
+      "fx_rate": 0.22868537922896437,
+      "gold_usd_per_oz": 35.02,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 6.530136471415315
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1948-12-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1948-12-31 day before the table"
+  },
+  {
+    "expected": {
+      "GB": 8575.108517998295,
+      "GBD": 428.75542589991477,
+      "USD": 300.3003003003003,
+      "effective": "1948-06",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1948-06-21; the earliest entry DM 1 = $0.3003 (3.33 DM per USD) is used.",
+      "fx_rate": 0.3003003003003003,
+      "gold_usd_per_oz": 35.02,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 8.575108517998295
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1948-06-20",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1948-06-20 day before the table"
+  },
+  {
+    "expected": {
+      "GB": 14528.316415108866,
+      "GBD": 726.4158207554433,
+      "USD": 300.3003003003003,
+      "effective": "1900",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1948-06-21; the earliest entry DM 1 = $0.3003 (3.33 DM per USD) is used.",
+      "fx_rate": 0.3003003003003003,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 14.528316415108867
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "1900",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 1900 year"
+  },
+  {
+    "expected": {
+      "GB": 16771.454492756602,
+      "GBD": 838.5727246378302,
+      "USD": 587.3363363363363,
+      "effective": "1948-06",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1948-06-21; the earliest entry \u20ac1 = $0.5873 (via DM 1 = $0.3003 at 1 \u20ac = 1.95583 DM) is used. Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.5873363363363363,
+      "gold_usd_per_oz": 35.02,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 16.771454492756604
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1948-06-20",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1948-06-20 day (extrapolated and synthetic)"
+  },
+  {
+    "expected": {
+      "GB": 28414.917094162374,
+      "GBD": 1420.7458547081187,
+      "USD": 587.3363363363363,
+      "effective": "1900-01",
+      "fx_effective": "1948-06-21",
+      "fx_mode": "extrapolated",
+      "fx_note": "Extrapolated: no parity table entry before 1948-06-21; the earliest entry \u20ac1 = $0.5873 (via DM 1 = $0.3003 at 1 \u20ac = 1.95583 DM) is used. Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other legacy currencies (francs, lire, \u2026) would differ.",
+      "fx_rate": 0.5873363363363363,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 28.414917094162373
+    },
+    "family": "fx-extrapolated",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "1900-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 1900-01 month (extrapolated and synthetic)"
+  },
+  {
+    "expected": {
+      "GB": 2705.0993015825484,
+      "GBD": 135.25496507912743,
+      "USD": 1281.1436363636365,
+      "effective": "2005-06",
+      "fx_effective": "2005-06",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.2811436363636364,
+      "gold_usd_per_oz": 473.60318181818184,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 2.7050993015825484
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2005-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2005-06 month"
+  },
+  {
+    "expected": {
+      "GB": 2714.7396517391853,
+      "GBD": 135.73698258695927,
+      "USD": 1281.52,
+      "effective": "2005-06-15",
+      "fx_effective": "2005-06-15",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.28152,
+      "gold_usd_per_oz": 472.06,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.7147396517391855
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2005-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2005-06-15 day"
+  },
+  {
+    "expected": {
+      "GB": 454.6755809159322,
+      "GBD": 22.73377904579661,
+      "USD": 1076.2563706563708,
+      "effective": "2024",
+      "fx_effective": "2024",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.0762563706563708,
+      "gold_usd_per_oz": 2367.0863706563705,
+      "granularity": "year",
+      "note": "average of 259 LBMA daily fixes",
+      "points": 259,
+      "price_source": "LBMA",
+      "troy_oz": 0.4546755809159322
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2024 year"
+  },
+  {
+    "expected": {
+      "GB": 3770.1825559756107,
+      "GBD": 188.50912779878053,
+      "USD": 1785.5704545454546,
+      "effective": "2005-06",
+      "fx_effective": "2005-06",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.7855704545454545,
+      "gold_usd_per_oz": 473.60318181818184,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 3.7701825559756106
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "2005-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 2005-06 month"
+  },
+  {
+    "expected": {
+      "GB": 3774.4142693725375,
+      "GBD": 188.72071346862685,
+      "USD": 1781.75,
+      "effective": "2005-06-15",
+      "fx_effective": "2005-06-15",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.78175,
+      "gold_usd_per_oz": 472.06,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 3.7744142693725373
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "2005-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 2005-06-15 day"
+  },
+  {
+    "expected": {
+      "GB": 538.8675620747903,
+      "GBD": 26.943378103739512,
+      "USD": 1275.5460617760616,
+      "effective": "2024",
+      "fx_effective": "2024",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.2755460617760617,
+      "gold_usd_per_oz": 2367.0863706563705,
+      "granularity": "year",
+      "note": "average of 259 LBMA daily fixes",
+      "points": 259,
+      "price_source": "LBMA",
+      "troy_oz": 0.5388675620747903
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 2024 year"
+  },
+  {
+    "expected": {
+      "GB": 1767.4894690318995,
+      "GBD": 88.37447345159497,
+      "USD": 837.0886363636363,
+      "effective": "2005-06",
+      "fx_effective": "2005-06",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.8370886363636363,
+      "gold_usd_per_oz": 473.60318181818184,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 1.7674894690318994
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "2005-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 2005-06 month"
+  },
+  {
+    "expected": {
+      "GB": 1783.9427191458715,
+      "GBD": 89.19713595729357,
+      "USD": 842.128,
+      "effective": "2005-06-15",
+      "fx_effective": "2005-06-15",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.842128,
+      "gold_usd_per_oz": 472.06,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.7839427191458714
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "2005-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 2005-06-15 day"
+  },
+  {
+    "expected": {
+      "GB": 492.43302662770475,
+      "GBD": 24.621651331385237,
+      "USD": 1165.6315057915056,
+      "effective": "2024",
+      "fx_effective": "2024",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.1656315057915057,
+      "gold_usd_per_oz": 2367.0863706563705,
+      "granularity": "year",
+      "note": "average of 259 LBMA daily fixes",
+      "points": 259,
+      "price_source": "LBMA",
+      "troy_oz": 0.4924330266277048
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 2024 year"
+  },
+  {
+    "expected": {
+      "GB": 1383.0953107287182,
+      "GBD": 69.15476553643592,
+      "USD": 655.0383399189278,
+      "effective": "2005-06",
+      "fx_effective": "2005-06",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.6550383399189278,
+      "gold_usd_per_oz": 473.60318181818184,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 1.3830953107287183
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "2005-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 2005-06 month"
+  },
+  {
+    "expected": {
+      "GB": 1388.0243434956953,
+      "GBD": 69.40121717478476,
+      "USD": 655.230771590578,
+      "effective": "2005-06-15",
+      "fx_effective": "2005-06-15",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.655230771590578,
+      "gold_usd_per_oz": 472.06,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.3880243434956954
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "2005-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 2005-06-15 day"
+  },
+  {
+    "expected": {
+      "GB": 232.4719331004904,
+      "GBD": 11.623596655024519,
+      "USD": 550.2811444023104,
+      "effective": "2024",
+      "fx_effective": "2024",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.",
+      "fx_rate": 0.5502811444023104,
+      "gold_usd_per_oz": 2367.0863706563705,
+      "granularity": "year",
+      "note": "average of 259 LBMA daily fixes",
+      "points": 259,
+      "price_source": "LBMA",
+      "troy_oz": 0.23247193310049039
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 2024 year"
+  },
+  {
+    "expected": {
+      "GB": 676274.8253956371,
+      "GBD": 33813.74126978186,
+      "USD": 320285.9090909091,
+      "effective": "2005-06",
+      "fx_effective": "2005-06",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.2811436363636364,
+      "gold_usd_per_oz": 473.60318181818184,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 676.2748253956371
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 250000.0,
+      "currency": "EUR",
+      "date": "2005-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 250000 2005-06 (AC8)"
+  },
+  {
+    "expected": {
+      "GB": 58378.94736842106,
+      "GBD": 2918.947368421053,
+      "USD": 2440.2400000000002,
+      "effective": "1971-08-13",
+      "fx_effective": "1971-08-13",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 1971-08-15 (non-trading day); used previous rate from 1971-08-13",
+      "fx_rate": 2.44024,
+      "gold_usd_per_oz": 41.8,
+      "granularity": "day",
+      "note": "no LBMA fix on 1971-08-15 (non-trading day); used previous fix from 1971-08-13",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 58.37894736842106
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1971-08-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1971-08-15 day"
+  },
+  {
+    "expected": {
+      "GB": 2608.4746965717936,
+      "GBD": 130.4237348285897,
+      "USD": 735.016,
+      "effective": "1999-01-04",
+      "fx_effective": "1999-01-04",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 0.735016,
+      "gold_usd_per_oz": 281.78,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.6084746965717938
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "CHF",
+      "date": "1999-01-04",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "CHF 1999-01-04 day"
+  },
+  {
+    "expected": {
+      "GB": 60826.40648758236,
+      "GBD": 3041.320324379118,
+      "USD": 2400.21,
+      "effective": "1968-03-14",
+      "fx_effective": "1968-03-15",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 2.40021,
+      "gold_usd_per_oz": 39.46,
+      "granularity": "day",
+      "note": "no LBMA fix on 1968-03-15 (non-trading day); used previous fix from 1968-03-14",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 60.82640648758236
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "1968-03-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 1968-03-15 day (London closed, FX open)"
+  },
+  {
+    "expected": {
+      "GB": -13525.496507912741,
+      "GBD": -676.2748253956371,
+      "USD": -6405.718181818182,
+      "effective": "2005-06",
+      "fx_effective": "2005-06",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.2811436363636364,
+      "gold_usd_per_oz": 473.60318181818184,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": -13.525496507912742
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": -5000.0,
+      "currency": "EUR",
+      "date": "2005-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR negative amount"
+  },
+  {
+    "expected": {
+      "GB": 0.0,
+      "GBD": 0.0,
+      "USD": 0.0,
+      "effective": "2005-06-15",
+      "fx_effective": "2005-06-15",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.28152,
+      "gold_usd_per_oz": 472.06,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.0
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 0.0,
+      "currency": "EUR",
+      "date": "2005-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR zero amount"
+  },
+  {
+    "expected": {
+      "GB": 1546.277664982675,
+      "GBD": 77.31388324913375,
+      "USD": 1753.8035903999998,
+      "effective": "2010-01-04",
+      "fx_effective": "2010-01-04",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.42059,
+      "gold_usd_per_oz": 1134.21,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.546277664982675
+    },
+    "family": "fx-daily",
+    "input": {
+      "amount": 1234.56,
+      "currency": "EUR",
+      "date": "2010-01-04",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR decimal amount"
+  },
+  {
+    "expected": {
+      "GB": 463.57184768316864,
+      "GBD": 23.17859238415843,
+      "USD": 1082.3799999999999,
+      "effective": "2024-05-31",
+      "fx_effective": "2024-05-31",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2024-06-01 (non-trading day); used previous rate from 2024-05-31",
+      "fx_rate": 1.08238,
+      "gold_usd_per_oz": 2334.87,
+      "granularity": "day",
+      "note": "no LBMA fix on 2024-06-01 (non-trading day); used previous fix from 2024-05-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4635718476831686
+    },
+    "family": "fx-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2024-06-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2024-06-01 Saturday"
+  },
+  {
+    "expected": {
+      "GB": 463.57184768316864,
+      "GBD": 23.17859238415843,
+      "USD": 1082.3799999999999,
+      "effective": "2024-05-31",
+      "fx_effective": "2024-05-31",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2024-06-02 (non-trading day); used previous rate from 2024-05-31",
+      "fx_rate": 1.08238,
+      "gold_usd_per_oz": 2334.87,
+      "granularity": "day",
+      "note": "no LBMA fix on 2024-06-02 (non-trading day); used previous fix from 2024-05-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4635718476831686
+    },
+    "family": "fx-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2024-06-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2024-06-02 Sunday"
+  },
+  {
+    "expected": {
+      "GB": 930.432571151134,
+      "GBD": 46.521628557556696,
+      "USD": 1207.32,
+      "effective": "2017-12-22",
+      "fx_effective": "2017-12-22",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2017-12-26; used previous rate from 2017-12-22",
+      "fx_rate": 1.20732,
+      "gold_usd_per_oz": 1297.59,
+      "granularity": "day",
+      "note": "no LBMA fix on 2017-12-26 (non-trading day); used previous fix from 2017-12-22",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.930432571151134
+    },
+    "family": "fx-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2017-12-26",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2017-12-26 four days back over Christmas"
+  },
+  {
+    "expected": {
+      "GB": 613.7075530437281,
+      "GBD": 30.685377652186407,
+      "USD": 1281.3600000000001,
+      "effective": "2023-12-29",
+      "fx_effective": "2023-12-29",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2024-01-01 (non-trading day); used previous rate from 2023-12-29",
+      "fx_rate": 1.28136,
+      "gold_usd_per_oz": 2087.9,
+      "granularity": "day",
+      "note": "no LBMA fix on 2024-01-01 (non-trading day); used previous fix from 2023-12-29",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.6137075530437281
+    },
+    "family": "fx-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "2024-01-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 2024-01-01 three days back"
+  },
+  {
+    "expected": {
+      "GB": 333.6630033506978,
+      "GBD": 16.68315016753489,
+      "USD": 1174.05,
+      "effective": "2026-09-22",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3518.67,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3336630033506978
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-09-22",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2026-09-22"
+  },
+  {
+    "expected": {
+      "GB": 335.55215127212864,
+      "GBD": 16.77760756360643,
+      "USD": 1174.05,
+      "effective": "2026-09-23",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2026-09-23; used previous rate from 2026-09-22",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3498.86,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3355521512721286
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-09-23",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2026-09-23"
+  },
+  {
+    "expected": {
+      "GB": 334.1634883588547,
+      "GBD": 16.708174417942733,
+      "USD": 1174.05,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2026-09-25; used previous rate from 2026-09-22",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3341634883588547
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-09-25",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2026-09-25"
+  },
+  {
+    "expected": {
+      "GB": 334.1634883588547,
+      "GBD": 16.708174417942733,
+      "USD": 1174.05,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2026-09-26; used previous rate from 2026-09-22 (BIS data lags about a week)",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-09-26 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3341634883588547
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-09-26",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2026-09-26"
+  },
+  {
+    "expected": {
+      "GB": 334.1634883588547,
+      "GBD": 16.708174417942733,
+      "USD": 1174.05,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2026-09-29; used previous rate from 2026-09-22 (BIS data lags about a week)",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-09-29 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3341634883588547
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-09-29",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2026-09-29"
+  },
+  {
+    "expected": {
+      "GB": 381.60471338304774,
+      "GBD": 19.080235669152387,
+      "USD": 1340.73,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2026-09-29; used previous rate from 2026-09-22 (BIS data lags about a week)",
+      "fx_rate": 1.34073,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-09-29 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.38160471338304774
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "2026-09-29",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 2026-09-29 day"
+  },
+  {
+    "expected": {
+      "GB": 170.85507859008948,
+      "GBD": 8.542753929504473,
+      "USD": 600.2822331184203,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "synthetic",
+      "fx_note": "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM. no FX rate on 2026-09-29; used previous rate from 2026-09-22 (BIS data lags about a week)",
+      "fx_rate": 0.6002822331184203,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-09-29 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.17085507859008947
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "DEM",
+      "date": "2026-09-29",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "DEM 2026-09-29 day"
+  },
+  {
+    "expected": {
+      "GB": 331.89089757672735,
+      "GBD": 16.594544878836366,
+      "USD": 1167.04875,
+      "effective": "2026-09",
+      "fx_effective": "2026-09",
+      "fx_mode": "daily",
+      "fx_note": "period extends past the latest BIS observation (2026-09-22); average of the 16 available daily rates (BIS data lags about a week)",
+      "fx_rate": 1.16704875,
+      "gold_usd_per_oz": 3516.3626315789475,
+      "granularity": "month",
+      "note": "average of 19 LBMA daily fixes (month to date)",
+      "points": 19,
+      "price_source": "LBMA",
+      "troy_oz": 0.33189089757672735
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2026-09 month to date"
+  },
+  {
+    "expected": {
+      "GB": 332.22698296214736,
+      "GBD": 16.61134914810737,
+      "USD": 1152.7848936170212,
+      "effective": "2026",
+      "fx_effective": "2026",
+      "fx_mode": "daily",
+      "fx_note": "period extends past the latest BIS observation (2026-09-22); average of the 188 available daily rates (BIS data lags about a week)",
+      "fx_rate": 1.1527848936170213,
+      "gold_usd_per_oz": 3469.871361256545,
+      "granularity": "year",
+      "note": "average of 191 LBMA daily fixes (year to date)",
+      "points": 191,
+      "price_source": "LBMA",
+      "troy_oz": 0.33222698296214737
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "EUR 2026 year to date"
+  },
+  {
+    "expected": {
+      "GB": 388.2886655021439,
+      "GBD": 19.414433275107193,
+      "USD": 1349.0747619047618,
+      "effective": "2026-08",
+      "fx_effective": "2026-08",
+      "fx_mode": "daily",
+      "fx_note": "",
+      "fx_rate": 1.3490747619047618,
+      "gold_usd_per_oz": 3474.4119047619047,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 0.38828866550214386
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "GBP",
+      "date": "2026-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "GBP 2026-08 complete month"
+  },
+  {
+    "expected": {
+      "GB": 334.1634883588547,
+      "GBD": 16.708174417942733,
+      "USD": 1174.05,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "no FX rate on 2026-10-01; used previous rate from 2026-09-22 (BIS data lags about a week)",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-10-01 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3341634883588547
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-10-01",
+      "from": "USD",
+      "today": "2026-10-01"
+    },
+    "name": "EUR 2026-10-01 nine days after the latest rate"
+  },
+  {
+    "expected": {
+      "GB": 334.1634883588547,
+      "GBD": 16.708174417942733,
+      "USD": 1174.05,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "requested date is after the latest available FX rate; used 2026-09-22 (BIS data lags about a week)",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-10-02 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3341634883588547
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-10-02",
+      "from": "USD",
+      "today": "2026-10-02"
+    },
+    "name": "EUR 2026-10-02 ten days after the latest rate"
+  },
+  {
+    "expected": {
+      "GB": 334.1634883588547,
+      "GBD": 16.708174417942733,
+      "USD": 1174.05,
+      "effective": "2026-09-25",
+      "fx_effective": "2026-09-22",
+      "fx_mode": "daily",
+      "fx_note": "requested date is after the latest available FX rate; used 2026-09-22 (BIS data lags about a week)",
+      "fx_rate": 1.17405,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "requested date is after the latest available fix; used 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.3341634883588547
+    },
+    "family": "fx-latest",
+    "input": {
+      "amount": 1000.0,
+      "currency": "EUR",
+      "date": "2026-12-31",
+      "from": "USD",
+      "today": "2026-12-31"
+    },
+    "name": "EUR 2026-12-31 far after the latest rate"
+  }
+]
