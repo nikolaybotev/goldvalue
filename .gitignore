@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Local caches / editor
+.DS_Store
+*.tmp
+.cache/
