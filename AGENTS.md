@@ -39,3 +39,4 @@ planned (see `intent/companion-app/`).
 - The euro did not start 1:1 with the Deutsche Mark (1 EUR = 1.95583 DEM). The Mark der DDR is out of scope.
 - Keep `SKILL.md` under 500 lines and its `description` under 1024 characters; put background in `reference.md` / `historical-notes.md`.
 - Do not commit the price cache or generated `dist/`.
+- **Never commit or publish LBMA price data** (spec D15: licensed by ICE Benchmark Administration). Tests use the synthetic fixture in `test-vectors/snapshot/`; the browser fetches LBMA itself; `sync_data.py` must never copy `lbma_daily.csv`.
