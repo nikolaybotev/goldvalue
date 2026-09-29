@@ -202,13 +202,13 @@ test.describe("axis, scale, and overlay controls (FR10, D11)", () => {
   });
 
   test("the chart resizes with its container", async ({ page }) => {
-    await page.setViewportSize({ width: 1000, height: 800 });
+    await page.setViewportSize({ width: 880, height: 800 });
     await openApp(page);
     await typeRow(page, 0, "1000", "1990");
     await typeRow(page, 1, "1000", "2000");
     const chart = page.getByTestId("chart");
     const wide = Number(await chart.getAttribute("width"));
-    await page.setViewportSize({ width: 500, height: 800 });
+    await page.setViewportSize({ width: 480, height: 800 });
     await expect
       .poll(async () => Number(await chart.getAttribute("width")))
       .toBeLessThan(wide - 300);

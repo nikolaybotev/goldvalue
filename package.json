@@ -15,10 +15,13 @@
     "build": "pnpm -r --if-present build",
     "dev": "pnpm --filter @goldvalue/web dev",
     "preview": "pnpm --filter @goldvalue/web preview",
-    "test:e2e": "pnpm --filter @goldvalue/web test:e2e"
+    "test:e2e": "pnpm --filter @goldvalue/web test:e2e",
+    "size": "node scripts/check-size.mjs",
+    "lighthouse": "node scripts/lighthouse.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
+    "@lhci/cli": "^0.15.1",
     "@types/node": "^26.6.3",
     "typescript": "^7.0.2",
     "vitest": "^5.0.2"
