@@ -58,7 +58,7 @@ button {
 }
 
 .page {
-  max-width: 1120px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 20px 16px 40px;
 }
@@ -77,10 +77,25 @@ button {
   color: var(--muted);
 }
 
-.data-status {
+.freshness {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 2px 12px;
   margin-bottom: 12px;
-  color: var(--muted);
   font-size: 0.875rem;
+}
+
+/* Reserve the loaded height up front so data arriving does not shift the page. */
+.data-status {
+  min-height: calc(3 * 1.45em);
+  color: var(--text);
+}
+
+.freshness-hint {
+  grid-column: 1 / -1;
+  min-height: calc(2 * 1.45em);
+  font-size: 0.8125rem;
 }
 
 .banner {
@@ -177,6 +192,7 @@ button {
 .grid {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -230,7 +246,7 @@ button {
 .cell {
   position: relative;
   height: 34px;
-  padding: 0 8px;
+  padding: 0 6px;
   white-space: nowrap;
 }
 
@@ -242,25 +258,25 @@ button {
 }
 
 .cell.col-amount {
-  min-width: 7rem;
+  min-width: 5.5rem;
 }
 
 .cell.col-date {
-  min-width: 7.5rem;
+  min-width: 6.75rem;
 }
 
 .cell.col-label {
-  min-width: 7rem;
+  min-width: 5.5rem;
 }
 
 .cell.col-gb,
 .cell.col-gbd,
 .cell.col-oz {
-  min-width: 5.5rem;
+  min-width: 5.25rem;
 }
 
 .cell.col-price {
-  min-width: 12rem;
+  min-width: 11rem;
   max-width: 20rem;
   white-space: normal;
 }
@@ -294,7 +310,7 @@ button {
   inset: 0;
   width: 100%;
   height: 100%;
-  padding: 0 8px;
+  padding: 0 6px;
   border: 0;
   border-radius: 0;
   background: var(--surface);
@@ -385,8 +401,82 @@ button {
   }
 }
 
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.splitter {
+  display: none;
+}
+
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.chart-head h2 {
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.chart-head + #chart-body {
+  margin-top: 8px;
+}
+
+@media (min-width: 900px) {
+  .data-status {
+    min-height: 1.45em;
+  }
+
+  .freshness-hint {
+    min-height: 1.45em;
+  }
+
+  .workspace {
+    gap: 0;
+  }
+
+  .splitter {
+    display: block;
+    align-self: stretch;
+    width: 12px;
+    height: auto;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: col-resize;
+    touch-action: none;
+    position: relative;
+  }
+
+  .splitter::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 5px;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--border);
+  }
+
+  .splitter:hover::after,
+  .splitter:focus-visible::after {
+    background: var(--accent);
+  }
+
+  .chart-panel {
+    position: sticky;
+    top: 12px;
+  }
+}
+
 .chart-panel {
-  margin-top: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -518,4 +608,84 @@ fieldset.toolbar-toggles {
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+.method,
+.site-footer {
+  margin-top: 16px;
+}
+
+.method {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  max-width: 62rem;
+}
+
+.method h2 {
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.method h3 {
+  margin: 16px 0 4px;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.method p,
+.method ul,
+.method table {
+  margin: 6px 0 0;
+}
+
+.method ul {
+  padding-left: 1.25rem;
+}
+
+.method code {
+  font: 0.8125rem var(--mono);
+}
+
+.method a,
+.site-footer a {
+  color: var(--accent);
+}
+
+.method-lead {
+  margin-top: 8px;
+}
+
+.method-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.method table.method-table th,
+.method table.method-table td {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.method table.method-table thead th {
+  background: var(--bg);
+}
+
+.site-footer {
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.site-footer p + p {
+  margin-top: 4px;
+}
+
+.freshness .btn {
+  min-height: 28px;
+  padding: 2px 10px;
 }

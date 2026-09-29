@@ -50,6 +50,10 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - name: Initial-load budget (NFR1; synthetic monthly.csv stands in for the real one)
+        run: |
+          python3 tools/snapshot/sync_data.py --source-dir test-vectors/snapshot --out apps/web/dist/data
+          node scripts/check-size.mjs --require-data
 
   e2e:
     runs-on: ubuntu-latest
@@ -70,4 +74,23 @@ jobs:
         with:
           name: playwright-traces
           path: apps/web/test-results
+          if-no-files-found: ignore
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lighthouse CI (mobile, median of 3, performance >= 90; LBMA served from the synthetic fixture)
+        run: pnpm lighthouse
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/report
           if-no-files-found: ignore

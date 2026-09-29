@@ -45,16 +45,16 @@ test.describe("sheet behaviour", () => {
     page,
   }) => {
     await openApp(page);
-    await expect(page.locator("tbody tr")).toHaveCount(1);
+    await expect(page.locator("table.grid tbody tr")).toHaveCount(1);
     await cell(page, 0, "amount").focus();
     await page.keyboard.type("1");
-    await expect(page.locator("tbody tr")).toHaveCount(2);
+    await expect(page.locator("table.grid tbody tr")).toHaveCount(2);
     await page.keyboard.press("Escape");
-    await expect(page.locator("tbody tr")).toHaveCount(1);
+    await expect(page.locator("table.grid tbody tr")).toHaveCount(1);
     await cell(page, 0, "date").focus();
     await page.keyboard.type("2000");
     await page.keyboard.press("Enter");
-    await expect(page.locator("tbody tr")).toHaveCount(2);
+    await expect(page.locator("table.grid tbody tr")).toHaveCount(2);
   });
 
   test("FR5: move buttons, delete, and sort by date", async ({ page }) => {
@@ -77,7 +77,7 @@ test.describe("sheet behaviour", () => {
     await expect(cell(page, 0, "date")).toHaveText("2003");
 
     await page.getByRole("button", { name: "Delete row 1" }).click();
-    await expect(page.locator("tbody tr")).toHaveCount(3);
+    await expect(page.locator("table.grid tbody tr")).toHaveCount(3);
     await expect(cell(page, 0, "date")).toHaveText("2002-03");
     await expect(cell(page, 2, "amount")).toHaveText("");
   });
@@ -91,7 +91,7 @@ test.describe("sheet behaviour", () => {
       .locator("tbody tr")
       .nth(2)
       .locator(".grip")
-      .dragTo(page.locator("tbody tr").nth(0).locator(".grip"));
+      .dragTo(page.locator("table.grid tbody tr").nth(0).locator(".grip"));
     await expect(cell(page, 0, "amount")).toHaveText("30");
     await expect(cell(page, 1, "amount")).toHaveText("10");
   });
@@ -110,7 +110,7 @@ test.describe("sheet behaviour", () => {
 
     await page.getByRole("button", { name: "Clear" }).click();
     await expect(cell(page, 0, "amount")).toHaveText("");
-    await expect(page.locator("tbody tr")).toHaveCount(1);
+    await expect(page.locator("table.grid tbody tr")).toHaveCount(1);
     await page.reload();
     await expect(cell(page, 0, "amount")).toHaveText("");
 
@@ -161,7 +161,7 @@ test.describe("sheet behaviour", () => {
     await typeRow(page, 0, "1000", "1975-03");
     const grid = page.getByRole("grid");
     await expect(grid).toHaveAttribute("aria-rowcount", "3");
-    await expect(page.getByRole("columnheader")).toHaveCount(9);
+    await expect(page.getByRole("grid").getByRole("columnheader")).toHaveCount(9);
     await expect(page.getByRole("gridcell").first()).toBeVisible();
     await expect(cell(page, 0, "gb")).toHaveAttribute("aria-readonly", "true");
   });
