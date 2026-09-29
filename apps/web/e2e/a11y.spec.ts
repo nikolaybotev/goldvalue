@@ -59,7 +59,7 @@ test.describe("NFR3: axe-core", () => {
     await offline.route("https://prices.lbma.org.uk/**", (route) =>
       route.abort("internetdisconnected"),
     );
-    await offline.goto("/");
+    await offline.goto("./");
     await expect(offline.getByRole("alert")).toBeVisible();
     expect(await violations(offline)).toEqual([]);
   });
