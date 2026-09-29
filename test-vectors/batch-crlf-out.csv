@@ -1,0 +1,3 @@
+date,amount,currency,label,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note
+1999-12-31,12345.67,USD,bom and crlf,1999-12-31,294.8100,41.876700,41876.700,2093.8350,12345.67,LBMA,day,LBMA fix on the requested date,,,,
+2024-02,99,USD,,2024-02,2161.8581,0.045794,45.794,2.2897,99.00,LBMA,month,average of 21 LBMA daily fixes,,,,
