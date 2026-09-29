@@ -11,9 +11,10 @@ import {
   quoteField,
   runBatch,
 } from "../src/index";
-import { day, loadSnapshotTable, readVectorBytes, readVectorFile } from "./support";
+import { day, loadSnapshotFx, loadSnapshotTable, readVectorBytes, readVectorFile } from "./support";
 
 const table = loadSnapshotTable();
+const fx = loadSnapshotFx();
 const today = day("2026-09-29");
 
 const decode = (bytes: Buffer): string => bytes.toString("utf8");
@@ -43,6 +44,71 @@ describe("batch vectors written by goldvalue.py --batch", () => {
     const bytes = readVectorBytes("batch-crlf-in.csv");
     expect([...bytes.subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
     expect(decode(bytes)).toContain("\r\n");
+  });
+});
+
+describe("batch-fx-eur vector written by goldvalue.py --batch --currency EUR", () => {
+  const input = decode(readVectorBytes("batch-fx-eur-in.csv"));
+  const expected = decode(readVectorBytes("batch-fx-eur-out.csv"));
+
+  test("TypeScript output is byte-identical", () => {
+    const result = runBatch(input, table, { today, currency: "EUR", fx });
+    expect(result.errors).toEqual([]);
+    expect(result.skipped).toEqual([]);
+    expect(result.warnings).toEqual([]);
+    expect(result.csv).toBe(expected);
+  });
+
+  test("output re-imports unchanged in the same currency (AC3)", () => {
+    const again = runBatch(expected, table, { today, currency: "EUR", fx });
+    expect(again.warnings).toEqual([]);
+    expect(again.csv).toBe(expected);
+  });
+
+  test("the currency column carries the sheet currency and fx_* are filled", () => {
+    const [header, ...rows] = expected.trimEnd().split("\n");
+    expect(header).toContain(",currency,");
+    expect(rows[0]).toContain(",EUR,");
+    expect(header?.endsWith("fx_rate,fx_effective,fx_mode,fx_note")).toBe(true);
+  });
+
+  test("USD rows keep empty fx columns and a non-USD --from unit still names the currency", () => {
+    const usd = runBatch("date,amount\n1980-01-21,850\n", table, { today });
+    expect(usd.csv.trimEnd().endsWith(",,,,")).toBe(true);
+    const gb = runBatch("date,amount\n1980-01-21,850\n", table, { today, unit: "GB" });
+    expect(gb.csv.split("\n")[1]?.split(",")[2]).toBe("GB");
+  });
+
+  test("a currency other than USD without FX tables is a price-not-found skip", () => {
+    const result = runBatch("date,amount\n1980-01-21,850\n", table, { today, currency: "GBP" });
+    expect(result.skipped).toHaveLength(1);
+    expect(result.skipped[0]?.message).toContain("no FX data loaded for GBP");
+  });
+});
+
+describe("importCsv currency column (FR14)", () => {
+  const body = (values: string[]) =>
+    `date,amount,currency\n${values.map((c) => `1980-01-21,1,${c}`).join("\n")}\n`;
+
+  test("a currency column that differs from the sheet currency warns once", () => {
+    const r = importCsv(body(["GBP", "EUR", "GBP"]), today, "EUR");
+    expect(r.warnings).toEqual([
+      "The file's currency column (GBP) differs from the sheet currency EUR; EUR is applied to every row.",
+    ]);
+    expect(r.rows).toHaveLength(3);
+    expect(r.columns).toEqual([]);
+  });
+
+  test("matching, empty, lower-case and absent currency values do not warn", () => {
+    expect(importCsv(body(["USD", "usd", ""]), today).warnings).toEqual([]);
+    expect(importCsv(body(["eur"]), today, "EUR").warnings).toEqual([]);
+    expect(importCsv("date,amount\n1980-01-21,1\n", today, "EUR").warnings).toEqual([]);
+  });
+
+  test("the warning lists every differing value", () => {
+    const r = importCsv(body(["GBP", "CHF"]), today);
+    expect(r.warnings[0]).toContain("(GBP, CHF)");
+    expect(r.warnings[0]).toContain("sheet currency USD");
   });
 });
 
@@ -111,7 +177,12 @@ describe("importCsv", () => {
   });
 
   test("header-only file yields no rows", () => {
-    expect(importCsv("date,amount\n", today)).toEqual({ columns: [], rows: [], errors: [] });
+    expect(importCsv("date,amount\n", today)).toEqual({
+      columns: [],
+      rows: [],
+      errors: [],
+      warnings: [],
+    });
   });
 });
 

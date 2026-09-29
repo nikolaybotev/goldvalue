@@ -1,15 +1,18 @@
 import { describe, expect, test } from "vitest";
 import {
   AmountParseError,
+  CurrencyError,
+  CurrencyParseError,
   convertQuery,
   DateParseError,
   FutureDateError,
   PriceNotFoundError,
   UnitParseError,
 } from "../src/index";
-import { day, loadSnapshotTable } from "./support";
+import { day, loadSnapshotFx, loadSnapshotTable } from "./support";
 
 const table = loadSnapshotTable();
+const fx = loadSnapshotFx();
 const today = day("2026-09-29");
 
 describe("convertQuery", () => {
@@ -39,6 +42,7 @@ describe("convertQuery", () => {
     expect(r.input).toEqual({
       amount: 1000,
       unit: "USD",
+      currency: "USD",
       period: "1980-01-21",
       granularity: "day",
     });
@@ -56,6 +60,37 @@ describe("convertQuery", () => {
     const t = convertQuery(table, { amount: 1, date: "today", today });
     expect(t.effective).toBe("2026-09-25");
     expect(t.note).toContain("non-trading day");
+  });
+
+  test("a foreign currency converts to USD first and reports the FX fields", () => {
+    const r = convertQuery(table, {
+      amount: "250000",
+      date: "2005-06",
+      currency: "eur",
+      fx,
+      today,
+    });
+    expect(r.input.currency).toBe("EUR");
+    expect(r.fx_mode).toBe("daily");
+    expect(r.fx_note).toBe("");
+    expect(r.fx_effective).toBe("2005-06");
+    expect(r.USD).toBeCloseTo(250000 * (r.fx_rate as number), 6);
+    expect(r.troy_oz).toBeCloseTo(r.USD / r.gold_usd_per_oz, 9);
+  });
+
+  test("currency errors", () => {
+    expect(() =>
+      convertQuery(table, { amount: "1", date: "2000", currency: "JPY", today }),
+    ).toThrow(CurrencyParseError);
+    expect(() =>
+      convertQuery(table, { amount: "1", date: "2000", currency: "EUR", from: "GB", fx, today }),
+    ).toThrow(CurrencyError);
+    expect(() =>
+      convertQuery(table, { amount: "1", date: "2000", currency: "EUR", today }),
+    ).toThrow(PriceNotFoundError);
+    expect(
+      convertQuery(table, { amount: "1", date: "2000", currency: "USD", from: "GB", today }).input,
+    ).toMatchObject({ unit: "GB", currency: "USD" });
   });
 
   test("errors", () => {
