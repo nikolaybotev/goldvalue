@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Derived from | [intent.md](intent.md) (2026-09-28) |
-| Status | Draft 1 — for technical review; iterate together with [plan.md](plan.md) |
+| Status | Draft 2 — Q1–Q6 resolved as D8–D13; Q7 open; iterate together with [plan.md](plan.md) |
 | Stage | 2 · Design |
 
 ## 1. Summary
@@ -63,27 +63,29 @@ implementation.
 
 ### 5.1 Sheet
 
-- FR1. Columns: `Amount`, `Currency` (default USD; hidden until multi-currency ships or when only USD is enabled), `Date`, then computed `GB`, `GBD`, `Troy oz`, and a compact `Price used` cell (price, source badge, note on hover/tap).
+- FR1. Columns: `Amount`, `Date`, then computed `GB`, `GBD`, `Troy oz`, and a compact `Price used` cell (price, source badge, note on hover/tap). Currency is **sheet-wide**: a single selector in the sheet header (default USD) applies to every row; changing it recomputes all rows. Rows carry no per-row currency.
 - FR2. Date accepts the same forms as the CLI: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, `Mon YYYY`, `today`. Invalid input marks the row, does not block others.
 - FR3. Amount accepts `1500`, `$1,500`, `1,500.50`. Negative allowed (debts).
 - FR4. A new empty row appears when the last row has an amount or date.
 - FR5. Rows can be deleted, reordered by drag, and sorted by date.
 - FR6. Optional label column (free text) that passes through to CSV and chart tooltips.
 - FR7. Sheet state persists in `localStorage`; a "Clear" action resets it.
-- FR8. Column toggles: show/hide GBD, oz; choose GB or GBD as the primary series.
+- FR8. Column toggles: show/hide GBD, oz.
+- FR8a. Rows whose FX rate is not a daily market observation (see §6.2a: `fx_mode` = `parity` or `extrapolated`) render the computed cells in a warning color (amber) with a ⚠ marker; the `Price used` note names the mode, e.g. "FX: Bretton Woods parity £1 = $2.80 (1949-09-18 to 1967-11-17)" or "FX: euro did not exist; earliest rate (1999-01-04) used".
 
 ### 5.2 Chart
 
 - FR9. Renders as inline SVG; updates synchronously on every valid edit.
-- FR10. X axis: time (rows sorted by effective date regardless of sheet order). Y axis: selected gold unit. Optional second axis or toggle for nominal USD.
+- FR10. X axis: time (rows sorted by effective date regardless of sheet order). Y axis: **GB by default**; the user can switch the axis to GBD or troy oz from the chart toolbar and can save the current choice as their default (persisted in settings). Optional second axis or toggle for nominal amount in the sheet currency.
+- FR10a. Points computed from non-daily FX (FR8a) are drawn in the warning color and hollow, with the same note in the tooltip, so the chart still renders back to any date.
 - FR11. Series: line + points; single-point input renders a point; hover/tap tooltip shows label, nominal amount, gold value, price used.
 - FR12. Handles mixed granularity (year, month, day) by plotting at the period midpoint and noting granularity in the tooltip.
 - FR13. Download as SVG (serialized DOM with inlined styles) and PNG (rasterized via canvas at 2× device pixel ratio).
 
 ### 5.3 CSV import/export
 
-- FR14. Import: file picker and drag-drop; header detection compatible with `goldvalue.py --batch` (`date`, `amount`, optional `currency`, `label`; case-insensitive; extra columns preserved as passthrough).
-- FR15. Export: same schema as `--batch` output plus passthrough columns, so the two tools round-trip.
+- FR14. Import: file picker and drag-drop; header detection compatible with `goldvalue.py --batch` (`date`, `amount`, optional `label`; case-insensitive; extra columns preserved as passthrough). The sheet-wide currency applies to all imported rows; a `currency` column, if present, is passed through untouched and the user is warned if its values differ from the sheet currency.
+- FR15. Export: same schema as `--batch` output plus passthrough columns and an `fx_mode` column (`daily` | `parity` | `extrapolated`), so the two tools round-trip.
 - FR16. Import errors are reported per line; valid lines still load.
 
 ### 5.4 Layout
@@ -114,12 +116,28 @@ implementation.
 | FRED (`DEXUSEU`, `DEXUSUK`, `DEXSZUS`) | Daily, 1971+ | Works for active series; anti-bot layer may block automation. Fallback. |
 | xe.com | — | No free historical API; scraping violates ToS. **Not used.** |
 
-Pre-1971 (Bretton Woods fixed parities) and pre-1999 EUR (legacy currencies)
-are out of scope for v1; rows in those ranges show "FX unavailable".
+**Dates before a currency's first daily observation** use the fixed-parity
+table below (Bretton Woods par values), flagged (FR8a, FR10a, `fx_mode` in CSV).
+See §10 D10 for the rule and the synthetic-euro convention.
+
+### 6.2a Fixed-parity table (USD per unit; verify against IMF IFS before coding)
+
+| Currency | Effective from | USD per unit | Event |
+|---|---|---|---|
+| GBP | 1940-01-01 | 4.03 | wartime peg |
+| GBP | 1949-09-18 | 2.80 | devaluation |
+| GBP | 1967-11-18 | 2.40 | devaluation |
+| CHF | 1949-01-01 | 1 / 4.37282 | par value (unchanged to May 1971) |
+| CHF | 1971-05-10 | 1 / 4.08 | revaluation (daily data already available) |
+| EUR | — | earliest daily rate (1999-01-04) | no parity rows; pre-inception dates are `extrapolated` |
+
+Rows are used only where the daily table has no observation on or before the
+requested date. Month/year queries in the parity era resolve to the parity in
+force at the period midpoint (parities changed at most once per year).
 
 ### 6.3 Data distribution model (decision D1, see §10)
 
-1. **Build-time snapshot.** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily, converts the cache into a compact `gold.json` (date → USD price, PM-else-AM; monthly series) and `fx/{ccy}.json`, and commits/publishes them with the static site. Target ≤ 250 KB gzipped total.
+1. **Build-time snapshot.** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily, converts the cache into a compact `gold.json` (date → USD price, PM-else-AM; monthly series) and `fx/{ccy}.json`, and commits/publishes them with the static site. Measured 2026-09-28: gold data is ~77 KB gzipped as JSON (~76 KB as CSV; format choice pending). Target ≤ 120 KB gzipped for gold + three FX series.
 2. **Runtime top-up.** On load, if the snapshot's latest date is older than the last business day, the SPA fetches LBMA JSON directly (CORS `*`) and merges newer rows only.
 3. **Browser cache.** Merged tables stored in IndexedDB (via a thin wrapper); `localStorage` for sheet rows and settings. Service worker caches the app shell for offline use (G5).
 
@@ -164,17 +182,18 @@ FX resolution mirrors the same three granularities against the daily FX table
 |---|---|---|
 | Language | TypeScript everywhere (SPA, core lib, tooling); Python stays for the reference script | Shared types between core and UI; compile-time safety on the resolution port; trivial cost with Vite |
 | Build | Vite | Static output, fast, TS native |
-| UI | Preact (React-compatible API, ~4 KB) + signals | Keeps bundle small for shared hosting; React can be swapped in if ecosystem needs grow |
+| UI | Preact (React-compatible API, ~4 KB) + `@preact/signals` | Decided (D8). Keeps bundle small for shared hosting; signals suit recompute-per-keystroke; React libraries available via `preact/compat` |
 | Chart | Hand-rolled SVG using `d3-scale`, `d3-shape`, `d3-axis` | Exact control of SVG output for clean export; no canvas dependency; small |
 | CSV | `papaparse` | Robust quoting, streaming import |
 | Storage | `idb-keyval` over IndexedDB; `localStorage` for small state | Simple, well-supported |
 | Tests | Vitest for TS; pytest for Python; golden vectors shared | Parity guarantee (G8) |
 | Lint/format | Biome | One tool, fast |
-| Hosting | GitHub Pages (primary), `dist/` copy for shared hosting, optional Cloud Run static container | All static |
+| Hosting | GitHub Pages at `nikolaybotev.github.io/goldvalue` (D12); `dist/` copy for shared hosting; optional Cloud Run static container | All static |
+| License | MIT (D13); data sources keep their own terms, stated in the app footer | |
 
 ## 9. Non-functional requirements
 
-- NFR1. Initial load ≤ 400 KB gzipped including snapshot data; interactive < 1 s on mid-range mobile over 4G.
+- NFR1. Initial load ≤ 250 KB gzipped including snapshot data; interactive < 1 s on mid-range mobile over 4G.
 - NFR2. Works fully offline after first successful load (except "today" freshness top-up).
 - NFR3. Accessible: keyboard navigation, ARIA grid semantics, chart has a data table alternative (the sheet itself).
 - NFR4. No third-party analytics or tracking. No cookies.
@@ -216,14 +235,65 @@ cross-checked against ECB for EUR. Not xe.com.
 conversion to `packages/core`; verify with golden vectors. The Python script
 also gains a `--vectors` mode to emit them.
 
+Decisions D8–D13 resolve the review questions of Draft 1 (owner answers, 2026-09-28).
+
+**D8 — UI framework: Preact** (with `@preact/signals`). Reasoning:
+
+- *Size.* Preact is ~4 KB gzipped against ~45 KB for React + ReactDOM. For a
+  static app whose entire data payload is ~80 KB and which must load quickly
+  from shared hosting, the framework should not be the largest asset.
+- *Ecosystem without the weight.* Preact implements the React API (hooks, JSX,
+  context); `preact/compat` lets most React libraries run unchanged, so the
+  option to use React-ecosystem components remains open at no upfront cost.
+- *Reactivity model fits the problem.* The sheet recomputes derived cells and
+  redraws the chart on every keystroke. Signals give fine-grained updates
+  (only the edited row and the chart re-render) without memoisation
+  boilerplate, and without a virtual-DOM diff of the whole grid.
+- *Agent-friendliness.* React-style components are the pattern coding agents
+  produce most reliably; Preact inherits that with no dialect to learn.
+- *Why not Svelte.* Comparable bundle size and arguably nicer reactive syntax
+  for a grid, but a separate compiler-based mental model, a smaller pool of
+  drop-in libraries, and less transferable knowledge. A close second.
+- *Why not React.* Nothing in scope needs React-only features (concurrent
+  rendering, RSC, the broader tooling surface); its only effect here would be
+  a 10× larger framework payload.
+
+Escape hatch: because the component code is React-compatible, switching to
+React later is an alias change in `vite.config.ts`, not a rewrite.
+
+**D9 — Currency is sheet-wide,** one selector in the sheet header (FR1). Simpler
+grid, one FX table active at a time, and matches the "compare like with like"
+use case. Per-row currency can be revisited if mixed-currency sheets become a
+real need.
+
+**D10 — Pre-observation FX dates use a hard-coded Bretton Woods parity table,
+flagged.** For dates before a currency's first daily FX observation, apply the
+official par value in force on that date from a static table in `core`
+(5 rows for GBP/CHF; see §6.2a). Rows and chart points are marked `fx_mode = "parity"`
+(amber + ⚠) so the reduced precision (±1% band, discrete steps) is visible.
+Dates before the table's first row (pre-1940 GBP, pre-1949 CHF) fall back to
+the earliest table entry with `fx_mode = "extrapolated"` and a stronger
+warning. Charts therefore always render. **EUR before 1999-01-04** (the euro did
+not exist) has no parity rows; it uses the earliest daily EUR rate, flagged
+`fx_mode = "extrapolated"`. Chaining a synthetic euro through the Deutsche Mark
+was considered and rejected as adding a fourth currency's data for a
+pre-inception fiction.
+
+**D11 — Chart axis defaults to GB;** user can switch to GBD or oz and save the
+choice as their default (FR10). Nominal amount available as a secondary toggle,
+off by default.
+
+**D12 — Hosting: GitHub Pages first,** at `nikolaybotev.github.io/goldvalue`.
+Custom domain later if wanted; nothing in the build depends on the path beyond
+Vite's `base`.
+
+**D13 — License: MIT** for the repository. Data terms are separate (LBMA:
+personal/non-commercial; monthly series: PDDL; BIS: free with attribution) and
+are stated in the app footer and README.
+
 ## 11. Open questions for review
 
-- Q1. Preact vs React vs Svelte: any preference? (Default: Preact.)
-- Q2. Should the sheet support per-row currency, or a sheet-wide currency selector? (Default: per-row column, defaulting to last used.)
-- Q3. Pre-1971 FX and pre-1999 EUR legacy currencies: hard "unavailable", or a static Bretton Woods parity table?
-- Q4. Chart default: GB or GBD on the primary axis? Show nominal USD as a second series by default?
-- Q5. Domain/hosting: `nikolaybotev.github.io/goldvalue` first, then custom domain?
-- Q6. License for the repo (MIT suggested; data sources have their own terms — LBMA data is for personal/non-commercial use, which the app must state).
+- Q7. Snapshot format: JSON as spec'd, or reuse the CLI's CSV cache files verbatim (saves ~2% bytes, removes the conversion step, one format everywhere)? Recommendation: CSV.
 
 ## 12. Acceptance criteria (v1, USD-only)
 

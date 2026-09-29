@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Implements | [spec.md](spec.md) Draft 1 |
-| Status | Draft 1 — for approval before Build; iterate with spec.md |
+| Implements | [spec.md](spec.md) Draft 2 |
+| Status | Draft 2 — for approval before Build; iterate with spec.md |
 | Stage | 2 · Design → 3 · Build |
 
 Each phase ends in a mergeable PR with tests. Phases 0–4 deliver v1 (USD-only);
@@ -41,7 +41,7 @@ Files: `README.md`, `AGENTS.md`, `REVIEW.md`, `LICENSE`, `.gitignore`, `package.
 
 1. Commit intent/spec/plan, the skill, `AGENTS.md`, and `REVIEW.md` (done).
 2. Add pnpm workspace with `packages/core` and `apps/web` stubs; CI runs `pnpm lint && pnpm test` and `pytest .agents/skills/`.
-3. Decide license (spec Q6).
+3. License: MIT (D13) — `LICENSE` added.
 4. Keep `AGENTS.md` current as commands and conventions land in later phases.
 
 Verification: CI green on an empty workspace.
@@ -83,7 +83,7 @@ Files: `apps/web/src/**`, `apps/web/index.html`, `apps/web/vite.config.ts`.
 1. Scaffold Vite + Preact + TS; import `@goldvalue/core`.
 2. `store/`: signals for rows, settings; `localStorage` persistence; IndexedDB for merged table; boot sequence: load bundled `gold.json` → check staleness → top-up from LBMA → persist.
 3. `sheet/`: ARIA grid; columns per FR1; row lifecycle per FR4–FR6; keyboard nav per FR18; per-cell validation state.
-4. `chart/`: `<Chart rows unit>` renders SVG with d3-scale/shape/axis; responsive via `ResizeObserver`; tooltip; single-point and empty states.
+4. `chart/`: `<Chart rows unit>` renders SVG with d3-scale/shape/axis; responsive via `ResizeObserver`; tooltip; single-point and empty states; toolbar to switch the axis unit (GB default → GBD / oz) and "save as default" (D11).
 5. `method/`: Method panel (FR19) and freshness indicator (FR20).
 6. Layout (FR17) with CSS grid and a `min-width` breakpoint; resizable divider.
 
@@ -104,19 +104,20 @@ Verification: AC3, AC4, AC5 automated where possible (Playwright offline mode).
 Files: `.agents/skills/.../goldvalue.py` (`--currency`), `tools/snapshot/build_fx.py`, `packages/core/src/fx.ts`, `apps/web/src/sheet/CurrencyCell.tsx`, `test-vectors/fx.json`.
 
 1. Python: add `fetch_fx(ccy)` from BIS WS_XRU (daily USD per unit) with cache `~/.cache/gold-value/fx_{ccy}.csv`; `--currency EUR|GBP|CHF` on single and batch modes; resolution mirrors gold (day roll-back, month/year means). ECB cross-check test for EUR.
-2. Update SKILL.md and reference.md; add FX vectors to `--vectors`.
-3. `build_fx.py` → `public/data/fx/{eur,gbp,chf}.json`.
-4. Core: `fx.ts` table + resolution; `convert` gains `currency`; conversion order per spec §6.4.
-5. UI: currency column with defaults; "FX unavailable" state for out-of-range dates; Method panel gains the USD-routing tenet.
+2. Python: hard-code the Bretton Woods parity table (spec §6.2a, GBP and CHF) in `goldvalue.py`; **verify each par value and effective date against IMF IFS / Bank of England / SNB sources and cite them in `reference.md` before merging.** Resolution: daily observation → parity in force → earliest available rate, emitting `fx_mode` (`daily` | `parity` | `extrapolated`) in JSON and batch CSV.
+3. Update SKILL.md and reference.md (FX sources, parity table, USD-routing tenet, `fx_mode` semantics); add FX vectors — including one per parity step and pre-1999 EUR — to `--vectors`.
+4. `build_fx.py` → `public/data/fx/{eur,gbp,chf}.*` (format per Q7).
+5. Core: `fx.ts` daily table + `parity.ts` static table + resolution; `convert` gains `currency` and returns `fxMode`; conversion order per spec §6.4.
+6. UI: sheet-wide currency selector in the sheet header (D9); amber ⚠ styling and notes for `parity`/`extrapolated` rows and hollow chart points (FR8a, FR10a); `fx_mode` column in CSV export; Method panel gains the USD-routing tenet and the parity explanation.
 
-Verification: vectors pass in both languages; S4 scenario in Playwright.
+Verification: vectors pass in both languages; S4 scenario in Playwright; a 1955 GBP row shows £1 = $2.80 parity with ⚠; a 1990 EUR row shows the 1999-01-04 rate with ⚠.
 
 ## Phase 6 — Deployment and hardening
 
 Files: `.github/workflows/data-refresh.yml`, `.github/workflows/deploy-pages.yml`, `README.md`, `apps/web/public/robots.txt`.
 
 1. `data-refresh.yml`: daily cron (after London PM fix, ~16:00 UTC) runs `goldvalue.py --refresh --fetch-only`, `build_snapshot.py`, `build_fx.py`; commits if changed; triggers deploy.
-2. `deploy-pages.yml`: build `apps/web`, publish to GitHub Pages under `/goldvalue/`.
+2. `deploy-pages.yml`: build `apps/web` with Vite `base: '/goldvalue/'`, publish to GitHub Pages at `nikolaybotev.github.io/goldvalue` (D12).
 3. Shared-hosting recipe in README: `pnpm build` then upload `apps/web/dist/` (plus `.htaccess` for SPA fallback if routing is added). Optional: `Dockerfile` serving `dist/` via nginx for Cloud Run.
 4. Data-terms notice (LBMA personal/non-commercial) in footer and README.
 5. Error budget: Sentry-free; surface fetch failures in the freshness indicator only.
@@ -127,7 +128,7 @@ Verification: production URL passes AC1–AC7; daily job has run successfully at
 
 - Optional HTTP backend (spec D2/D3) — only if a source loses CORS.
 - CPI comparison series.
-- Pre-1971 FX parities; legacy EUR currencies.
+- Legacy EUR currencies (DEM, FRF, …) and a synthetic pre-1999 euro (rejected in D10).
 - Additional gold units (grams, gold-backed stablecoins).
 
 ## Risks
