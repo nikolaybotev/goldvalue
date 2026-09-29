@@ -9,22 +9,38 @@ import { readJson, writeJson } from "./storage";
 const ROWS_KEY = "goldvalue:v1:rows";
 const SETTINGS_KEY = "goldvalue:v1:settings";
 
-function loadRows(): Row[] {
-  const stored = readJson(ROWS_KEY) as { v?: number; rows?: unknown } | null;
+const text = (value: unknown) => (typeof value === "string" ? value : "");
+
+function loadSheet(): { rows: Row[]; extraColumns: string[] } {
+  const stored = readJson(ROWS_KEY) as {
+    v?: number;
+    rows?: unknown;
+    extraColumns?: unknown;
+  } | null;
   const rows: Row[] = [];
+  let extraColumns: string[] = [];
   if (stored?.v === 1 && Array.isArray(stored.rows)) {
+    if (Array.isArray(stored.extraColumns)) extraColumns = stored.extraColumns.map(text);
     for (const entry of stored.rows as Record<string, unknown>[]) {
       if (typeof entry !== "object" || entry === null) continue;
-      const text = (value: unknown) => (typeof value === "string" ? value : "");
+      const extra = Array.isArray(entry.extra) ? entry.extra.map(text) : [];
       rows.push(
-        newRow({ amount: text(entry.amount), date: text(entry.date), label: text(entry.label) }),
+        newRow({
+          amount: text(entry.amount),
+          date: text(entry.date),
+          label: text(entry.label),
+          extra: extraColumns.map((_, i) => extra[i] ?? ""),
+        }),
       );
     }
   }
-  return normalize(rows);
+  return { rows: normalize(rows), extraColumns };
 }
 
-export const rows = signal<Row[]>(loadRows());
+const loaded = loadSheet();
+export const rows = signal<Row[]>(loaded.rows);
+/** Names of CSV passthrough columns kept from the last import (FR14); exported unchanged. */
+export const extraColumns = signal<string[]>(loaded.extraColumns);
 
 effect(() => {
   const list = rows.value;
@@ -37,9 +53,16 @@ effect(() => {
   ) {
     end--;
   }
+  const columns = extraColumns.value;
   writeJson(ROWS_KEY, {
     v: 1,
-    rows: list.slice(0, end).map(({ amount, date, label }) => ({ amount, date, label })),
+    extraColumns: columns,
+    rows: list.slice(0, end).map(({ amount, date, label, extra }) => ({
+      amount,
+      date,
+      label,
+      ...(columns.length > 0 ? { extra } : {}),
+    })),
   });
 });
 
