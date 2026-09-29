@@ -68,6 +68,13 @@ Files: `package.json` (`packageManager`, `engines`), `.nvmrc`, `pnpm-workspace.y
 
 DoD: CI green on the empty workspace. Update `AGENTS.md` commands (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, Node/pnpm versions, the "data CSVs are never re-encoded" rule).
 
+Build notes (Phase 0):
+
+- The `python` job runs a `compileall` check on 3.9 and 3.12 only; pytest and the vector diff are added in Phases 1a/1b as their content lands. `e2e` and `lighthouse` jobs are added in Phases 3a/3c.
+- Pinned toolchain: Node 26 (`.nvmrc` = `26`, `engines.node >= 26`), pnpm 12.6.0, TypeScript 7 (`tsc -b`), Vitest 5, Biome 2.5 (`linter.rules.preset = recommended`).
+- `packages/core` uses two TS projects: `tsconfig.json` (`src`, `lib: ES2022`, `types: []`, so DOM or Node globals fail to compile) and `test/tsconfig.json` (adds `types: ["node"]` for fixture loading). `tsc -b` emits declarations only, into `node_modules/.cache/tsc`.
+- `biome.json` ignores `test-vectors/` and `apps/web/public/data/` (generated or byte-exact data).
+
 ## Phase 1a — Reference CLI changes (spec §5.6 items 1–3 and test hooks)
 
 Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `tests/python/{conftest.py,test_*.py}`, `SKILL.md`, `reference.md`.

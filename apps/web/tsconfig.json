@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "rootDir": ".",
+    "outDir": "../../node_modules/.cache/tsc/web",
+    "tsBuildInfoFile": "../../node_modules/.cache/tsc/web.tsbuildinfo"
+  },
+  "include": ["src", "test"],
+  "references": [{ "path": "../../packages/core" }]
+}

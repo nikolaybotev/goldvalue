@@ -9,7 +9,9 @@ planned (see `intent/companion-app/`).
 - Run CLI: `python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py AMOUNT DATE`
 - Prefetch/refresh price cache: `... goldvalue.py --fetch-only` / `--refresh`
 - Batch: `... goldvalue.py --batch rows.csv > out.csv`
-- Tests: none yet (plan Phase 1a adds `pytest tests/python -q`; later `pnpm test`)
+- Node/pnpm: Node 26 (`.nvmrc`), pnpm 12 (`packageManager` in `package.json`; `npm i -g pnpm@12.6.0` if `pnpm` is missing)
+- Install: `pnpm install --frozen-lockfile`; lint: `pnpm lint` (Biome; `pnpm format` fixes); types: `pnpm typecheck` (`tsc -b`); tests: `pnpm test` (Vitest per package); build: `pnpm build`
+- Python tests: none yet (plan Phase 1a adds `pytest tests/python -q`)
 - Use a throwaway cache in tests: `GOLD_PRICE_CACHE_DIR=/tmp/gv python3 ...`
 
 ## Conventions
@@ -39,4 +41,6 @@ planned (see `intent/companion-app/`).
 - The euro did not start 1:1 with the Deutsche Mark (1 EUR = 1.95583 DEM). The Mark der DDR is out of scope.
 - Keep `SKILL.md` under 500 lines and its `description` under 1024 characters; put background in `reference.md` / `historical-notes.md`.
 - Do not commit the price cache or generated `dist/`.
+- Data CSVs (`apps/web/public/data/*.csv`, `test-vectors/snapshot/*.csv`) are never re-encoded or reformatted; `.gitattributes` marks them `-text` so line endings stay byte-exact. Biome ignores them.
+- `packages/core` must not use DOM types or globals (`lib: ES2022`, no `dom`); `apps/web` is the only package with DOM.
 - **Never commit or publish LBMA price data** (spec D15: licensed by ICE Benchmark Administration). Tests use the synthetic fixture in `test-vectors/snapshot/`; the browser fetches LBMA itself; `sync_data.py` must never copy `lbma_daily.csv`.

@@ -1,0 +1,3 @@
+* text=auto eol=lf
+apps/web/public/data/*.csv -text
+test-vectors/snapshot/*.csv -text
