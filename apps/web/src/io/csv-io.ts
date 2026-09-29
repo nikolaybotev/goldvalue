@@ -1,5 +1,6 @@
 import {
   type CivilDate,
+  type Currency,
   type ExportRow,
   exportCsv,
   type ImportError,
@@ -19,6 +20,8 @@ export interface ImportOutcome {
   /** Number of data lines that became rows. */
   loaded: number;
   errors: ImportError[];
+  /** FR14: the file's currency column differs from the sheet currency. */
+  warnings: string[];
 }
 
 /**
@@ -27,8 +30,12 @@ export interface ImportOutcome {
  * reported and the good ones load. Throws `CsvFormatError` when the file has no
  * usable header.
  */
-export function importSheet(text: string, today: CivilDate): ImportOutcome {
-  const imported = importCsv(text, today);
+export function importSheet(
+  text: string,
+  today: CivilDate,
+  sheetCurrency: Currency = "USD",
+): ImportOutcome {
+  const imported = importCsv(text, today, sheetCurrency);
   const rows = imported.rows.map((row) =>
     newRow({ amount: row.amount, date: row.date, label: row.label, extra: row.extra }),
   );
@@ -37,6 +44,7 @@ export function importSheet(text: string, today: CivilDate): ImportOutcome {
     extraColumns: imported.columns,
     loaded: rows.length,
     errors: imported.errors,
+    warnings: imported.warnings,
   };
 }
 
@@ -65,7 +73,7 @@ export function exportSheet(
       out.push({
         date: row.date,
         amount: row.amount,
-        currency: "USD",
+        currency: result.conversion.input.currency,
         label: row.label,
         extra: extraColumns.map((_, i) => row.extra[i] ?? ""),
         result: result.conversion,

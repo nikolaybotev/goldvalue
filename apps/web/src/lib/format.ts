@@ -24,6 +24,18 @@ export function formatUnit(value: number): string {
   return fixed(unitDigits(value)).format(value + 0);
 }
 
+const money = new Map<string, Intl.NumberFormat>();
+
+/** Nominal amount in the sheet currency (FR10 overlay and chart tooltip). */
+export function formatMoney(amount: number, currency: string): string {
+  let format = money.get(currency);
+  if (!format) {
+    format = new Intl.NumberFormat("en-US", { style: "currency", currency });
+    money.set(currency, format);
+  }
+  return format.format(amount);
+}
+
 export function formatPrice(value: number): string {
   return `$${fixed(2).format(value)}`;
 }

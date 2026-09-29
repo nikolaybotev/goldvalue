@@ -1,6 +1,7 @@
 import { render } from "preact";
 import { App } from "./App";
 import { boot } from "./store/data";
+import { ensureFx } from "./store/fx";
 import { refreshToday } from "./store/sheet-store";
 import "./styles.css";
 
@@ -19,7 +20,10 @@ function afterFirstPaint(task: () => void): void {
   setTimeout(run, 400);
 }
 
-afterFirstPaint(() => void boot());
+afterFirstPaint(() => {
+  void boot();
+  void ensureFx();
+});
 setInterval(refreshToday, 60_000);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) refreshToday();

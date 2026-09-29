@@ -1,4 +1,10 @@
-import { type ConversionResult, formatIso, fromDayNumber, toDayNumber } from "@goldvalue/core";
+import {
+  type ConversionResult,
+  type FxMode,
+  formatIso,
+  fromDayNumber,
+  toDayNumber,
+} from "@goldvalue/core";
 import { midpoint } from "../lib/period";
 import type { RowResult } from "../store/compute";
 import type { Row } from "../store/rows-logic";
@@ -31,6 +37,9 @@ export interface ChartPoint {
   source: string;
   note: string;
   granularity: string;
+  fxMode: FxMode | null;
+  /** Empty when the row has no FX explanation (USD, or a clean daily rate). */
+  fxNote: string;
 }
 
 export interface PointGroup {
@@ -74,6 +83,8 @@ export function buildPoints(
       source: conversion.price_source,
       note: conversion.note,
       granularity: describeGranularity(conversion),
+      fxMode: conversion.fx_mode,
+      fxNote: conversion.fx_note ?? "",
     });
   });
   return points.sort((a, b) => a.x - b.x || a.rowNumber - b.rowNumber);

@@ -1,9 +1,12 @@
+import { CURRENCIES } from "@goldvalue/core";
 import { signal } from "@preact/signals";
 import { useEffect, useLayoutEffect, useRef } from "preact/hooks";
 import { MAX_IMPORT_LABEL } from "../io/csv-io";
 import { formatPrice, formatUnit, sourceBadge } from "../lib/format";
+import { fxStrong, fxWarns } from "../lib/fx-display";
 import type { RowResult } from "../store/compute";
 import { monthlyStatus } from "../store/data";
+import { currency, fxStatus, setCurrency } from "../store/fx";
 import { isBlank, type Row } from "../store/rows-logic";
 import { results, rows, settings, updateSettings } from "../store/sheet-store";
 import {
@@ -37,7 +40,7 @@ import {
 } from "./nav";
 
 const COLUMN_LABEL: Record<ColId, { text: string; title: string }> = {
-  amount: { text: "Amount (USD)", title: "Dollar amount; negative values are allowed" },
+  amount: { text: "Amount", title: "Amount in the sheet currency; negative values are allowed" },
   date: {
     text: "Date",
     title: "YYYY, YYYY-MM, YYYY-MM-DD, Mar 1975, 03/14/1975, or today",
@@ -99,6 +102,16 @@ function useFileDrop(): void {
   }, []);
 }
 
+function columnHeading(col: ColId, ccy: string): { text: string; title: string } {
+  if (col === "amount") {
+    return {
+      text: `Amount (${ccy})`,
+      title: `Amount in ${ccy}; negative values are allowed`,
+    };
+  }
+  return COLUMN_LABEL[col];
+}
+
 function ImportReport() {
   const report = importReport.value;
   if (report === null) return null;
@@ -109,22 +122,36 @@ function ImportReport() {
       </div>
     );
   }
-  if (report.errors.length === 0) return null;
+  if (report.errors.length === 0 && report.warnings.length === 0) return null;
   const listed = report.errors.slice(0, MAX_LISTED_ERRORS);
   const hidden = report.errors.length - listed.length;
   return (
-    <div class="import-report" role="group" aria-label="Import errors" data-testid="import-report">
-      <p>
-        {report.file}: {report.loaded} {report.loaded === 1 ? "row" : "rows"} loaded,{" "}
-        {report.errors.length} {report.errors.length === 1 ? "line" : "lines"} skipped.
-      </p>
-      <ul>
-        {listed.map((error) => (
-          <li key={`${error.line}:${error.message}`}>
-            Line {error.line}: {error.message}
-          </li>
-        ))}
-      </ul>
+    <div
+      class="import-report"
+      role="group"
+      aria-label={report.errors.length > 0 ? "Import errors" : "Import warnings"}
+      data-testid="import-report"
+    >
+      {report.warnings.map((warning) => (
+        <p key={warning} class="import-warning" data-testid="import-warning" role="status">
+          {warning}
+        </p>
+      ))}
+      {report.errors.length > 0 && (
+        <p>
+          {report.file}: {report.loaded} {report.loaded === 1 ? "row" : "rows"} loaded,{" "}
+          {report.errors.length} {report.errors.length === 1 ? "line" : "lines"} skipped.
+        </p>
+      )}
+      {listed.length > 0 && (
+        <ul>
+          {listed.map((error) => (
+            <li key={`${error.line}:${error.message}`}>
+              Line {error.line}: {error.message}
+            </li>
+          ))}
+        </ul>
+      )}
       {hidden > 0 && <p class="muted">and {hidden} more.</p>}
     </div>
   );
@@ -142,6 +169,14 @@ function PriceCell({ result, rowId }: { result: RowResult; rowId: string }) {
     case "empty":
       return null;
     case "unavailable": {
+      if (result.kind === "fx") {
+        const failed = fxStatus.value.phase === "failed";
+        return (
+          <span class="muted">
+            {failed ? "Exchange rates unavailable" : "Loading exchange rates"}
+          </span>
+        );
+      }
       const state = monthlyStatus.value.state;
       return (
         <span class="muted">
@@ -160,8 +195,20 @@ function PriceCell({ result, rowId }: { result: RowResult; rowId: string }) {
     case "ok": {
       const { conversion } = result;
       const badge = sourceBadge(conversion.price_source);
+      const warn = fxWarns(conversion.fx_mode);
       return (
         <span class="price" data-note={conversion.note}>
+          {warn && (
+            <span
+              class={`fx-marker${fxStrong(conversion.fx_mode) ? " is-strong" : ""}`}
+              data-testid="fx-marker"
+              data-fx-mode={conversion.fx_mode}
+              title={conversion.fx_note ?? ""}
+            >
+              <span aria-hidden="true">!</span>
+              <span class="sr-only">{conversion.fx_note}</span>
+            </span>
+          )}
           <span class="price-value">{formatPrice(conversion.gold_usd_per_oz)}</span>
           <span class="badge" title={badge.full}>
             {badge.short}
@@ -192,6 +239,9 @@ function RowView({ row, index, result }: { row: Row; index: number; result: RowR
   const errors = result.status === "error" ? result.errors : {};
   const blank = isBlank(row);
   const last = index === rows.value.length - 1;
+  const ccy = currency.value;
+  const mode = result.status === "ok" ? result.conversion.fx_mode : null;
+  const warn = fxWarns(mode);
 
   const renderCell = (col: ColId) => {
     const isActive = pos.row === index && pos.col === col;
@@ -233,7 +283,7 @@ function RowView({ row, index, result }: { row: Row; index: number; result: RowR
               class="cell-input"
               type="text"
               defaultValue={row[col]}
-              aria-label={`${COLUMN_LABEL[col].text}, row ${index + 1}`}
+              aria-label={`${columnHeading(col, ccy).text}, row ${index + 1}`}
               autocomplete="off"
               autocapitalize="off"
               spellcheck={false}
@@ -267,7 +317,10 @@ function RowView({ row, index, result }: { row: Row; index: number; result: RowR
     <tr
       role="row"
       aria-rowindex={index + 2}
-      class={`sheet-row${pos.row === index ? " is-active-row" : ""}${blank ? " is-blank" : ""}`}
+      class={`sheet-row${pos.row === index ? " is-active-row" : ""}${blank ? " is-blank" : ""}${
+        warn ? " is-fx-warn" : ""
+      }${fxStrong(mode) ? " is-fx-strong" : ""}`}
+      data-fx-mode={mode ?? undefined}
       onDragOver={(event) => {
         if (dragFrom !== null) event.preventDefault();
       }}
@@ -378,7 +431,7 @@ function ActiveDetail() {
     <p class="detail" data-testid="row-detail">
       <strong>Row {pos.row + 1}:</strong> {conversion.note}. Price{" "}
       {formatPrice(conversion.gold_usd_per_oz)} per troy oz ({conversion.price_source}; effective{" "}
-      {conversion.effective}).
+      {conversion.effective}).{conversion.fx_note ? ` ${conversion.fx_note}` : ""}
     </p>
   );
 }
@@ -388,6 +441,7 @@ export function Sheet() {
   const res = results.value;
   const cols = navColumns.value;
   const { showLabel, showGbd, showOz } = settings.value;
+  const ccy = currency.value;
   const tick = focusTick.value;
   const pos = clampPosition(active.value, list.length, cols);
   const gridRef = useRef<HTMLTableElement>(null);
@@ -416,6 +470,20 @@ export function Sheet() {
     >
       <div class="toolbar">
         <h2 id="sheet-heading">Sheet</h2>
+        <label class="currency-field">
+          Currency
+          <select
+            data-testid="currency"
+            value={ccy}
+            onChange={(event) => setCurrency((event.currentTarget as HTMLSelectElement).value)}
+          >
+            {CURRENCIES.map((code) => (
+              <option key={code} value={code}>
+                {code}
+              </option>
+            ))}
+          </select>
+        </label>
         <div class="toolbar-actions">
           <button type="button" class="btn" onClick={sortSheet}>
             Sort by date
@@ -492,7 +560,7 @@ export function Sheet() {
         <table
           class="grid"
           role="grid"
-          aria-label="Dollar amounts by date, converted to gold"
+          aria-label={`Amounts in ${ccy} by date, converted to gold`}
           aria-rowcount={list.length + 1}
           aria-colcount={cols.length + 2}
           ref={gridRef}
@@ -504,18 +572,21 @@ export function Sheet() {
               <th scope="col" role="columnheader" class="rownum" aria-colindex={1}>
                 <span class="sr-only">Row</span>
               </th>
-              {cols.map((col, i) => (
-                <th
-                  key={col}
-                  scope="col"
-                  role="columnheader"
-                  aria-colindex={i + 2}
-                  class={`col-${col}`}
-                  title={COLUMN_LABEL[col].title}
-                >
-                  {COLUMN_LABEL[col].text}
-                </th>
-              ))}
+              {cols.map((col, i) => {
+                const heading = columnHeading(col, ccy);
+                return (
+                  <th
+                    key={col}
+                    scope="col"
+                    role="columnheader"
+                    aria-colindex={i + 2}
+                    class={`col-${col}`}
+                    title={heading.title}
+                  >
+                    {heading.text}
+                  </th>
+                );
+              })}
               <th
                 scope="col"
                 role="columnheader"

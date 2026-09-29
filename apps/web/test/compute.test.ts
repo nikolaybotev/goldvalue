@@ -1,7 +1,8 @@
+import { type Currency, FxRates } from "@goldvalue/core";
 import { expect, test } from "vitest";
 import { computeRow, FUTURE_DATE_MESSAGE } from "../src/store/compute";
 import { newRow } from "../src/store/rows-logic";
-import { day, fixtureTable, vectors } from "./support";
+import { day, fixtureTable, readVectorFile, vectors } from "./support";
 
 const close = (actual: number, expected: number) => {
   const tolerance = Math.max(Math.abs(expected) * 1e-9, 1e-12);
@@ -75,6 +76,61 @@ test("without daily data rows compute from the monthly series and say so", () =>
   if (result.status === "ok") {
     expect(result.conversion.note).toContain("daily LBMA prices not loaded");
     expect(result.conversion.granularity).toBe("month");
+  }
+});
+
+test("a non-USD currency without a rate table does not compute", () => {
+  const result = computeRow(
+    newRow({ amount: "1", date: "2000" }),
+    fixtureTable(),
+    day("2026-09-29"),
+    "EUR",
+  );
+  expect(result).toEqual({ status: "unavailable", kind: "fx" });
+});
+
+test("sheet rows reproduce every FX golden vector", () => {
+  const table = fixtureTable();
+  const fx = FxRates.fromCsv({
+    EUR: readVectorFile("snapshot", "fx_eur.csv"),
+    GBP: readVectorFile("snapshot", "fx_gbp.csv"),
+    CHF: readVectorFile("snapshot", "fx_chf.csv"),
+  });
+  const cases = JSON.parse(readVectorFile("fx.json")) as {
+    name: string;
+    input: { amount: number; currency: Currency; date: string; from: string; today: string };
+    expected: {
+      effective: string;
+      GB: number;
+      GBD: number;
+      troy_oz: number;
+      USD: number;
+      fx_mode: string;
+      fx_note: string;
+      note: string;
+    };
+  }[];
+  expect(cases.length).toBe(129);
+  for (const vector of cases) {
+    expect(vector.input.from, vector.name).toBe("USD");
+    const result = computeRow(
+      newRow({ amount: String(vector.input.amount), date: vector.input.date }),
+      table,
+      day(vector.input.today),
+      vector.input.currency,
+      fx,
+    );
+    expect(result.status, vector.name).toBe("ok");
+    if (result.status !== "ok") continue;
+    const { conversion } = result;
+    expect(conversion.fx_mode, vector.name).toBe(vector.expected.fx_mode);
+    expect(conversion.fx_note, vector.name).toBe(vector.expected.fx_note);
+    expect(conversion.effective, vector.name).toBe(vector.expected.effective);
+    expect(conversion.note, vector.name).toBe(vector.expected.note);
+    close(conversion.GB, vector.expected.GB);
+    close(conversion.GBD, vector.expected.GBD);
+    close(conversion.troy_oz, vector.expected.troy_oz);
+    close(conversion.USD, vector.expected.USD);
   }
 });
 

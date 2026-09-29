@@ -58,6 +58,21 @@ export type LbmaMode = "ok" | "fail";
  * Serve the site's data files and the LBMA feed from the synthetic fixture. The app
  * fetches LBMA from prices.lbma.org.uk in the browser; nothing licensed is involved.
  */
+/**
+ * Serve `fx_*.csv` from the synthetic fixture and refuse any BIS host. The returned list is the
+ * file names requested, in order. EUR and DEM both use `fx_eur.csv`; nothing else should appear.
+ */
+export async function stubFx(page: Page): Promise<string[]> {
+  const hits: string[] = [];
+  await page.route("**/data/fx_*.csv", (route) => {
+    const name = new URL(route.request().url()).pathname.split("/").pop() ?? "";
+    hits.push(name);
+    return route.fulfill({ contentType: "text/csv", body: snapshotText(name) });
+  });
+  await page.route(/https?:\/\/[^/]*bis\.org\//, (route) => route.abort("blockedbyclient"));
+  return hits;
+}
+
 export async function stubData(page: Page, lbma: LbmaMode = "ok"): Promise<Stubs> {
   const stubs: Stubs = { lbmaRequests: [], lbma, manifestSha: monthlySha };
   await page.route("**/data/manifest.json", (route) =>
