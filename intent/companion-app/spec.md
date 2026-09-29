@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Derived from | [intent.md](intent.md) (2026-09-28) |
-| Status | Draft 4 — Draft 3 plus fresh-eyes review fixes (phasing, CLI changes, CSV schema, FX data findings); iterate together with [plan.md](plan.md) |
+| Status | Draft 5 — G0 resolved (option A: no LBMA redistribution, D15); approved for Build |
 | Stage | 2 · Design |
 
 ## 1. Summary
@@ -180,9 +180,10 @@ parity in force at the period midpoint.
 
 ### 6.3 Data distribution model (decision D1, see §10)
 
-1. **Build-time snapshot (CSV, D14).** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily and copies the CLI's cache files verbatim into the site: `data/lbma_daily.csv` (`date,usd_am,usd_pm`), `data/monthly.csv` (`month,usd`), `data/fx_{ccy}.csv` (`date,usd_per_unit`). No conversion step; the browser reads exactly what the CLI reads. Measured 2026-09-28: gold data ~76 KB gzipped. `fx_{ccy}.csv` files (`date,usd_per_unit`; three files: EUR, GBP, CHF; DEM is computed from EUR) are **loaded lazily** when a currency is first selected; per-file budget ≤ 110 KB gzipped (to be measured in Phase 5).
-2. **Runtime top-up (gold only).** On load, if the snapshot's latest fix is older than the last business day **and** the last top-up attempt was more than 12 hours ago (timestamp in `localStorage`), then after the sheet is interactive the SPA fetches `gold_pm.json` and `gold_am.json` directly (CORS `*`; each is the full 1968+ history, roughly 0.9 MB uncompressed and served `no-store`, so the rate limit matters) and merges rows newer than the snapshot. **FX has no runtime top-up**: it is snapshot-only, refreshed by the daily CI job (BIS itself lags about a week).
-3. **Browser cache.** Merged gold tables are stored in IndexedDB as a *derived cache*; `localStorage` holds sheet rows, settings, and the top-up timestamp. The service worker precaches the app shell **and** `data/lbma_daily.csv`, `data/monthly.csv`, and `data/manifest.json` (versioned by the build), and caches `fx_*.csv` on first use, so the app computes offline without depending on IndexedDB surviving. The app requests `navigator.storage.persist()` where available. Browsers may still evict site storage (notably iOS Safari after ~7 days of non-use); FR20's offline state covers that case.
+1. **Build-time snapshot (CSV, D14) — free data only.** The daily deploy job runs `goldvalue.py --fetch-only` and copies the CLI's cache files verbatim into the site: `data/monthly.csv` (`month,usd`, World Bank/NMA, PDDL) and *(v1.1)* `data/fx_{ccy}.csv` (`date,usd_per_unit`; three files EUR, GBP, CHF; DEM computed from EUR; loaded lazily when a currency is selected; per-file budget ≤ 110 KB gzipped), plus `data/manifest.json`. **`lbma_daily.csv` is never published** (D15): LBMA data is licensed by ICE Benchmark Administration and redistribution requires a licence.
+2. **LBMA fetched by the visitor's browser.** On first load, and afterwards when the cached latest fix is older than the previous London business day and the last attempt was more than 12 hours ago (timestamp in `localStorage`), the SPA fetches `gold_pm.json` and `gold_am.json` directly from `prices.lbma.org.uk` (CORS `*`; each is the full 1968+ history, roughly 0.9 MB uncompressed and served `no-store`) and stores the merged daily table in IndexedDB. This is personal, non-commercial use by the visitor. The fetch starts immediately on first visit and runs after the sheet is interactive on later visits. While it is in flight or if it fails, rows still compute from the monthly series with a "daily LBMA prices not loaded" note, and the freshness indicator (FR20) shows the state. **FX has no runtime top-up**: snapshot-only, refreshed by the daily deploy (BIS lags about a week).
+3. **Browser cache.** The LBMA daily table lives in IndexedDB (the only copy; `navigator.storage.persist()` is requested). `localStorage` holds sheet rows, settings, and the top-up timestamp. The service worker precaches the app shell, `data/monthly.csv`, and `data/manifest.json`, and caches `fx_*.csv` on first use; it never caches the LBMA responses. Offline after first load therefore depends on IndexedDB surviving; if a browser evicts it (iOS Safari after ~7 days of non-use), the app falls back to monthly-series precision and says so until it is online again.
+4. **Attribution.** The footer and Method panel state: "Daily gold prices are fetched from the LBMA (administered by ICE Benchmark Administration) by your browser for personal, non-commercial use and are not redistributed by this site." Monthly series and BIS attributions alongside.
 
 ### 6.4 Resolution rules
 
@@ -239,8 +240,8 @@ Display precision: stored values are full doubles; the UI formats like the CLI
 
 ## 9. Non-functional requirements
 
-- NFR1. USD path: initial load ≤ 250 KB gzipped including gold data (CI asserts the `dist/` gzip size); each FX file ≤ 110 KB gzipped, fetched on demand; interactive < 1 s on mid-range mobile over 4G.
-- NFR2. Works fully offline after first successful load (except the freshness top-up), as long as the browser retains site storage (§6.3 item 3).
+- NFR1. USD path: initial static load ≤ 250 KB gzipped including the monthly series (CI asserts the `dist/` gzip size); the browser-side LBMA fetch (~1.8 MB, D15) is excluded from this budget and must not block first paint; each FX file ≤ 110 KB gzipped, fetched on demand; interactive < 1 s on mid-range mobile over 4G.
+- NFR2. Works offline after first successful load (except the LBMA refresh), as long as the browser retains IndexedDB (§6.3 item 3); otherwise degrades to monthly precision with a visible note.
 - NFR3. Accessible: keyboard navigation, ARIA grid semantics, chart has a data table alternative (the sheet itself); axe-core reports no violations on the sheet.
 - NFR4. No third-party analytics or tracking. No cookies.
 - NFR5. All numbers reproducible: for any row, `goldvalue.py AMOUNT DATE [--currency CCY]` gives the same GB/GBD/oz (relative 1e-9 on doubles; 6 significant figures displayed).
@@ -249,8 +250,8 @@ Display precision: stored values are full doubles; the UI formats like the CLI
 ## 10. Design decisions (answers to intent.md open questions)
 
 **D1 — Backend: none.** Both gold sources send `Access-Control-Allow-Origin: *`,
-and the datasets are small; FX is snapshot-only (§6.3). A build-time
-snapshot plus runtime gold top-up satisfies freshness, offline, and shared-hosting
+and the datasets are small; FX is snapshot-only (§6.3). A build-time snapshot
+of freely licensed data plus browser-side LBMA fetching (D15) satisfies freshness, offline, and shared-hosting
 constraints with zero server code. A backend would only be justified by (a) a
 source dropping CORS, (b) a paid/keyed source, or (c) server-side batch jobs.
 The `core` package is designed so a thin HTTP wrapper can be added later.
@@ -368,25 +369,40 @@ is `const text = await (await fetch(url)).text()` followed by a `split`-based
 parse; `fetch` has been universal in evergreen browsers since 2017 and never
 required JSON or XML (the "X" in AJAX was aspirational — `XMLHttpRequest.responseText`
 always returned arbitrary text). Hosts compress `text/csv` like any text type.
-Parsing 15k rows takes single-digit milliseconds.
+Parsing 15k rows takes single-digit milliseconds. Under D15 the LBMA daily
+file is not part of the snapshot; the browser parses LBMA's JSON directly and
+the CLI's CSV cache format remains the reference shape for tests.
+
+**D15 — LBMA data is not redistributed (owner decision, 2026-09-29, option A).**
+IBA/LBMA require a licence to redistribute historical LBMA Gold Price data
+(2026 fee schedule: non-real-time redistribution from USD 9,000/yr); personal,
+non-commercial use is permitted. Therefore no LBMA prices are committed to the
+repository or published on the site. The visitor's browser fetches LBMA directly
+and caches it locally (§6.3); tests and golden vectors use a **synthetic**
+deterministic fixture in the same CSV shape (`test-vectors/snapshot/`), so the
+repository contains no licensed data. Costs: ~1.8 MB first-visit download
+instead of 76 KB; offline depends on IndexedDB; the real-price check in AC1 is a
+non-blocking live job. The CLI is unchanged: it fetches to the user's own cache.
+Alternatives rejected: (B) licence — cost disproportionate for a personal tool;
+(C) monthly only — loses day precision from 1968.
 
 ## 11. Open items
 
-**Owner gate G0 (blocking Phase 1b and Phase 5):** LBMA data licensing; see V3 and plan.md. Three data-verification tasks are gated in the plan, not by the owner:
+G0 is resolved (D15). Two data-verification tasks are gated in the plan, not by the owner:
 
 - V1. Verify each §6.2a par value and effective date against IMF IFS / central-bank sources and cite them in `reference.md`.
 - V2. Measure the gzipped size of each `fx_*.csv` and confirm the 110 KB budget (NFR1).
-- V3. **Resolved as an owner gate (G0).** IBA/LBMA require a licence to redistribute historical LBMA Gold Price data (2026 fee schedule: redistribution from USD 9,000/yr); personal non-commercial use is allowed. Publishing `lbma_daily.csv` in this public repo or on the site is redistribution, so D14/§6.3 as written need the owner's decision: (A) no LBMA data published, visitor's browser fetches LBMA and caches in IndexedDB (recommended); (B) obtain a licence; (C) monthly series only. Until decided, no real LBMA rows are committed.
+- V3. Resolved by D15.
 
 ## 12. Acceptance criteria
 
 **v1 (USD only)**
 
-- AC1. Entering `80000` / `2018-12` and `200000` / `today` shows 63,979.53 GB for the first row (display per §6.4) and the current value for the second; both match `goldvalue.py` output. When run before the day's PM fix is published, the second row uses the latest fix and its `Price used` note says so (FR2a).
+- AC1. With the synthetic fixture served in place of LBMA (Playwright route stub) and a pinned clock, entering an amount and date yields the fixture's expected GB/GBD/oz from `test-vectors`; before the day's PM fix the `today` row uses the latest fix and its `Price used` note says so (FR2a). A separate non-blocking live job checks that `80000` / `2018-12` shows 63,979.53 GB against real LBMA data.
 - AC2. Chart appears after the first valid row and updates within one animation frame of any edit.
 - AC3. Round-trip: export → import → export produces a byte-identical file, and for rows both tools accept, the shared columns equal `goldvalue.py --batch` output.
 - AC4. SVG download equals the serialized on-screen `<svg>` after style inlining; PNG pixel dimensions are 2× the SVG's width and height; both open in a browser and an image viewer.
-- AC5. With network disabled after first load (browser storage retained), existing rows still compute and the app shell loads.
+- AC5. With network disabled after first load (IndexedDB retained), existing rows still compute at daily precision and the app shell loads; with IndexedDB cleared and network disabled, the app loads, computes at monthly precision, and shows the degraded-precision note.
 - AC6. The Method panel is visible and states "gold-denominated, not CPI".
 - AC7. Golden-vector suite (§5.7) passes in CI for Python and TypeScript.
 - AC7a. FR12: a `1975` row plots at 2 July 1975 and its tooltip says "year average of N fixes"; two rows with the same x are drawn side by side. FR17: a 899 px viewport stacks sheet above chart. FR18: Enter/Tab/arrow navigation verified by Playwright. FR2a: a future date shows a row error. NFR3: axe-core clean.
