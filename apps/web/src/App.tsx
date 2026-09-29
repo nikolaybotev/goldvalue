@@ -1,3 +1,4 @@
+import { Chart } from "./chart/Chart";
 import { Sheet } from "./sheet/Sheet";
 import { dailyStatus, monthlyStatus, refreshDaily } from "./store/data";
 
@@ -58,6 +59,7 @@ export function App() {
       <main>
         <DataStatus />
         <Sheet />
+        <Chart />
       </main>
     </div>
   );

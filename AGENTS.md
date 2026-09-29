@@ -37,12 +37,13 @@ planned (see `intent/companion-app/`).
 - `packages/core` has no DOM and no Node imports in `src/` (`lib: ES2022`, `types: []`, plus a scan test); `fetch` is injected (`FetchLike`). Dates are `{year, month, day}` triples, never `Date`. Sums use the `fsum` port (not `reduce`) and CSV numbers use `formatFixed` (not `toFixed`) so results match Python.
 - **Python and TypeScript change together.** Any change to resolution, parsing, notes, or output in `goldvalue.py` must be mirrored in `packages/core` in the same PR: edit `test-vectors/cases.json` if new cases are needed, run `python3 test-vectors/regenerate.py`, and commit the regenerated vectors with both implementations.
 - Synthetic-fixture determinism: `make_fixture.py` uses integer arithmetic and `math.fsum` only (no `random`, no libm, no `sum()` of floats, whose result changed in Python 3.12). Keep it that way so output is byte-identical on every Python version.
+- Chart (`apps/web/src/chart`): x is the midpoint of the *requested* period (day itself, month 16th, year 2 July), never the resolved `effective` date; geometry lives in the pure `layout.ts` (unit-tested), the component only renders; log scale exists only while all plotted values are positive; the SVG keeps explicit `width`/`height` because Phase 4b serialises it.
 - Docs follow the AI-native SDLC chain: `intent/<change>/intent.md` → `spec.md` → `plan.md`. Update `plan.md` in the same commit when implementation departs from it.
 
 ## Architecture
 
 - `.agents/skills/gold-value-normalizer/` — the shipping unit for agents: `SKILL.md` (loaded by agents), `reference.md` (sources/method), `historical-notes.md` (pre-1974 caveats), `scripts/goldvalue.py` (reference implementation).
-- `intent/companion-app/` — spec and plan for the SPA. Packages: `packages/core` (TS port, no DOM), `apps/web` (Vite + Preact SPA: `src/{lib,store,sheet}`, `e2e/`), `tools/snapshot` (`sync_data.py`: free CSVs → `apps/web/public/data/`; `check_drift.py`), `test-vectors/` (synthetic fixture in `snapshot/`, `make_fixture.py`, `cases.json`, generated `gold-usd.json`, `dates.json`, `batch-*-out.csv`), `tests/python/` (pytest).
+- `intent/companion-app/` — spec and plan for the SPA. Packages: `packages/core` (TS port, no DOM), `apps/web` (Vite + Preact SPA: `src/{lib,store,sheet,chart}`, `e2e/`), `tools/snapshot` (`sync_data.py`: free CSVs → `apps/web/public/data/`; `check_drift.py`), `test-vectors/` (synthetic fixture in `snapshot/`, `make_fixture.py`, `cases.json`, generated `gold-usd.json`, `dates.json`, `batch-*-out.csv`), `tests/python/` (pytest).
 - Cache: `~/.cache/gold-value/{lbma_daily.csv,monthly.csv}`; override with `GOLD_PRICE_CACHE_DIR`.
 
 ## Things agents get wrong
