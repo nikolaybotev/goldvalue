@@ -164,7 +164,7 @@ test.describe("data loading (spec 6.3.2)", () => {
     await page.route("https://prices.lbma.org.uk/**", (route) =>
       route.abort("internetdisconnected"),
     );
-    await page.goto("/");
+    await page.goto("./");
     await expect(page.getByRole("alert")).toContainText("Price data not available offline");
     await typeRow(page, 0, "1000", "2018");
     await expect(cell(page, 0, "gb")).toHaveText("");

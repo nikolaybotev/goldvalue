@@ -81,7 +81,7 @@ export async function openApp(
 ): Promise<Stubs> {
   await page.clock.setFixedTime(new Date(options.now ?? PINNED_NOW));
   const stubs = await stubData(page, options.lbma ?? "ok");
-  await page.goto("/");
+  await page.goto("./");
   await expect(page.getByRole("grid")).toBeVisible();
   if ((options.lbma ?? "ok") === "ok") {
     await expect(page.getByTestId("data-status")).toContainText(
@@ -130,4 +130,44 @@ export function expectDisplayed(text: string, expected: number, label: string) {
     Math.abs(shown - expected),
     `${label}: shown ${text}, expected ${expected}`,
   ).toBeLessThanOrEqual(tolerance);
+}
+
+export interface Network {
+  lbmaHits: string[];
+  offline: boolean;
+}
+
+/**
+ * Go offline. `setOffline` does not stop responses that Playwright fulfils itself, so the
+ * LBMA stub is told too and fails like a dead network would.
+ */
+export async function goOffline(page: Page, network: Network) {
+  network.offline = true;
+  await page.context().setOffline(true);
+}
+
+/**
+ * First visit with the service worker allowed: the site (real files behind the server) supplies
+ * the shell and data, LBMA is stubbed with the synthetic fixture through `context.route` (which,
+ * unlike `page.route`, also sees requests the worker makes). Resolves once the worker controls
+ * the page and the LBMA table is stored. Needs `test.use({ serviceWorkers: "allow" })`.
+ */
+export async function visitWithWorker(page: Page): Promise<Network> {
+  const network: Network = { lbmaHits: [], offline: false };
+  await page.context().route(LBMA_URL, (route) => {
+    const url = route.request().url();
+    if (network.offline) return route.abort("internetdisconnected");
+    network.lbmaHits.push(url);
+    return route.fulfill({
+      contentType: "application/json",
+      headers: { "access-control-allow-origin": "*" },
+      body: lbmaFixtureBody(url),
+    });
+  });
+  await page.clock.setFixedTime(new Date(PINNED_NOW));
+  await page.goto("./");
+  await expect(page.getByRole("grid")).toBeVisible();
+  await expect(page.getByTestId("data-status")).toContainText(`loaded through ${FIXTURE_LAST_FIX}`);
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+  return network;
 }
