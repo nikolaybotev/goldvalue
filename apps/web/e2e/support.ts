@@ -16,15 +16,23 @@ const monthlyCsv = readFileSync(join(SNAPSHOT, "monthly.csv"));
 const lbmaPm = readFileSync(join(SNAPSHOT, "gold_pm.json"));
 const lbmaAm = readFileSync(join(SNAPSHOT, "gold_am.json"));
 const monthlyLines = monthlyCsv.toString("utf8").trim().split("\n");
-const manifest = JSON.stringify({
-  files: {
-    "monthly.csv": {
-      rows: monthlyLines.length - 1,
-      last_date: (monthlyLines.at(-1) ?? "").split(",")[0],
-      sha256: createHash("sha256").update(monthlyCsv).digest("hex"),
+const monthlySha = createHash("sha256").update(monthlyCsv).digest("hex");
+const manifestBody = (sha: string) =>
+  JSON.stringify({
+    files: {
+      "monthly.csv": {
+        rows: monthlyLines.length - 1,
+        last_date: (monthlyLines.at(-1) ?? "").split(",")[0],
+        sha256: sha,
+      },
     },
-  },
-});
+  });
+
+export const LBMA_URL = "https://prices.lbma.org.uk/json/*.json";
+
+/** The synthetic LBMA JSON for a `gold_am.json` / `gold_pm.json` URL. */
+export const lbmaFixtureBody = (url: string): Buffer =>
+  url.endsWith("gold_pm.json") ? lbmaPm : lbmaAm;
 
 export function monthlyPrice(month: string): number {
   const line = monthlyLines.find((entry) => entry.startsWith(`${month},`));
@@ -36,6 +44,8 @@ export interface Stubs {
   lbmaRequests: string[];
   /** Switch the LBMA stub between serving the fixture and failing, mid-test. */
   lbma: LbmaMode;
+  /** The `sha256` the stubbed manifest reports for monthly.csv; change it to simulate a new deploy. */
+  manifestSha: string;
 }
 
 export type LbmaMode = "ok" | "fail";
@@ -45,21 +55,21 @@ export type LbmaMode = "ok" | "fail";
  * fetches LBMA from prices.lbma.org.uk in the browser; nothing licensed is involved.
  */
 export async function stubData(page: Page, lbma: LbmaMode = "ok"): Promise<Stubs> {
-  const stubs: Stubs = { lbmaRequests: [], lbma };
+  const stubs: Stubs = { lbmaRequests: [], lbma, manifestSha: monthlySha };
   await page.route("**/data/manifest.json", (route) =>
-    route.fulfill({ contentType: "application/json", body: manifest }),
+    route.fulfill({ contentType: "application/json", body: manifestBody(stubs.manifestSha) }),
   );
   await page.route("**/data/monthly.csv", (route) =>
     route.fulfill({ contentType: "text/csv", body: monthlyCsv }),
   );
-  await page.route("https://prices.lbma.org.uk/json/*.json", (route) => {
+  await page.route(LBMA_URL, (route) => {
     const url = route.request().url();
     stubs.lbmaRequests.push(url);
     if (stubs.lbma === "fail") return route.abort("internetdisconnected");
     return route.fulfill({
       contentType: "application/json",
       headers: { "access-control-allow-origin": "*" },
-      body: url.endsWith("gold_pm.json") ? lbmaPm : lbmaAm,
+      body: lbmaFixtureBody(url),
     });
   });
   return stubs;

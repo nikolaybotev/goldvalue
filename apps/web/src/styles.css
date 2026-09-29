@@ -92,6 +92,13 @@ button {
   color: var(--text);
 }
 
+.degraded-note {
+  grid-column: 1 / -1;
+  padding: 6px 10px;
+  border-left: 3px solid var(--error);
+  background: #fef3f2;
+}
+
 .freshness-hint {
   grid-column: 1 / -1;
   min-height: calc(2 * 1.45em);
