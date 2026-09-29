@@ -183,6 +183,32 @@ button {
   font-size: 0.875rem;
 }
 
+.sheet.is-file-drag {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  background: var(--accent-soft);
+}
+
+.import-report {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.import-report.is-failure {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.import-report ul {
+  max-height: 9em;
+  margin: 4px 0 0;
+  padding-left: 1.2em;
+  overflow-y: auto;
+}
+
 .grid-scroll {
   overflow-x: auto;
   border: 1px solid var(--border);

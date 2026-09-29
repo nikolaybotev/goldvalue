@@ -1,14 +1,18 @@
-import { useLayoutEffect, useRef } from "preact/hooks";
+import { signal } from "@preact/signals";
+import { useEffect, useLayoutEffect, useRef } from "preact/hooks";
+import { MAX_IMPORT_LABEL } from "../io/csv-io";
 import { formatPrice, formatUnit, sourceBadge } from "../lib/format";
 import type { RowResult } from "../store/compute";
 import { monthlyStatus } from "../store/data";
 import { isBlank, type Row } from "../store/rows-logic";
 import { results, rows, settings, updateSettings } from "../store/sheet-store";
 import {
-  clearedRows,
   clearSheet,
   commitEdit,
   deleteAt,
+  exportFile,
+  importFile,
+  importReport,
   liveInput,
   moveRowAt,
   moveRowToIndex,
@@ -20,6 +24,7 @@ import {
   sortSheet,
   startEdit,
   undoClear,
+  undoSnapshot,
 } from "./controller";
 import {
   active,
@@ -46,6 +51,84 @@ const COLUMN_LABEL: Record<ColId, { text: string; title: string }> = {
     title: "Gold price per troy oz, its source, and how it was resolved",
   },
 };
+
+/** A file is being dragged over the page (FR14 drag-drop). */
+const fileDrag = signal(false);
+const MAX_LISTED_ERRORS = 100;
+
+const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes("Files") ?? false;
+
+/** Accept a dropped CSV anywhere on the page, so a miss never navigates away from the app. */
+function useFileDrop(): void {
+  useEffect(() => {
+    let depth = 0;
+    const enter = (event: DragEvent) => {
+      if (!hasFiles(event)) return;
+      event.preventDefault();
+      depth++;
+      fileDrag.value = true;
+    };
+    const over = (event: DragEvent) => {
+      if (!hasFiles(event)) return;
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+    };
+    const leave = (event: DragEvent) => {
+      if (!hasFiles(event)) return;
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) fileDrag.value = false;
+    };
+    const drop = (event: DragEvent) => {
+      if (!hasFiles(event)) return;
+      event.preventDefault();
+      depth = 0;
+      fileDrag.value = false;
+      const file = event.dataTransfer?.files[0];
+      if (file) void importFile(file);
+    };
+    document.addEventListener("dragenter", enter);
+    document.addEventListener("dragover", over);
+    document.addEventListener("dragleave", leave);
+    document.addEventListener("drop", drop);
+    return () => {
+      document.removeEventListener("dragenter", enter);
+      document.removeEventListener("dragover", over);
+      document.removeEventListener("dragleave", leave);
+      document.removeEventListener("drop", drop);
+    };
+  }, []);
+}
+
+function ImportReport() {
+  const report = importReport.value;
+  if (report === null) return null;
+  if (report.failure !== null) {
+    return (
+      <div class="import-report is-failure" role="alert" data-testid="import-report">
+        <p>{report.failure}</p>
+      </div>
+    );
+  }
+  if (report.errors.length === 0) return null;
+  const listed = report.errors.slice(0, MAX_LISTED_ERRORS);
+  const hidden = report.errors.length - listed.length;
+  return (
+    <div class="import-report" role="group" aria-label="Import errors" data-testid="import-report">
+      <p>
+        {report.file}: {report.loaded} {report.loaded === 1 ? "row" : "rows"} loaded,{" "}
+        {report.errors.length} {report.errors.length === 1 ? "line" : "lines"} skipped.
+      </p>
+      <ul>
+        {listed.map((error) => (
+          <li key={`${error.line}:${error.message}`}>
+            Line {error.line}: {error.message}
+          </li>
+        ))}
+      </ul>
+      {hidden > 0 && <p class="muted">and {hidden} more.</p>}
+    </div>
+  );
+}
 
 let dragFrom: number | null = null;
 let pressedOnActive = false;
@@ -308,6 +391,8 @@ export function Sheet() {
   const tick = focusTick.value;
   const pos = clampPosition(active.value, list.length, cols);
   const gridRef = useRef<HTMLTableElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  useFileDrop();
 
   useLayoutEffect(() => {
     if (tick === 0) return;
@@ -325,7 +410,10 @@ export function Sheet() {
   }, [tick]);
 
   return (
-    <section class="sheet" aria-labelledby="sheet-heading">
+    <section
+      class={`sheet${fileDrag.value ? " is-file-drag" : ""}`}
+      aria-labelledby="sheet-heading"
+    >
       <div class="toolbar">
         <h2 id="sheet-heading">Sheet</h2>
         <div class="toolbar-actions">
@@ -334,6 +422,37 @@ export function Sheet() {
             <span class="btn-hint" aria-hidden="true">
               {nextSort.value === "asc" ? " (oldest first)" : " (newest first)"}
             </span>
+          </button>
+          <button
+            type="button"
+            class="btn"
+            title={`Replace the sheet with a CSV file (up to ${MAX_IMPORT_LABEL}); you can also drop a file on the page`}
+            onClick={() => fileRef.current?.click()}
+          >
+            Import CSV
+          </button>
+          <input
+            ref={fileRef}
+            class="sr-only"
+            type="file"
+            accept=".csv,text/csv,text/plain"
+            tabIndex={-1}
+            aria-label="CSV file to import"
+            data-testid="import-input"
+            onChange={(event) => {
+              const input = event.currentTarget as HTMLInputElement;
+              const file = input.files?.[0];
+              if (file) void importFile(file);
+              input.value = "";
+            }}
+          />
+          <button
+            type="button"
+            class="btn"
+            title="Download the rows with their computed gold values as CSV"
+            onClick={exportFile}
+          >
+            Export CSV
           </button>
           <button type="button" class="btn" onClick={clearSheet}>
             Clear
@@ -359,7 +478,7 @@ export function Sheet() {
       </div>
       <p class="notice" role="status">
         {notice.value}
-        {clearedRows.value && notice.value === "Sheet cleared" && (
+        {undoSnapshot.value && notice.value.startsWith(undoSnapshot.value.notice) && (
           <>
             {" "}
             <button type="button" class="link-btn" onClick={undoClear}>
@@ -368,6 +487,7 @@ export function Sheet() {
           </>
         )}
       </p>
+      <ImportReport />
       <div class="grid-scroll">
         <table
           class="grid"
