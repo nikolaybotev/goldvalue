@@ -60,6 +60,13 @@ export function Freshness() {
       >
         {loading ? "Refreshing" : "Refresh"}
       </button>
+      {monthly.state === "ready" && daily.lastFix === null && !loading && (
+        <p class="degraded-note" role="note" data-testid="degraded-note">
+          <strong>Degraded precision:</strong> daily LBMA prices are not loaded, so every value uses
+          the monthly gold series. Daily prices cannot be downloaded while offline; reconnect and
+          press Refresh.
+        </p>
+      )}
       <p id="refresh-hint" class="freshness-hint muted" data-testid="refresh-hint">
         {daily.phase === "failed" && (
           <span class="error" data-testid="refresh-error">

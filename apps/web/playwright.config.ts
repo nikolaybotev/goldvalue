@@ -11,13 +11,16 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: {
     baseURL: `${ORIGIN}/`,
+    // Tests stub data with page.route, which cannot see requests a service worker handles.
+    // e2e/offline.spec.ts opts back in.
+    serviceWorkers: "block",
     timezoneId: "UTC",
     locale: "en-US",
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `vite build && exec vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
+    command: `node ../../scripts/build-e2e.mjs && exec vite preview --outDir dist-e2e --host 127.0.0.1 --port ${PORT} --strictPort`,
     url: ORIGIN,
     reuseExistingServer: false,
     timeout: 120_000,

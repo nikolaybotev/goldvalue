@@ -8,6 +8,7 @@ import {
 import { signal } from "@preact/signals";
 import { createStore, del, get, set, type UseStore } from "idb-keyval";
 import { attemptAllowed, isDailyStale, REFRESH_INTERVAL_MS } from "../lib/clock";
+import { dataVersionOf, shouldDiscardStored } from "../lib/data-version";
 import { readFlag, readNumber, writeFlag, writeNumber } from "./storage";
 
 const ATTEMPT_KEY = "goldvalue:v1:lbma-attempt";
@@ -69,7 +70,12 @@ interface StoredDaily {
   v: 1;
   daily: [string, number][];
   fetchedAt: number;
+  /** Identity of the site data (manifest hashes) when this table was saved; see `dataVersionOf`. */
+  dataVersion?: string | null;
 }
+
+/** Identity of the data files this page loaded, or null when the manifest was unavailable. */
+let dataVersion: string | null = null;
 
 function isStoredDaily(value: unknown): value is StoredDaily {
   if (typeof value !== "object" || value === null) return false;
@@ -165,7 +171,7 @@ export function refreshDaily(options: { ignoreRateLimit?: boolean; manual?: bool
       const fetchedAt = Date.now();
       let saved = true;
       try {
-        await set(IDB_KEY, { v: 1, daily, fetchedAt } satisfies StoredDaily, idb());
+        await set(IDB_KEY, { v: 1, daily, fetchedAt, dataVersion } satisfies StoredDaily, idb());
       } catch {
         saved = false;
       }
@@ -227,6 +233,7 @@ export async function boot(): Promise<void> {
           files?: Record<string, { last_date?: string }>;
         };
         lastMonth = manifest.files?.["monthly.csv"]?.last_date ?? null;
+        dataVersion = dataVersionOf(manifest);
       } catch {
         lastMonth = null;
       }
@@ -240,7 +247,11 @@ export async function boot(): Promise<void> {
     return;
   }
 
-  const cached = await readCached();
+  let cached = await readCached();
+  if (cached && shouldDiscardStored(cached.dataVersion, dataVersion, navigator.onLine !== false)) {
+    await clearDailyCache();
+    cached = null;
+  }
   if (cached) useDaily(cached.daily, cached.fetchedAt, true);
   else table.value = new GoldTable([], monthly);
   monthlyStatus.value = { state: "ready", lastMonth };
