@@ -125,7 +125,7 @@ are out of scope for v1; rows in those ranges show "FX unavailable".
 
 ### 6.4 Resolution rules
 
-Identical to `goldvalue.py` and `skill/gold-value-normalizer/SKILL.md`:
+Identical to `goldvalue.py` and `.agents/skills/gold-value-normalizer/SKILL.md`:
 
 | Query | 1968-01-02 onward | Before 1968 |
 |---|---|---|
