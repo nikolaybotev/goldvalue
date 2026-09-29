@@ -8,11 +8,13 @@ planned (see `intent/companion-app/`).
 
 - Run CLI: `python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py AMOUNT DATE`
 - Prefetch/refresh price cache: `... goldvalue.py --fetch-only` / `--refresh`
-- Batch: `... goldvalue.py --batch rows.csv > out.csv`
+- Batch: `... goldvalue.py --batch rows.csv > out.csv` (FR15 schema: `date, amount, currency, label, <passthrough…>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`; computed columns and `currency` are ignored on input, so output re-imports unchanged)
 - Node/pnpm: Node 26 (`.nvmrc`), pnpm 12 (`packageManager` in `package.json`; `npm i -g pnpm@12.6.0` if `pnpm` is missing)
 - Install: `pnpm install --frozen-lockfile`; lint: `pnpm lint` (Biome; `pnpm format` fixes); types: `pnpm typecheck` (`tsc -b`); tests: `pnpm test` (Vitest per package); build: `pnpm build`
-- Python tests: none yet (plan Phase 1a adds `pytest tests/python -q`)
+- Python tests: `python3 -m pip install pytest && python3 -m pytest tests/python -q` (network tests are excluded; `-m network` runs the live smoke test)
 - Use a throwaway cache in tests: `GOLD_PRICE_CACHE_DIR=/tmp/gv python3 ...`
+- Env hooks: `GOLDVALUE_TODAY=YYYY-MM-DD` pins "today" (`today` keyword, future-date check, month/year-to-date notes); `GOLDVALUE_OFFLINE=1` or `--no-refresh` blocks all network use and stale refresh (missing cache is an error). pytest sets both; never let tests hit the network.
+- Negative CLI amounts with a comma or `$` need `--` first (`goldvalue.py -- -1,500 1980`); argparse otherwise reads them as options.
 
 ## Conventions
 
@@ -23,6 +25,8 @@ planned (see `intent/companion-app/`).
 - Site data files are the CLI's cache CSVs copied verbatim (`lbma_daily.csv`, `monthly.csv`, `fx_*.csv`); never introduce a second data format.
 - Comparisons are gold-denominated, not CPI. Say so when the user asked about "inflation" or "purchasing power".
 - Dates: ISO forms `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, plus `Mon YYYY` and `today`. Year/month queries average daily fixes; days roll back to the previous fix.
+- Amounts are plain decimals only (no `1e3`, `nan`, `inf`); a period starting after today is an error in single-query and `--batch` mode.
+- `--json` `gold_usd_per_oz` is unrounded; `--batch` writes fixed-point numbers (price 4, oz 6, GB 3, GBD 4, USD 2 decimals) with LF endings. `fx_*` keys/columns exist but are empty/`null` until v1.1.
 - Docs follow the AI-native SDLC chain: `intent/<change>/intent.md` → `spec.md` → `plan.md`. Update `plan.md` in the same commit when implementation departs from it.
 
 ## Architecture
