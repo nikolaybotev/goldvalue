@@ -1,4 +1,6 @@
 import { signal } from "@preact/signals";
+import { exportSheet, importSheet, MAX_IMPORT_BYTES, MAX_IMPORT_LABEL } from "../io/csv-io";
+import { downloadBlob } from "../lib/download";
 import { parsePasted } from "../lib/paste";
 import {
   applyPaste,
@@ -13,7 +15,7 @@ import {
   setField,
   sortByDate,
 } from "../store/rows-logic";
-import { rows, today } from "../store/sheet-store";
+import { extraColumns, results, rows, today } from "../store/sheet-store";
 import {
   active,
   type ColId,
@@ -29,8 +31,19 @@ import {
 
 /** Status text for the polite live region under the toolbar. */
 export const notice = signal("");
-/** Rows removed by the last Clear, kept so it can be undone. */
-export const clearedRows = signal<Row[] | null>(null);
+/** What the last Clear or Import replaced, kept so it can be undone (`notice` says which). */
+export const undoSnapshot = signal<{
+  rows: Row[];
+  extraColumns: string[];
+  notice: string;
+} | null>(null);
+/** Outcome of the last CSV import: file name, loaded count, and one entry per bad line (FR16). */
+export const importReport = signal<{
+  file: string;
+  loaded: number;
+  errors: { line: number; message: string }[];
+  failure: string | null;
+} | null>(null);
 /** Direction the next "Sort by date" press applies. */
 export const nextSort = signal<"asc" | "desc">("asc");
 
@@ -107,18 +120,99 @@ export function moveRowToIndex(from: number, to: number): void {
 export function clearSheet(): void {
   commitEdit();
   const previous = rows.peek();
-  clearedRows.value = previous.every(isBlank) ? null : previous;
+  undoSnapshot.value = previous.every(isBlank)
+    ? null
+    : { rows: previous, extraColumns: extraColumns.peek(), notice: "Sheet cleared" };
   rows.value = [newRow()];
+  extraColumns.value = [];
+  importReport.value = null;
   active.value = { row: 0, col: "amount" };
   notice.value = "Sheet cleared";
 }
 
 export function undoClear(): void {
-  const previous = clearedRows.peek();
+  const previous = undoSnapshot.peek();
   if (!previous) return;
-  clearedRows.value = null;
-  rows.value = normalize(previous, true);
+  undoSnapshot.value = null;
+  extraColumns.value = previous.extraColumns;
+  rows.value = normalize(previous.rows, true);
   notice.value = "Sheet restored";
+}
+
+/**
+ * Replace the sheet with the rows of a CSV file (FR14, FR16). Lines that cannot be
+ * parsed are listed in `importReport`; the rest load. The previous sheet can be
+ * restored with Undo.
+ */
+export async function importFile(file: File): Promise<void> {
+  commitEdit();
+  if (file.size > MAX_IMPORT_BYTES) {
+    importReport.value = {
+      file: file.name,
+      loaded: 0,
+      errors: [],
+      failure: `${file.name} is larger than ${MAX_IMPORT_LABEL}; nothing was imported.`,
+    };
+    notice.value = "Import failed";
+    return;
+  }
+  let text: string;
+  try {
+    text = await file.text();
+  } catch {
+    importReport.value = {
+      file: file.name,
+      loaded: 0,
+      errors: [],
+      failure: `${file.name} could not be read.`,
+    };
+    notice.value = "Import failed";
+    return;
+  }
+  try {
+    const outcome = importSheet(text, today.peek());
+    const previous = rows.peek();
+    undoSnapshot.value = previous.every(isBlank)
+      ? null
+      : { rows: previous, extraColumns: extraColumns.peek(), notice: "Sheet imported" };
+    extraColumns.value = outcome.extraColumns;
+    rows.value = outcome.rows;
+    active.value = { row: 0, col: "amount" };
+    importReport.value = {
+      file: file.name,
+      loaded: outcome.loaded,
+      errors: outcome.errors,
+      failure: null,
+    };
+    const skipped = outcome.errors.length;
+    notice.value = `Sheet imported: ${outcome.loaded} ${outcome.loaded === 1 ? "row" : "rows"} loaded${
+      skipped > 0 ? `, ${skipped} ${skipped === 1 ? "line" : "lines"} skipped` : ""
+    }`;
+  } catch (error) {
+    importReport.value = {
+      file: file.name,
+      loaded: 0,
+      errors: [],
+      failure: `${file.name}: ${error instanceof Error ? error.message : String(error)}`,
+    };
+    notice.value = "Import failed";
+  }
+}
+
+/** Download the sheet as the FR15 CSV (same columns, rounding, and LF endings as `--batch`). */
+export function exportFile(): void {
+  commitEdit();
+  const outcome = exportSheet(rows.peek(), results.peek(), extraColumns.peek());
+  if (outcome.exported === 0) {
+    notice.value = "Nothing to export: no row has a computed value yet";
+    return;
+  }
+  downloadBlob(new Blob([outcome.csv], { type: "text/csv;charset=utf-8" }), "goldvalue.csv");
+  notice.value = `Exported ${outcome.exported} ${outcome.exported === 1 ? "row" : "rows"}${
+    outcome.skipped > 0
+      ? `; ${outcome.skipped} ${outcome.skipped === 1 ? "row" : "rows"} without a value left out`
+      : ""
+  }`;
 }
 
 export function sortSheet(): void {

@@ -10,13 +10,15 @@ export interface Row {
   amount: string;
   date: string;
   label: string;
+  /** Passthrough CSV columns (FR14), aligned with `extraColumns` in the sheet store. */
+  extra: string[];
 }
 
 let sequence = 0;
 
 export function newRow(init: Partial<Omit<Row, "id">> = {}): Row {
   sequence += 1;
-  return { id: `r${sequence}`, amount: "", date: "", label: "", ...init };
+  return { id: `r${sequence}`, amount: "", date: "", label: "", extra: [], ...init };
 }
 
 const blank = (text: string) => text.trim() === "";
