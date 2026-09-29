@@ -31,7 +31,7 @@ implementation.
 **Release phasing.** The intent asks for multi-currency as a later, advanced
 feature, so:
 
-- **v1 = USD only** (plan Phases 0–4, 6): sheet, chart, CSV, SVG/PNG, offline, deploy. No currency selector is shown.
+- **v1 = USD only** (plan Phases 0–4 then 6): sheet, chart, CSV, SVG/PNG, offline, deploy. No currency selector is shown.
 - **v1.1 = multi-currency** (plan Phase 5): every requirement tagged **(v1.1)** below, plus acceptance criteria AC8–AC11.
 
 Requirements not tagged belong to v1. v1 data structures must not preclude v1.1
@@ -180,7 +180,7 @@ parity in force at the period midpoint.
 
 ### 6.3 Data distribution model (decision D1, see §10)
 
-1. **Build-time snapshot (CSV, D14).** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily and copies the CLI's cache files verbatim into the site: `data/lbma_daily.csv` (`date,usd_am,usd_pm`), `data/monthly.csv` (`month,usd`), `data/fx_{ccy}.csv` (`date,usd_per_unit`). No conversion step; the browser reads exactly what the CLI reads. Measured 2026-09-28: gold data ~76 KB gzipped. `fx_{ccy}.csv` files (`date,usd_per_unit`, three files: EUR, GBP, CHF; DEM derives from EUR) are **loaded lazily** when a currency is first selected; per-file budget ≤ 110 KB gzipped (to be measured in Phase 5).
+1. **Build-time snapshot (CSV, D14).** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily and copies the CLI's cache files verbatim into the site: `data/lbma_daily.csv` (`date,usd_am,usd_pm`), `data/monthly.csv` (`month,usd`), `data/fx_{ccy}.csv` (`date,usd_per_unit`). No conversion step; the browser reads exactly what the CLI reads. Measured 2026-09-28: gold data ~76 KB gzipped. `fx_{ccy}.csv` files (`date,usd_per_unit`; three files: EUR, GBP, CHF; DEM is computed from EUR) are **loaded lazily** when a currency is first selected; per-file budget ≤ 110 KB gzipped (to be measured in Phase 5).
 2. **Runtime top-up (gold only).** On load, if the snapshot's latest fix is older than the last business day **and** the last top-up attempt was more than 12 hours ago (timestamp in `localStorage`), then after the sheet is interactive the SPA fetches `gold_pm.json` and `gold_am.json` directly (CORS `*`; each is the full 1968+ history, roughly 0.9 MB uncompressed and served `no-store`, so the rate limit matters) and merges rows newer than the snapshot. **FX has no runtime top-up**: it is snapshot-only, refreshed by the daily CI job (BIS itself lags about a week).
 3. **Browser cache.** Merged gold tables are stored in IndexedDB as a *derived cache*; `localStorage` holds sheet rows, settings, and the top-up timestamp. The service worker precaches the app shell **and** `data/lbma_daily.csv`, `data/monthly.csv`, and `data/manifest.json` (versioned by the build), and caches `fx_*.csv` on first use, so the app computes offline without depending on IndexedDB surviving. The app requests `navigator.storage.persist()` where available. Browsers may still evict site storage (notably iOS Safari after ~7 days of non-use); FR20's offline state covers that case.
 
