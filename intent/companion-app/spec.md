@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Derived from | [intent.md](intent.md) (2026-09-28) |
-| Status | Draft 3 — all review questions resolved (D8–D14); iterate together with [plan.md](plan.md) |
+| Status | Draft 4 — Draft 3 plus fresh-eyes review fixes (phasing, CLI changes, CSV schema, FX data findings); iterate together with [plan.md](plan.md) |
 | Stage | 2 · Design |
 
 ## 1. Summary
@@ -25,8 +25,17 @@ implementation.
 - G4. Download the chart as SVG and PNG.
 - G5. Work after first load without a server (prices cached in the browser).
 - G6. Deployable as plain static files on classic shared hosting, GitHub Pages, or any CDN.
-- G7. Multi-currency input (EUR, GBP, CHF, DEM) converted to gold via USD.
+- G7. Multi-currency input (EUR, GBP, CHF, DEM) converted to gold via USD. **(v1.1)**
 - G8. Numerical parity with `goldvalue.py` for every supported query.
+
+**Release phasing.** The intent asks for multi-currency as a later, advanced
+feature, so:
+
+- **v1 = USD only** (plan Phases 0–4, 6): sheet, chart, CSV, SVG/PNG, offline, deploy. No currency selector is shown.
+- **v1.1 = multi-currency** (plan Phase 5): every requirement tagged **(v1.1)** below, plus acceptance criteria AC8–AC11.
+
+Requirements not tagged belong to v1. v1 data structures must not preclude v1.1
+(the export schema already reserves the FX columns; they are empty for USD).
 
 **Non-goals**
 
@@ -63,30 +72,31 @@ implementation.
 
 ### 5.1 Sheet
 
-- FR1. Columns: `Amount`, `Date`, then computed `GB`, `GBD`, `Troy oz`, and a compact `Price used` cell (price, source badge, note on hover/tap). Currency is **sheet-wide**: a single selector in the sheet header (default USD) applies to every row; changing it recomputes all rows. Rows carry no per-row currency.
-- FR2. Date accepts the same forms as the CLI: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, `Mon YYYY`, `today`. Invalid input marks the row, does not block others.
+- FR1. Columns: `Amount`, `Date`, then computed `GB`, `GBD`, `Troy oz`, and a compact `Price used` cell (price, source badge, note on hover/tap). Currency is **sheet-wide** **(v1.1)**: a single selector in the sheet header (default USD) applies to every row; changing it recomputes all rows. Rows carry no per-row currency. In v1 the selector is not shown and amounts are USD.
+- FR2. Date accepts exactly the forms the CLI accepts (`parse_period` in `goldvalue.py` is the contract): `YYYY`; `YYYY-MM`, `MM/YYYY`, `YYYY/MM`, `Mon YYYY`, `Month YYYY`; `YYYY-MM-DD`, `MM/DD/YYYY`, `D Month YYYY`, `D Mon YYYY`, `Month D, YYYY`, `Mon D, YYYY`; and `today` / `now` / `latest` (all mean the browser's local calendar date). Invalid input marks the row, does not block others.
+- FR2a. **Future and late dates.** A period whose start is after today's date is a row error ("date is in the future"). A day later than the latest available fix (e.g. `today` before the ~15:00 London publication, or after a weekend) resolves to the latest fix with the CLI's note "requested date is after the latest available fix; used YYYY-MM-DD". A current-year or current-month query averages fixes to date and says so.
 - FR3. Amount accepts `1500`, `$1,500`, `1,500.50`. Negative allowed (debts).
 - FR4. A new empty row appears when the last row has an amount or date.
 - FR5. Rows can be deleted, reordered by drag, and sorted by date.
-- FR6. Optional label column (free text) that passes through to CSV and chart tooltips.
+- FR6. A free-text `Label` column, always present, may be left empty; it passes through to CSV and chart tooltips.
 - FR7. Sheet state persists in `localStorage`; a "Clear" action resets it.
 - FR8. Column toggles: show/hide GBD, oz.
-- FR8a. Rows whose FX rate is not a daily market observation (see §6.2a: `fx_mode` = `parity`, `synthetic`, or `extrapolated`) render the computed cells in a warning color (amber) with a ⚠ marker whose tooltip names the mode, e.g. "FX: Bretton Woods parity £1 = $2.80 (1949-09-18 to 1967-11-17)" or, for synthetic euros, the exact text in D10 ("Synthetic euro: the euro did not exist before 1999 …").
+- FR8a. **(v1.1)** Rows whose FX rate is not a daily market observation (`fx_mode` = `parity`, `synthetic`, or `extrapolated`; see D10) render the computed cells in a warning color (amber) with a ⚠ marker whose tooltip names the mode, e.g. "FX: Bretton Woods parity £1 = $2.80 (1949-09-18 to 1953-08-09)" or, for synthetic euros, the exact text in D10 ("Synthetic euro: the euro did not exist before 1999 …"). USD rows and daily-FX rows show no marker.
 
 ### 5.2 Chart
 
 - FR9. Renders as inline SVG; updates synchronously on every valid edit.
-- FR10. X axis: time (rows sorted by effective date regardless of sheet order). Y axis: **GB by default**; the user can switch the axis to GBD or troy oz from the chart toolbar and can save the current choice as their default (persisted in settings). Optional second axis or toggle for nominal amount in the sheet currency.
-- FR10a. Points computed from non-daily FX (FR8a) are drawn in the warning color and hollow, with the same note in the tooltip, so the chart still renders back to any date.
-- FR11. Series: line + points; single-point input renders a point; hover/tap tooltip shows label, nominal amount, gold value, price used.
-- FR12. Handles mixed granularity (year, month, day) by plotting at the period midpoint and noting granularity in the tooltip.
-- FR13. Download as SVG (serialized DOM with inlined styles) and PNG (rasterized via canvas at 2× device pixel ratio).
+- FR10. X axis: time (rows sorted by effective date regardless of sheet order). Y axis: **GB by default**; the user can switch the axis to GBD or troy oz from the chart toolbar and can save the current choice as their default (persisted in settings). A user-toggleable overlay of the nominal amount (in the sheet currency) is off by default. The Y axis is **linear**; negative values are plotted as such. A log-scale toggle is offered only while every plotted value is positive.
+- FR10a. **(v1.1)** Points computed from non-daily FX (FR8a) are drawn in the warning color and hollow, with the same note in the tooltip, so the chart still renders back to any date.
+- FR11. Series: line + points connected in date order; single-point input renders a point; hover/tap tooltip shows label, nominal amount, gold value, price used.
+- FR12. X position is the midpoint of the **requested** period (day → that day, even when the fix rolled back; month → 16th; year → 2 July), regardless of the resolved `effective` date. Granularity ("year average of N fixes") is stated in the tooltip. Points with identical x are drawn side by side (small horizontal offset) and share one tooltip listing all of them.
+- FR13. Download as SVG (serialized DOM with inlined styles and explicit `width`/`height`) and PNG (SVG rasterized via canvas at a fixed 2× its CSS pixel size).
 
 ### 5.3 CSV import/export
 
-- FR14. Import: file picker and drag-drop; header detection compatible with `goldvalue.py --batch` (`date`, `amount`, optional `label`; case-insensitive; extra columns preserved as passthrough). The sheet-wide currency applies to all imported rows; a `currency` column, if present, is passed through untouched and the user is warned if its values differ from the sheet currency.
-- FR15. Export: same schema as `--batch` output plus passthrough columns and an `fx_mode` column (`daily` | `parity` | `synthetic` | `extrapolated`), so the two tools round-trip.
-- FR16. Import errors are reported per line; valid lines still load.
+- FR14. Import: file picker and drag-drop. Header detection is case-insensitive and identical to the CLI: date column = first of `date`, `period`, `month`, `year`; amount column = first of `amount`, `usd`, `value`, `price`. `label` is the app's name for an ordinary passthrough column. **Computed export columns (FR15 list) are ignored on import**, so an exported file re-imports cleanly and the amount is never taken from a computed column. Other extra columns pass through. The sheet-wide currency applies to all imported rows; a `currency` column, if present, is passed through untouched and the user is warned if its values differ from the sheet currency **(v1.1)**.
+- FR15. Export schema, in order: `date, amount, currency, label, <passthrough columns…>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`. `currency` is `USD` in v1; the `fx_*` columns are empty for USD rows. `USD` is the amount converted to USD (equal to `amount` for USD rows). `goldvalue.py --batch` emits the same schema (§5.6), so the two tools round-trip.
+- FR16. Import errors are reported per line; valid lines still load. (The CLI is stricter: it aborts on the first unparsable line. Parity tests compare only rows both tools accept.)
 
 ### 5.4 Layout
 
@@ -96,7 +106,27 @@ implementation.
 ### 5.5 Data and methodology display
 
 - FR19. A "Method" panel states: gold-denominated (not CPI), sources, resolution rules, and links to `historical-notes.md`.
-- FR20. Data freshness indicator: latest LBMA fix date in cache; manual "Refresh" button.
+- FR20. Data freshness indicator: latest LBMA fix date in cache (and, in v1.1, latest FX date for the selected currency); manual "Refresh" button (subject to the top-up rate limit in §6.3). When data cannot be loaded (first visit offline, storage evicted) the app shows a "price data not available offline" state instead of computing.
+
+### 5.6 Changes required to the reference CLI (`goldvalue.py`)
+
+The CLI is the parity reference (P3), so the spec is only satisfiable if it
+gains the following. These are Phase 1 (items 1–3) and Phase 5 (items 4–6) work.
+
+1. `--vectors OUT.json`: emit golden vectors (§5.7) from a pinned data snapshot.
+2. `--batch` output uses the FR15 schema (adds `amount` echo, `currency`, `granularity`, `note`; replaces `amount_<unit>`). Input amount detection unchanged plus FR14's ignore-computed-columns rule.
+3. `--json` and text output expose `granularity` and `note` (already present) under the same names as the CSV.
+4. **(v1.1)** `--currency EUR|GBP|CHF|DEM` (default USD) applying to AMOUNT (and to `--batch` rows), with BIS fetch/cache per §6.2 and the parity table (§6.2a).
+5. **(v1.1)** `fx_rate`, `fx_effective`, `fx_mode`, `fx_note` in `--json`, text, and `--batch`.
+6. **(v1.1)** `--fetch-only` also fetches the FX files.
+
+### 5.7 Golden vectors
+
+`test-vectors/*.json`, generated by `goldvalue.py --vectors` from a **pinned**
+data snapshot committed alongside (never live data; `today` is excluded).
+Schema per vector: `{"input": {"amount", "date", "from"}, "expected": {"effective", "granularity", "gold_usd_per_oz", "price_source", "note", "troy_oz", "GB", "GBD", "USD", "fx_rate", "fx_effective", "fx_mode"}}`.
+Required families: 1955 (annual, pre-1960); 1965-06 (monthly); 1968-01-02 and Jan–Mar 1968 (AM only); Saturday/Sunday roll-back; a 9-day roll-back boundary (Apr 1968 London closure); month and year means; a year-to-date pinned year; a day after the latest fix; each unit in `--from`; negative amount. v1.1 adds: each parity step and the day before/after BIS's first observation, EUR at 1998-12-31 and 1999-01-04, DEM at 1998-12-31 and 1999-01-04, a pre-1953 EUR row (parity + synthetic), and one pre-1940 GBP row (extrapolated).
+**Tolerance:** relative 1e-9 on stored doubles; text fields must match exactly.
 
 ## 6. Data layer
 
@@ -107,44 +137,52 @@ implementation.
 | Daily USD gold, AM & PM | `prices.lbma.org.uk/json/gold_{am,pm}.json` | 1968-01-02 → today | `*` (verified 2026-09-28) |
 | Monthly USD gold | `raw.githubusercontent.com/datasets/gold-prices/main/data/monthly.csv` (World Bank Pink Sheet 1960+; Timothy Green/NMA 1833–1959) | 1833-01 → current month | `*` |
 
-### 6.2 FX sources (for G7) — candidates verified 2026-09-28
+### 6.2 FX sources (for G7) — verified 2026-09-28
 
 | Source | Coverage | Notes |
 |---|---|---|
-| **BIS WS_XRU** (`stats.bis.org/api/v1/data/WS_XRU/D.{AREA}.{CCY}.A?format=csv`) | Daily, 1971+ for CHF (checked), GBP, DEM/EUR and most majors | Single source for all currencies, USD-per-unit convention, CSV. **Preferred.** |
-| ECB reference rates (`data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A`) | Daily, 1999-01-04+ | EUR only; authoritative for EUR. Cross-check. |
-| FRED (`DEXUSEU`, `DEXUSUK`, `DEXSZUS`) | Daily, 1971+ | Works for active series; anti-bot layer may block automation. Fallback. |
+| **BIS WS_XRU** (`stats.bis.org/api/v1/data/WS_XRU/D.{AREA}.{CCY}.A?format=csv`) | Daily. First observations: **GBP** (`GB`) 1953-08-10, **CHF** (`CH`) 1953-09-01, **Germany in euros** (`DE`/`EUR`) 1953-09-01. Latest observation lags ~1 week (2026-09-22 on 2026-09-28) | **Preferred.** Quoted as **national currency per USD** (GBP 0.748, CHF 0.819, EUR 0.872 in Sept 2026), so the fetcher stores `usd_per_unit = 1 / value`. CORS reflects the request origin. |
+| BIS `D.DE.EUR` as the source for **both EUR and DEM** | Same as above | BIS restates every euro-area country's history in euros at the fixed conversion rates, so `D.DE.EUR` pre-1999 *is* the Deutsche-Mark-chained euro (D10) and `× 1.95583` recovers DEM per USD. There is **no** `DEM` series (404). Do **not** use `XM` (euro-area aggregate, starts 1974, different construct). |
+| ECB reference rates (`data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A`) | Daily, 1999-01-04+, current to previous business day | Cross-check for EUR; optional fresher tail. CORS `*`. Quoted USD per EUR (opposite convention to BIS). |
+| FRED (`DEXUSUK`, `DEXSZUS`) | Daily, 1971+ | Fallback only; quotes vary in convention per series; anti-bot layer may block automation. |
 | xe.com | — | No free historical API; scraping violates ToS. **Not used.** |
 
 **Dates before a currency's first daily observation** use the fixed-parity
 table below (Bretton Woods par values), flagged (FR8a, FR10a, `fx_mode` in CSV).
-See §10 D10 for the rule and the synthetic-euro convention.
+See §10 D10 for the rules, precedence, and the synthetic-euro convention.
 
 ### 6.2a Fixed-parity table (USD per unit; verify against IMF IFS before coding)
+
+BIS daily data begins in 1953, so parity rows are needed only earlier. After
+1953 the 1961/1967/1969 revaluations and devaluations appear in the daily data
+and no parity rows are used.
 
 | Currency | Effective from | USD per unit | Event |
 |---|---|---|---|
 | GBP | 1940-01-01 | 4.03 | wartime peg |
-| GBP | 1949-09-18 | 2.80 | devaluation |
-| GBP | 1967-11-18 | 2.40 | devaluation |
-| CHF | 1949-01-01 | 1 / 4.37282 | par value (unchanged to May 1971) |
-| CHF | 1971-05-10 | 1 / 4.08 | revaluation (daily data already available) |
+| GBP | 1949-09-18 | 2.80 | devaluation (in force until BIS data begins 1953-08-10) |
+| CHF | 1949-01-01 | 1 / 4.37282 | par value (unchanged to 1971; BIS begins 1953-09-01) |
 | DEM | 1948-06-21 | 1 / 3.33 | currency reform; Deutsche Mark introduced |
-| DEM | 1949-09-28 | 1 / 4.20 | devaluation with sterling bloc |
-| DEM | 1961-03-06 | 1 / 4.00 | revaluation |
-| DEM | 1969-10-27 | 1 / 3.66 | revaluation (daily BIS data from 1971) |
-| EUR | before 1999-01-04 | DEM rate × 1.95583 | synthetic euro (D10); `fx_mode = synthetic` |
-| DEM | after 1998-12-31 | EUR rate / 1.95583 | fixed conversion; `fx_mode = synthetic` |
+| DEM | 1949-09-28 | 1 / 4.20 | devaluation with sterling bloc (in force until BIS begins 1953-09-01) |
+| EUR | before 1953-09-01 | DEM parity × 1.95583 | via DEM; precedence in D10 |
 
 Rows are used only where the daily table has no observation on or before the
-requested date. Month/year queries in the parity era resolve to the parity in
-force at the period midpoint (parities changed at most once per year).
+requested date (the daily table's first date is that currency's BIS first
+observation). Month/year queries before the first observation resolve to the
+parity in force at the period midpoint.
+
+### 6.2b FX resolution
+
+- Each FX series is resolved independently of gold, at the same granularity as the query, with the **same roll-back rule as gold** (the requested day or up to 9 calendar days earlier; FX later than the last observation uses the last observation, with a note, as gold does).
+- Month/year queries convert as **ratio of means**: `oz = (amount ÷ mean(fx_usd_per_unit)) ÷ mean(gold_usd_per_oz)`, each mean over that series' own observations in the period.
+- The row reports both `effective` (gold) and `fx_effective` because gold and FX holidays differ.
+- BIS's ~1-week lag means recent-date conversions use a slightly stale rate; the `fx_note` says so when the rate is more than 3 days old.
 
 ### 6.3 Data distribution model (decision D1, see §10)
 
-1. **Build-time snapshot (CSV, D14).** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily and copies the CLI's cache files verbatim into the site: `data/lbma_daily.csv` (`date,usd_am,usd_pm`), `data/monthly.csv` (`month,usd`), `data/fx_{ccy}.csv` (`date,usd_per_unit`). No conversion step; the browser reads exactly what the CLI reads. Measured 2026-09-28: gold data ~76 KB gzipped. Target ≤ 130 KB gzipped for gold + four FX series.
-2. **Runtime top-up.** On load, if the snapshot's latest date is older than the last business day, the SPA fetches LBMA JSON directly (CORS `*`) and merges newer rows only.
-3. **Browser cache.** Merged tables stored in IndexedDB (via a thin wrapper); `localStorage` for sheet rows and settings. Service worker caches the app shell for offline use (G5).
+1. **Build-time snapshot (CSV, D14).** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily and copies the CLI's cache files verbatim into the site: `data/lbma_daily.csv` (`date,usd_am,usd_pm`), `data/monthly.csv` (`month,usd`), `data/fx_{ccy}.csv` (`date,usd_per_unit`). No conversion step; the browser reads exactly what the CLI reads. Measured 2026-09-28: gold data ~76 KB gzipped. `fx_{ccy}.csv` files (`date,usd_per_unit`, three files: EUR, GBP, CHF; DEM derives from EUR) are **loaded lazily** when a currency is first selected; per-file budget ≤ 110 KB gzipped (to be measured in Phase 5).
+2. **Runtime top-up (gold only).** On load, if the snapshot's latest fix is older than the last business day **and** the last top-up attempt was more than 12 hours ago (timestamp in `localStorage`), then after the sheet is interactive the SPA fetches `gold_pm.json` and `gold_am.json` directly (CORS `*`; each is the full 1968+ history, roughly 0.9 MB uncompressed and served `no-store`, so the rate limit matters) and merges rows newer than the snapshot. **FX has no runtime top-up**: it is snapshot-only, refreshed by the daily CI job (BIS itself lags about a week).
+3. **Browser cache.** Merged gold tables are stored in IndexedDB as a *derived cache*; `localStorage` holds sheet rows, settings, and the top-up timestamp. The service worker precaches the app shell **and** `data/lbma_daily.csv`, `data/monthly.csv`, and `data/manifest.json` (versioned by the build), and caches `fx_*.csv` on first use, so the app computes offline without depending on IndexedDB surviving. The app requests `navigator.storage.persist()` where available. Browsers may still evict site storage (notably iOS Safari after ~7 days of non-use); FR20's offline state covers that case.
 
 ### 6.4 Resolution rules
 
@@ -152,13 +190,16 @@ Identical to `goldvalue.py` and `.agents/skills/gold-value-normalizer/SKILL.md`:
 
 | Query | 1968-01-02 onward | Before 1968 |
 |---|---|---|
-| Day | LBMA fix that day (PM else AM); else previous fix within 10 days | Monthly value |
+| Day | LBMA fix that day (PM else AM); else the most recent fix up to 9 calendar days earlier; later than the latest fix → latest fix, with note (FR2a) | Monthly value |
 | Month | Mean of daily fixes in month | Monthly value |
 | Year | Mean of daily fixes in year (YTD for current year) | Mean of 12 monthly values |
 
-FX resolution mirrors the same three granularities against the daily FX table
-(previous business day roll-back, means for month/year). Conversion order:
+FX resolution is specified in §6.2b. Conversion order:
 `amount_ccy → USD (FX for period) → oz (USD gold price for period)`.
+
+Display precision: stored values are full doubles; the UI formats like the CLI
+(`fmt_unit`: 2 decimals ≥ 100, 4 ≥ 1, else 6); CSV export rounds like
+`--batch` (GB 3, GBD 4, oz 6, USD 2, prices 4 decimals).
 
 ## 7. Architecture
 
@@ -172,7 +213,7 @@ FX resolution mirrors the same three granularities against the daily FX table
                                                                 ▼
                         CORS fetch (top-up only)   ┌──────────────────────────────┐
   prices.lbma.org.uk ◀──────────────────────────── │ SPA (TypeScript)             │
-  stats.bis.org      ◀──────────────────────────── │  core/   port of goldvalue.py│
+  (gold top-up only; FX is snapshot-only)          │  core/   port of goldvalue.py│
                                                    │  ui/     sheet + SVG chart   │
                                                    │  store/  IndexedDB + LS      │
                                                    └──────────────────────────────┘
@@ -198,11 +239,11 @@ FX resolution mirrors the same three granularities against the daily FX table
 
 ## 9. Non-functional requirements
 
-- NFR1. Initial load ≤ 250 KB gzipped including snapshot data; interactive < 1 s on mid-range mobile over 4G.
-- NFR2. Works fully offline after first successful load (except "today" freshness top-up).
-- NFR3. Accessible: keyboard navigation, ARIA grid semantics, chart has a data table alternative (the sheet itself).
+- NFR1. USD path: initial load ≤ 250 KB gzipped including gold data (CI asserts the `dist/` gzip size); each FX file ≤ 110 KB gzipped, fetched on demand; interactive < 1 s on mid-range mobile over 4G.
+- NFR2. Works fully offline after first successful load (except the freshness top-up), as long as the browser retains site storage (§6.3 item 3).
+- NFR3. Accessible: keyboard navigation, ARIA grid semantics, chart has a data table alternative (the sheet itself); axe-core reports no violations on the sheet.
 - NFR4. No third-party analytics or tracking. No cookies.
-- NFR5. All numbers reproducible: for any row, `goldvalue.py <amount> <date>` gives the same GB/GBD/oz to 6 significant figures.
+- NFR5. All numbers reproducible: for any row, `goldvalue.py AMOUNT DATE [--currency CCY]` gives the same GB/GBD/oz (relative 1e-9 on doubles; 6 significant figures displayed).
 - NFR6. Browser support: last two versions of evergreen browsers; Safari iOS 16+.
 
 ## 10. Design decisions (answers to intent.md open questions)
@@ -233,19 +274,20 @@ mix-ups. Python remains the reference implementation and the skill's runtime.
 of points); SVG re-render per keystroke is cheap and gives lossless SVG export
 for free. PNG export rasterizes the same SVG.
 
-**D6 — FX source: BIS** (daily since 1971, one API for all currencies),
-cross-checked against ECB for EUR. Not xe.com.
+**D6 — FX source: BIS** (daily since 1953, one API for all currencies; quoted as
+currency per USD and inverted on fetch), cross-checked against ECB for EUR. Not
+xe.com. One BIS series (`D.DE.EUR`) supplies both EUR and DEM (§6.2).
 
 **D7 — Where computation happens: client.** Port `goldvalue.py` resolution and
-conversion to `packages/core`; verify with golden vectors. The Python script
-also gains a `--vectors` mode to emit them.
+conversion to `packages/core`; verify with golden vectors (§5.7). The Python
+script gains the changes listed in §5.6.
 
 Decisions D8–D13 resolve the review questions of Draft 1 (owner answers, 2026-09-28).
 
 **D8 — UI framework: Preact** (with `@preact/signals`). Reasoning:
 
 - *Size.* Preact is ~4 KB gzipped against ~45 KB for React + ReactDOM. For a
-  static app whose entire data payload is ~80 KB and which must load quickly
+  static app whose USD-path data payload is ~76 KB and which must load quickly
   from shared hosting, the framework should not be the largest asset.
 - *Ecosystem without the weight.* Preact implements the React API (hooks, JSX,
   context); `preact/compat` lets most React libraries run unchanged, so the
@@ -276,15 +318,26 @@ flagged; pre-1999 euro is synthetic via the Deutsche Mark.** Curated
 currencies: **USD, EUR, GBP, CHF, DEM.** For dates before a currency's first
 daily FX observation, apply the official par value in force on that date from
 a static table in `core` (§6.2a). Rows and chart points are marked
-`fx_mode = "parity"` (amber + ⚠) so the reduced precision (±1% band, discrete
-steps) is visible. Dates before the table's first row (pre-1940 GBP, pre-1948
-DEM, pre-1949 CHF) fall back to the earliest table entry with
-`fx_mode = "extrapolated"` and a stronger warning. Charts therefore always render.
+`fx_mode = "parity"` (amber + ⚠) so the reduced precision (fixed par values,
+discrete steps) is visible. Dates before the table's first row (pre-1940 GBP,
+pre-1948 DEM, pre-1949 CHF) fall back to the earliest table entry with
+`fx_mode = "extrapolated"` and a stronger warning. Charts therefore always
+render. (Sterling was ~$4.87 on the gold standard before 1931 and floated in
+the 1930s, so pre-1940 GBP values are indicative only; a richer early table is
+deferred.)
+
+*`fx_mode` values and precedence.* `daily` (BIS observation) < `synthetic`
+(EUR before 1999-01-04 or DEM after 1998-12-31, derived at 1.95583) < `parity`
+< `extrapolated`. When several apply the highest wins and `fx_note` mentions
+the others (e.g. EUR in 1950: mode `parity`, note also says "synthetic via
+DEM"). USD rows have empty `fx_*` fields and no marker.
 
 *Synthetic euro.* **EUR before 1999-01-04** (the euro did not exist) is derived
 from the Deutsche Mark at the irrevocable conversion rate
-**1 EUR = 1.95583 DEM**: `usd_per_eur = usd_per_dem × 1.95583`, using BIS daily
-DEM from 1971 and the DEM parity rows before that. This is the Bundesbank
+**1 EUR = 1.95583 DEM**: `usd_per_eur = usd_per_dem × 1.95583`. In practice BIS
+already publishes this (its `D.DE.EUR` series, daily from 1953-09-01, is the
+mark restated in euros; §6.2), and the DEM parity rows cover earlier dates.
+This is the Bundesbank
 convention for long-run euro series and matches how Germans still mentally
 convert pre-euro prices (÷ 1.95583). It is flagged `fx_mode = "synthetic"` with
 the tooltip: *"Synthetic euro: the euro did not exist before 1999. Value derived
@@ -317,16 +370,30 @@ required JSON or XML (the "X" in AJAX was aspirational — `XMLHttpRequest.respo
 always returned arbitrary text). Hosts compress `text/csv` like any text type.
 Parsing 15k rows takes single-digit milliseconds.
 
-## 11. Open questions for review
+## 11. Open items (data verification, owned by Phase 5 implementer)
 
-None outstanding. Draft 3 is ready for the Build gate once plan.md is approved.
+No product questions are outstanding. Two data-verification tasks remain and
+are gated in the plan, not by the owner:
 
-## 12. Acceptance criteria (v1, USD-only)
+- V1. Verify each §6.2a par value and effective date against IMF IFS / central-bank sources and cite them in `reference.md`.
+- V2. Measure the gzipped size of each `fx_*.csv` and confirm the 110 KB budget (NFR1).
 
-- AC1. Entering `80000` / `2018-12` and `200000` / `today` shows 63,979.53 GB and the current-day value; both match `goldvalue.py` output.
-- AC2. Chart appears after the first valid row and updates within one frame of any edit.
-- AC3. Exported CSV re-imports losslessly and matches `goldvalue.py --batch` output for the same rows.
-- AC4. SVG and PNG downloads open in a browser/image viewer and match the on-screen chart.
-- AC5. With network disabled after first load, existing rows still compute and the app shell loads.
+## 12. Acceptance criteria
+
+**v1 (USD only)**
+
+- AC1. Entering `80000` / `2018-12` and `200000` / `today` shows 63,979.53 GB for the first row (display per §6.4) and the current value for the second; both match `goldvalue.py` output. When run before the day's PM fix is published, the second row uses the latest fix and its `Price used` note says so (FR2a).
+- AC2. Chart appears after the first valid row and updates within one animation frame of any edit.
+- AC3. Round-trip: export → import → export produces a byte-identical file, and for rows both tools accept, the shared columns equal `goldvalue.py --batch` output.
+- AC4. SVG download equals the serialized on-screen `<svg>` after style inlining; PNG pixel dimensions are 2× the SVG's width and height; both open in a browser and an image viewer.
+- AC5. With network disabled after first load (browser storage retained), existing rows still compute and the app shell loads.
 - AC6. The Method panel is visible and states "gold-denominated, not CPI".
-- AC7. Golden-vector test suite passes in CI for both Python and TypeScript.
+- AC7. Golden-vector suite (§5.7) passes in CI for Python and TypeScript.
+- AC12. FR12: a `1975` row plots at 2 July 1975 and its tooltip says "year average of N fixes"; two rows with the same x are drawn side by side. FR17: a 899 px viewport stacks sheet above chart. FR18: Enter/Tab/arrow navigation verified by Playwright. FR2a: a future date shows a row error. NFR3: axe-core clean.
+
+**v1.1 (multi-currency)**
+
+- AC8. S4: with EUR selected, `250000` / `2005-06` shows a value computed from the daily BIS rate (no ⚠) and matches `goldvalue.py 250000 2005-06 --currency EUR`.
+- AC9. GBP `1000` / `1950-06` renders amber with the parity tooltip (£1 = $2.80); CHF and DEM equivalents likewise.
+- AC10. EUR `1000` / `1985-06` renders amber with the exact synthetic-euro tooltip text (D10); DEM `1000` / `2005-06` renders amber, synthetic via EUR.
+- AC11. GBP `1000` / `1900-01` renders with `fx_mode = extrapolated` and the stronger warning; CSV export carries `fx_mode` and `fx_note` for all these rows.

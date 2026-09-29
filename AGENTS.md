@@ -35,6 +35,7 @@ planned (see `intent/companion-app/`).
 - Do not fetch from FRED for LBMA gold series (removed, 404) or scrape xe.com (no API, ToS). Use LBMA, the `datasets/gold-prices` monthly CSV, and BIS for FX.
 - The 1 oz Gold Eagle's $50 face value is a coin denomination, not a customs or valuation rate; GBD is a unit defined by this project.
 - Pre-1960 monthly values are annual averages repeated per month; don't describe them as monthly data.
+- BIS WS_XRU quotes currency per USD (not USD per unit): invert on fetch. There is no BIS DEM series; use `D.DE.EUR` (mark restated in euros, from 1953) for both EUR and DEM, never `XM`. BIS daily data starts 1953 and lags ~1 week.
 - The euro did not start 1:1 with the Deutsche Mark (1 EUR = 1.95583 DEM). The Mark der DDR is out of scope.
 - Keep `SKILL.md` under 500 lines and its `description` under 1024 characters; put background in `reference.md` / `historical-notes.md`.
 - Do not commit the price cache or generated `dist/`.
