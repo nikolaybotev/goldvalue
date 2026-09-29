@@ -1,0 +1,13 @@
+{
+  "name": "@goldvalue/web",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@goldvalue/core": "workspace:*"
+  }
+}
