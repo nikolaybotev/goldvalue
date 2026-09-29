@@ -7,6 +7,7 @@ import {
   monthlyPrice,
   type Network,
   pasteText,
+  snapshotText,
   visitWithWorker,
 } from "./support";
 
@@ -152,10 +153,7 @@ test.describe("AC5: offline after the first load", () => {
         const response = await fetch("data/fx_eur.csv");
         return { status: response.status, text: await response.text() };
       });
-    expect(await fetchFx()).toEqual({
-      status: 200,
-      text: "date,usd_per_unit\n1999-01-04,1.1789\n",
-    });
+    expect(await fetchFx()).toEqual({ status: 200, text: snapshotText("fx_eur.csv") });
     await expect
       .poll(async () => {
         const caches = await cacheContents(page);
