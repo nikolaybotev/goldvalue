@@ -77,7 +77,7 @@ Verification: vitest passes; `tsc --noEmit` clean; no DOM imports in `core`.
 Files: `apps/web/src/**`, `apps/web/index.html`, `apps/web/vite.config.ts`.
 
 1. Scaffold Vite + Preact + TS; import `@goldvalue/core`.
-2. `store/`: signals for rows, settings; `localStorage` persistence; IndexedDB for merged table; boot sequence: load bundled `gold.json` → check staleness → top-up from LBMA → persist.
+2. `store/`: signals for rows, settings; `localStorage` persistence; IndexedDB for merged table; boot sequence: read `data/manifest.json` → load bundled `lbma_daily.csv` + `monthly.csv` → check staleness → top-up from LBMA → persist.
 3. `sheet/`: ARIA grid; columns per FR1; row lifecycle per FR4–FR6; keyboard nav per FR18; per-cell validation state.
 4. `chart/`: `<Chart rows unit>` renders SVG with d3-scale/shape/axis; responsive via `ResizeObserver`; tooltip; single-point and empty states; toolbar to switch the axis unit (GB default → GBD / oz) and "save as default" (D11).
 5. `method/`: Method panel (FR19) and freshness indicator (FR20).
