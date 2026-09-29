@@ -19,6 +19,20 @@ function toNumber(text: string, what: string): number {
   return value;
 }
 
+/** Parse the CLI's `monthly.csv` (`month,usd`) into monthly entries. */
+export function parseMonthlyCsv(monthlyCsv: string): MonthlyEntry[] {
+  const monthly: MonthlyEntry[] = [];
+  for (const [month, usd] of parseDataCsv(monthlyCsv, ["month", "usd"]) as [string, string][]) {
+    const match = /^([0-9]+)-([0-9]+)$/.exec(month);
+    if (!match) throw new DataCsvError(`invalid month: ${month}`);
+    monthly.push([
+      formatMonth(Number(match[1]), Number(match[2])),
+      toNumber(usd, `price for ${month}`),
+    ]);
+  }
+  return monthly;
+}
+
 /**
  * The two price tables the resolution rules read: one USD price per LBMA day (PM
  * fix, else AM) and the monthly series. Dates are ISO strings, which sort like dates.
@@ -80,16 +94,7 @@ export class GoldTable {
         daily.push([formatIso(parseIso(date)), toNumber(value, `price on ${date}`)]);
       }
     }
-    const monthly: MonthlyEntry[] = [];
-    for (const [month, usd] of parseDataCsv(monthlyCsv, ["month", "usd"]) as [string, string][]) {
-      const match = /^([0-9]+)-([0-9]+)$/.exec(month);
-      if (!match) throw new DataCsvError(`invalid month: ${month}`);
-      monthly.push([
-        formatMonth(Number(match[1]), Number(match[2])),
-        toNumber(usd, `price for ${month}`),
-      ]);
-    }
-    return new GoldTable(daily, monthly);
+    return new GoldTable(daily, parseMonthlyCsv(monthlyCsv));
   }
 
   get hasDaily(): boolean {
