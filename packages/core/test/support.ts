@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { type CivilDate, GoldTable, parseIso } from "../src/index";
+import { type CivilDate, FxRates, GoldTable, parseIso } from "../src/index";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const VECTORS_DIR = join(here, "..", "..", "..", "test-vectors");
@@ -24,6 +24,15 @@ export function loadSnapshotTable(): GoldTable {
     readVectorFile("snapshot/lbma_daily.csv"),
     readVectorFile("snapshot/monthly.csv"),
   );
+}
+
+/** The committed synthetic FX snapshot (BIS-shaped, made-up values). */
+export function loadSnapshotFx(): FxRates {
+  return FxRates.fromCsv({
+    EUR: readVectorFile("snapshot/fx_eur.csv"),
+    GBP: readVectorFile("snapshot/fx_gbp.csv"),
+    CHF: readVectorFile("snapshot/fx_chf.csv"),
+  });
 }
 
 export const day = (iso: string): CivilDate => parseIso(iso);

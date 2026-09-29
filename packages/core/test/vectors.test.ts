@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { type ConversionResult, convertQuery, parseIso } from "../src/index";
-import { loadSnapshotTable, readJson } from "./support";
+import { loadSnapshotFx, loadSnapshotTable, readJson } from "./support";
 
 interface Vector {
   name: string;
@@ -73,5 +73,73 @@ describe("golden vectors (test-vectors/gold-usd.json)", () => {
       expect(r.effective, v.name).toBe(v.expected.effective);
       expect(r.price_source, v.name).toBe(v.expected.price_source);
     }
+  });
+});
+
+const fx = loadSnapshotFx();
+const fxVectors = readJson<Vector[]>("fx.json");
+
+describe("FX golden vectors (test-vectors/fx.json, AC12)", () => {
+  const run = (v: Vector) =>
+    convertQuery(table, {
+      amount: v.input.amount,
+      date: v.input.date,
+      from: v.input.from,
+      currency: v.input.currency,
+      fx,
+      today: parseIso(v.input.today),
+    });
+
+  test("file covers the FX families and every currency", () => {
+    expect(fxVectors.length).toBeGreaterThan(100);
+    const families = new Set(fxVectors.map((v) => v.family));
+    for (const family of [
+      "fx-parity-steps",
+      "fx-first-observation",
+      "fx-euro-boundary",
+      "fx-euro-pre1953",
+      "fx-euro-synthetic",
+      "fx-extrapolated",
+      "fx-daily",
+      "fx-rollback",
+      "fx-latest",
+    ]) {
+      expect(families.has(family), family).toBe(true);
+    }
+    expect(new Set(fxVectors.map((v) => v.input.currency))).toEqual(
+      new Set(["EUR", "GBP", "CHF", "DEM"]),
+    );
+    expect(new Set(fxVectors.map((v) => v.expected.fx_mode))).toEqual(
+      new Set(["daily", "synthetic", "parity", "extrapolated"]),
+    );
+  });
+
+  test.each(fxVectors.map((v) => [v.name, v] as const))("%s", (_name, vector) => {
+    const result = run(vector) as unknown as Record<string, unknown>;
+    for (const [key, expected] of Object.entries(vector.expected)) {
+      if (typeof expected === "number") expectMatches(result[key], expected, key);
+      else expect(result[key], key).toEqual(expected);
+    }
+  });
+
+  test("text and integer fields are exact for every vector", () => {
+    for (const v of fxVectors) {
+      const r = run(v);
+      expect(r.fx_note, v.name).toBe(v.expected.fx_note);
+      expect(r.fx_mode, v.name).toBe(v.expected.fx_mode);
+      expect(r.fx_effective, v.name).toBe(v.expected.fx_effective);
+      expect(r.note, v.name).toBe(v.expected.note);
+      expect(r.effective, v.name).toBe(v.expected.effective);
+      expect(r.points, v.name).toBe(v.expected.points);
+    }
+  });
+
+  test("the D10 synthetic-euro text is verbatim", () => {
+    const v = fxVectors.find((x) => x.name === "EUR 1985-06 month (AC10 synthetic)");
+    expect(run(v as Vector).fx_note).toBe(
+      "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche " +
+        "Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other " +
+        "legacy currencies (francs, lire, \u2026) would differ.",
+    );
   });
 });

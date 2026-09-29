@@ -2,6 +2,7 @@ import Papa from "papaparse";
 import { parseAmount } from "./amounts";
 import { type ConversionResult, convert } from "./convert";
 import { type CivilDate, checkNotFuture, type Period, parseDate } from "./dates";
+import type { Currency, FxRates } from "./fx";
 import type { GoldTable } from "./table";
 import { PriceNotFoundError } from "./table";
 import type { Unit } from "./units";
@@ -120,6 +121,12 @@ export interface ImportResult {
   columns: string[];
   rows: ImportedRow[];
   errors: ImportError[];
+  /**
+   * Non-fatal notices. Currently one: the file has a `currency` column whose values
+   * differ from the sheet currency (FR14). The column itself is ignored, like the CLI's
+   * `--batch`: the sheet currency applies to every row and the export regenerates it.
+   */
+  warnings: string[];
 }
 
 const field = (row: readonly string[], index: number | null): string =>
@@ -157,14 +164,40 @@ function readRecords(text: string): CsvRecord[] {
   return records;
 }
 
+/** Index of the first `currency` header (trimmed, case-insensitive), or null. */
+function currencyColumn(header: readonly string[]): number | null {
+  const at = header.findIndex((name) => lower(name) === "currency");
+  return at === -1 ? null : at;
+}
+
 /**
  * Import a CSV per spec FR14/FR16: bad lines are reported and the rest still load.
  * Throws CsvFormatError when the file is empty or lacks a date or amount column.
+ * `sheetCurrency` (default USD) is what a `currency` column is compared with.
  */
-export function importCsv(text: string, today: CivilDate): ImportResult {
+export function importCsv(
+  text: string,
+  today: CivilDate,
+  sheetCurrency: Currency = "USD",
+): ImportResult {
   const [headerRecord, ...records] = readRecords(text);
   if (!headerRecord) throw new CsvFormatError("CSV is empty");
   const layout = batchLayout(headerRecord.fields);
+  const warnings: string[] = [];
+  const currencyIndex = currencyColumn(headerRecord.fields);
+  if (currencyIndex !== null) {
+    const differing = new Set<string>();
+    for (const { fields } of records) {
+      const value = field(fields, currencyIndex).trim();
+      if (value !== "" && value.toUpperCase() !== sheetCurrency) differing.add(value);
+    }
+    if (differing.size > 0) {
+      warnings.push(
+        `The file's currency column (${[...differing].join(", ")}) differs from the sheet ` +
+          `currency ${sheetCurrency}; ${sheetCurrency} is applied to every row.`,
+      );
+    }
+  }
   const rows: ImportedRow[] = [];
   const errors: ImportError[] = [];
   for (const { line, fields } of records) {
@@ -187,7 +220,7 @@ export function importCsv(text: string, today: CivilDate): ImportResult {
       errors.push({ line, message: error instanceof Error ? error.message : String(error) });
     }
   }
-  return { columns: layout.passthrough.map((column) => column.name), rows, errors };
+  return { columns: layout.passthrough.map((column) => column.name), rows, errors, warnings };
 }
 
 /**
@@ -237,8 +270,7 @@ export interface ExportRow {
 }
 
 /** Text for a value in an fx_* column (empty when the row has no FX). */
-const optionalText = (value: string | number | null): string =>
-  value === null ? "" : String(value);
+const optionalText = (value: string | null): string => value ?? "";
 
 /** Build the FR15 CSV: fixed columns, passthrough columns, computed columns; LF endings. */
 export function exportCsv(extraColumns: readonly string[], rows: readonly ExportRow[]): string {
@@ -260,7 +292,7 @@ export function exportCsv(extraColumns: readonly string[], rows: readonly Export
       r.price_source,
       r.granularity,
       r.note,
-      optionalText(r.fx_rate),
+      r.fx_rate === null ? "" : formatFixed(r.fx_rate, 6),
       optionalText(r.fx_effective),
       optionalText(r.fx_mode),
       optionalText(r.fx_note),
@@ -274,6 +306,10 @@ export interface BatchOptions {
   today: CivilDate;
   /** Unit of the amounts (`--from`); written to the `currency` column. Default USD. */
   unit?: Unit;
+  /** Currency of the amounts (`--currency`, unit USD only); it wins in the `currency` column. */
+  currency?: Currency;
+  /** FX tables; required when `currency` is not USD. */
+  fx?: FxRates;
 }
 
 export interface BatchResult {
@@ -282,21 +318,32 @@ export interface BatchResult {
   errors: ImportError[];
   /** Lines skipped because no price data exists for the period. */
   skipped: ImportError[];
+  /** Non-fatal notices from the import (see `ImportResult.warnings`). */
+  warnings: string[];
 }
 
 /** The CLI's `--batch` pipeline in TypeScript: import, convert every row, export. */
 export function runBatch(text: string, table: GoldTable, options: BatchOptions): BatchResult {
   const unit = options.unit ?? "USD";
-  const imported = importCsv(text, options.today);
+  const currency = options.currency ?? "USD";
+  const imported = importCsv(text, options.today, currency);
   const skipped: ImportError[] = [];
   const out: ExportRow[] = [];
   for (const row of imported.rows) {
     try {
-      const result = convert(table, row.value, unit, row.period, options.today);
+      const result = convert(
+        table,
+        row.value,
+        unit,
+        row.period,
+        options.today,
+        currency,
+        options.fx,
+      );
       out.push({
         date: row.date,
         amount: row.amount,
-        currency: unit,
+        currency: currency === "USD" ? unit : currency,
         label: row.label,
         extra: row.extra,
         result,
@@ -306,5 +353,10 @@ export function runBatch(text: string, table: GoldTable, options: BatchOptions):
       skipped.push({ line: row.line, message: error.message });
     }
   }
-  return { csv: exportCsv(imported.columns, out), errors: imported.errors, skipped };
+  return {
+    csv: exportCsv(imported.columns, out),
+    errors: imported.errors,
+    skipped,
+    warnings: imported.warnings,
+  };
 }
