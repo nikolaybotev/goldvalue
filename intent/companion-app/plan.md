@@ -88,6 +88,19 @@ Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `tests/pytho
 
 DoD: `pytest tests/python -q` green on 3.9 and 3.12. `AGENTS.md`: pytest command, env hooks, batch schema.
 
+Build notes (Phase 1a) — decisions and deviations:
+
+- **Month/year-to-date is decided by `today`, not by the last cached fix.** The old rule (`year >= last_daily.year`) mislabelled a finished year as "year to date" on 1 January. Now `(year, month) == today's` gives "(month to date)" and `year == today.year` gives "(year to date)". `today` is `GOLDVALUE_TODAY` or the local date. Consequence for Phase 1b/2: golden vectors carry an `input.today` field (an addition to spec §5.7's `input`), and `convert` in `core` takes `today` as a parameter.
+- **Roll-back boundary note.** A day in the LBMA era with no fix within 9 days (e.g. 1968-03-24 during the London closure) used to fall back to the monthly value with the note "no daily data before 1968", which is wrong. The note is now "no LBMA fix within 9 days before D; used the monthly price". Pre-1968 days keep the old note. The spec is silent on this note text.
+- **`usd` header ambiguity (FR14).** `USD` is both an amount alias and a computed export column. It is ignored as computed only when the header also has `troy_oz` or `gold_usd_per_oz`; otherwise it remains an amount alias, so pre-existing `date,usd` inputs keep working. All other computed columns and `currency` are always ignored.
+- **`currency` column with `--from`**: `--batch --from GB` writes `GB` (the unit the amount is in) in `currency`; `USD` otherwise.
+- **Number formatting.** `--batch` now writes fixed-point numbers (price 4, oz 6, GB 3, GBD 4, USD 2 decimals) instead of Python `round()` reprs, so output never contains exponents and is byte-portable to TypeScript. `--json` `gold_usd_per_oz` is now unrounded (was rounded to 4 decimals) so vectors and the port compare at 1e-9. Old `--json` keys (`input.period`, `input.granularity`, `price_note`, `price_points`) stay as aliases.
+- **`fx_*` keys** are present in `--json` and `--batch` now (`null` / empty) so the schema does not change in Phase 6a.
+- **Amount grammar.** Exponent forms, `nan`, `inf`, and overflowing values are rejected (FR3 lists only plain decimals). Non-ASCII date input is rejected, and year `0000` is rejected, so the TypeScript parser has a well-defined domain.
+- **`--no-refresh`** added alongside `GOLDVALUE_OFFLINE`. Offline with a missing cache file is an error; `--refresh` in offline mode is an error.
+- Negative amounts containing `,` or `$` need `--` on the command line (argparse reads `-1,500` as an option); `--batch` is unaffected.
+- CI `python` job now runs pytest on 3.9 and 3.12. Locally verified on 3.9.25, 3.12.14, and 3.14.7.
+
 ## Phase 1b — Synthetic fixture, vectors, data sync
 
 Files: `test-vectors/snapshot/*`, `test-vectors/{gold-usd.json,dates.json,batch-*.csv}`, `tools/snapshot/sync_data.py`, `.github/workflows/weekly-drift.yml`.
