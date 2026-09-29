@@ -525,6 +525,15 @@ button {
   text-align: center;
 }
 
+.chart-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+}
+
 .chart {
   display: block;
   width: 100%;
