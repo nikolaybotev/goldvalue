@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Derived from | [intent.md](intent.md) (2026-09-28) |
-| Status | Draft 2 — Q1–Q6 resolved as D8–D13; Q7 open; iterate together with [plan.md](plan.md) |
+| Status | Draft 3 — all review questions resolved (D8–D14); iterate together with [plan.md](plan.md) |
 | Stage | 2 · Design |
 
 ## 1. Summary
@@ -25,7 +25,7 @@ implementation.
 - G4. Download the chart as SVG and PNG.
 - G5. Work after first load without a server (prices cached in the browser).
 - G6. Deployable as plain static files on classic shared hosting, GitHub Pages, or any CDN.
-- G7. Multi-currency input (EUR, GBP, CHF first) converted to gold via USD.
+- G7. Multi-currency input (EUR, GBP, CHF, DEM) converted to gold via USD.
 - G8. Numerical parity with `goldvalue.py` for every supported query.
 
 **Non-goals**
@@ -71,7 +71,7 @@ implementation.
 - FR6. Optional label column (free text) that passes through to CSV and chart tooltips.
 - FR7. Sheet state persists in `localStorage`; a "Clear" action resets it.
 - FR8. Column toggles: show/hide GBD, oz.
-- FR8a. Rows whose FX rate is not a daily market observation (see §6.2a: `fx_mode` = `parity` or `extrapolated`) render the computed cells in a warning color (amber) with a ⚠ marker; the `Price used` note names the mode, e.g. "FX: Bretton Woods parity £1 = $2.80 (1949-09-18 to 1967-11-17)" or "FX: euro did not exist; earliest rate (1999-01-04) used".
+- FR8a. Rows whose FX rate is not a daily market observation (see §6.2a: `fx_mode` = `parity`, `synthetic`, or `extrapolated`) render the computed cells in a warning color (amber) with a ⚠ marker whose tooltip names the mode, e.g. "FX: Bretton Woods parity £1 = $2.80 (1949-09-18 to 1967-11-17)" or, for synthetic euros, the exact text in D10 ("Synthetic euro: the euro did not exist before 1999 …").
 
 ### 5.2 Chart
 
@@ -85,7 +85,7 @@ implementation.
 ### 5.3 CSV import/export
 
 - FR14. Import: file picker and drag-drop; header detection compatible with `goldvalue.py --batch` (`date`, `amount`, optional `label`; case-insensitive; extra columns preserved as passthrough). The sheet-wide currency applies to all imported rows; a `currency` column, if present, is passed through untouched and the user is warned if its values differ from the sheet currency.
-- FR15. Export: same schema as `--batch` output plus passthrough columns and an `fx_mode` column (`daily` | `parity` | `extrapolated`), so the two tools round-trip.
+- FR15. Export: same schema as `--batch` output plus passthrough columns and an `fx_mode` column (`daily` | `parity` | `synthetic` | `extrapolated`), so the two tools round-trip.
 - FR16. Import errors are reported per line; valid lines still load.
 
 ### 5.4 Layout
@@ -129,7 +129,12 @@ See §10 D10 for the rule and the synthetic-euro convention.
 | GBP | 1967-11-18 | 2.40 | devaluation |
 | CHF | 1949-01-01 | 1 / 4.37282 | par value (unchanged to May 1971) |
 | CHF | 1971-05-10 | 1 / 4.08 | revaluation (daily data already available) |
-| EUR | — | earliest daily rate (1999-01-04) | no parity rows; pre-inception dates are `extrapolated` |
+| DEM | 1948-06-21 | 1 / 3.33 | currency reform; Deutsche Mark introduced |
+| DEM | 1949-09-28 | 1 / 4.20 | devaluation with sterling bloc |
+| DEM | 1961-03-06 | 1 / 4.00 | revaluation |
+| DEM | 1969-10-27 | 1 / 3.66 | revaluation (daily BIS data from 1971) |
+| EUR | before 1999-01-04 | DEM rate × 1.95583 | synthetic euro (D10); `fx_mode = synthetic` |
+| DEM | after 1998-12-31 | EUR rate / 1.95583 | fixed conversion; `fx_mode = synthetic` |
 
 Rows are used only where the daily table has no observation on or before the
 requested date. Month/year queries in the parity era resolve to the parity in
@@ -137,7 +142,7 @@ force at the period midpoint (parities changed at most once per year).
 
 ### 6.3 Data distribution model (decision D1, see §10)
 
-1. **Build-time snapshot.** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily, converts the cache into a compact `gold.json` (date → USD price, PM-else-AM; monthly series) and `fx/{ccy}.json`, and commits/publishes them with the static site. Measured 2026-09-28: gold data is ~77 KB gzipped as JSON (~76 KB as CSV; format choice pending). Target ≤ 120 KB gzipped for gold + three FX series.
+1. **Build-time snapshot (CSV, D14).** A scheduled GitHub Actions job runs `goldvalue.py --fetch-only` daily and copies the CLI's cache files verbatim into the site: `data/lbma_daily.csv` (`date,usd_am,usd_pm`), `data/monthly.csv` (`month,usd`), `data/fx_{ccy}.csv` (`date,usd_per_unit`). No conversion step; the browser reads exactly what the CLI reads. Measured 2026-09-28: gold data ~76 KB gzipped. Target ≤ 130 KB gzipped for gold + four FX series.
 2. **Runtime top-up.** On load, if the snapshot's latest date is older than the last business day, the SPA fetches LBMA JSON directly (CORS `*`) and merges newer rows only.
 3. **Browser cache.** Merged tables stored in IndexedDB (via a thin wrapper); `localStorage` for sheet rows and settings. Service worker caches the app shell for offline use (G5).
 
@@ -161,7 +166,7 @@ FX resolution mirrors the same three granularities against the daily FX table
 ┌───────────────────────────────┐   daily cron   ┌──────────────────────────────┐
 │ GitHub Actions                │ ─────────────▶ │ Static site (GitHub Pages /  │
 │  goldvalue.py --fetch-only    │  build+deploy  │ shared hosting / CDN)        │
-│  build-snapshot → data/*.json │                │  index.html, app.js, data/*  │
+│  copy cache → data/*.csv      │                │  index.html, app.js, data/*  │
 └───────────────────────────────┘                └──────────────┬───────────────┘
                                                                 │ load
                                                                 ▼
@@ -174,7 +179,7 @@ FX resolution mirrors the same three granularities against the daily FX table
 ```
 
 - **No runtime backend in v1.** See D1–D3.
-- **Packages (monorepo):** `.agents/skills/` (agent skill + Python reference), `packages/core` (TS library: parsing, resolution, conversion, CSV), `apps/web` (SPA), `tools/snapshot` (Python or TS script producing `data/*.json`), `test-vectors/` (golden JSON emitted by Python).
+- **Packages (monorepo):** `.agents/skills/` (agent skill + Python reference), `packages/core` (TS library: parsing, resolution, conversion, CSV), `apps/web` (SPA), `tools/snapshot` (shell/Python step copying the CLI cache to `data/*.csv`), `test-vectors/` (golden JSON emitted by Python).
 
 ## 8. Technology choices
 
@@ -184,7 +189,7 @@ FX resolution mirrors the same three granularities against the daily FX table
 | Build | Vite | Static output, fast, TS native |
 | UI | Preact (React-compatible API, ~4 KB) + `@preact/signals` | Decided (D8). Keeps bundle small for shared hosting; signals suit recompute-per-keystroke; React libraries available via `preact/compat` |
 | Chart | Hand-rolled SVG using `d3-scale`, `d3-shape`, `d3-axis` | Exact control of SVG output for clean export; no canvas dependency; small |
-| CSV | `papaparse` | Robust quoting, streaming import |
+| CSV | Hand-written parser for the fixed-schema data files (`fetch().text()` + split); `papaparse` for user-supplied import files | Data files are unquoted and regular; user CSVs need robust quoting handling |
 | Storage | `idb-keyval` over IndexedDB; `localStorage` for small state | Simple, well-supported |
 | Tests | Vitest for TS; pytest for Python; golden vectors shared | Parity guarantee (G8) |
 | Lint/format | Biome | One tool, fast |
@@ -267,17 +272,29 @@ use case. Per-row currency can be revisited if mixed-currency sheets become a
 real need.
 
 **D10 — Pre-observation FX dates use a hard-coded Bretton Woods parity table,
-flagged.** For dates before a currency's first daily FX observation, apply the
-official par value in force on that date from a static table in `core`
-(5 rows for GBP/CHF; see §6.2a). Rows and chart points are marked `fx_mode = "parity"`
-(amber + ⚠) so the reduced precision (±1% band, discrete steps) is visible.
-Dates before the table's first row (pre-1940 GBP, pre-1949 CHF) fall back to
-the earliest table entry with `fx_mode = "extrapolated"` and a stronger
-warning. Charts therefore always render. **EUR before 1999-01-04** (the euro did
-not exist) has no parity rows; it uses the earliest daily EUR rate, flagged
-`fx_mode = "extrapolated"`. Chaining a synthetic euro through the Deutsche Mark
-was considered and rejected as adding a fourth currency's data for a
-pre-inception fiction.
+flagged; pre-1999 euro is synthetic via the Deutsche Mark.** Curated
+currencies: **USD, EUR, GBP, CHF, DEM.** For dates before a currency's first
+daily FX observation, apply the official par value in force on that date from
+a static table in `core` (§6.2a). Rows and chart points are marked
+`fx_mode = "parity"` (amber + ⚠) so the reduced precision (±1% band, discrete
+steps) is visible. Dates before the table's first row (pre-1940 GBP, pre-1948
+DEM, pre-1949 CHF) fall back to the earliest table entry with
+`fx_mode = "extrapolated"` and a stronger warning. Charts therefore always render.
+
+*Synthetic euro.* **EUR before 1999-01-04** (the euro did not exist) is derived
+from the Deutsche Mark at the irrevocable conversion rate
+**1 EUR = 1.95583 DEM**: `usd_per_eur = usd_per_dem × 1.95583`, using BIS daily
+DEM from 1971 and the DEM parity rows before that. This is the Bundesbank
+convention for long-run euro series and matches how Germans still mentally
+convert pre-euro prices (÷ 1.95583). It is flagged `fx_mode = "synthetic"` with
+the tooltip: *"Synthetic euro: the euro did not exist before 1999. Value derived
+from the Deutsche Mark at the fixed conversion rate 1 € = 1.95583 DM. Amounts
+originally in other legacy currencies (francs, lire, …) would differ."*
+Symmetrically, **DEM after 1998-12-31** is derived from EUR at the same rate
+and flagged `synthetic`. The euro's official 1:1 predecessor was the ECU
+basket; it was not chosen because almost no historical amounts were
+denominated in ECU. The East German Mark der DDR is out of scope (no market
+USD rate; see `historical-notes.md`).
 
 **D11 — Chart axis defaults to GB;** user can switch to GBD or oz and save the
 choice as their default (FR10). Nominal amount available as a secondary toggle,
@@ -291,9 +308,18 @@ Vite's `base`.
 personal/non-commercial; monthly series: PDDL; BIS: free with attribution) and
 are stated in the app footer and README.
 
+**D14 — Snapshot format: CSV**, reusing the CLI's cache files verbatim. Byte
+savings are negligible (~2% gzipped); the reasons are one format across skill,
+CLI, CI, and browser, and no conversion tooling to maintain. Browser side this
+is `const text = await (await fetch(url)).text()` followed by a `split`-based
+parse; `fetch` has been universal in evergreen browsers since 2017 and never
+required JSON or XML (the "X" in AJAX was aspirational — `XMLHttpRequest.responseText`
+always returned arbitrary text). Hosts compress `text/csv` like any text type.
+Parsing 15k rows takes single-digit milliseconds.
+
 ## 11. Open questions for review
 
-- Q7. Snapshot format: JSON as spec'd, or reuse the CLI's CSV cache files verbatim (saves ~2% bytes, removes the conversion step, one format everywhere)? Recommendation: CSV.
+None outstanding. Draft 3 is ready for the Build gate once plan.md is approved.
 
 ## 12. Acceptance criteria (v1, USD-only)
 
