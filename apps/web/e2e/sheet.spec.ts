@@ -131,17 +131,18 @@ test.describe("sheet behaviour", () => {
     page,
   }) => {
     await openApp(page);
+    const columns = page.getByRole("group", { name: "Columns" });
     await expect(page.getByRole("columnheader", { name: "GBD" })).toBeVisible();
-    await page.getByRole("button", { name: "GBD", exact: true }).click();
-    await page.getByRole("button", { name: "Troy oz" }).click();
-    await page.getByRole("button", { name: "Label", exact: true }).click();
+    await columns.getByRole("button", { name: "GBD" }).click();
+    await columns.getByRole("button", { name: "Troy oz" }).click();
+    await columns.getByRole("button", { name: "Label" }).click();
     await expect(page.getByRole("columnheader", { name: "GBD" })).toHaveCount(0);
     await expect(page.getByRole("columnheader", { name: "Troy oz" })).toHaveCount(0);
     await expect(page.getByRole("columnheader", { name: "Label" })).toHaveCount(0);
     await expect(page.getByRole("columnheader", { name: "GB", exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole("columnheader", { name: "GBD" })).toHaveCount(0);
-    await page.getByRole("button", { name: "GBD", exact: true }).click();
+    await columns.getByRole("button", { name: "GBD" }).click();
     await expect(page.getByRole("columnheader", { name: "GBD" })).toBeVisible();
   });
 

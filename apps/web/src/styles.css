@@ -384,3 +384,138 @@ button {
     height: 44px;
   }
 }
+
+.chart-panel {
+  margin-top: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.chart-wrap {
+  position: relative;
+  margin-top: 8px;
+}
+
+.chart-empty {
+  padding: 32px 8px;
+  text-align: center;
+}
+
+.chart-note {
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+  font: 11px var(--font);
+}
+
+.chart .axis text {
+  fill: var(--muted);
+  font: 11px var(--font);
+}
+
+.chart .axis-y line {
+  stroke: #e7e5e4;
+}
+
+.chart .axis-x line,
+.chart .axis-y2 line {
+  stroke: var(--border-strong);
+}
+
+.chart .axis .domain {
+  stroke: none;
+}
+
+.chart .axis-x .domain {
+  stroke: var(--border-strong);
+}
+
+.chart .axis-title {
+  fill: var(--muted);
+  font: 11px var(--font);
+}
+
+.chart .zero-line {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.chart .guide {
+  stroke: var(--border-strong);
+  stroke-dasharray: 3 3;
+}
+
+.chart .series-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+}
+
+.chart .overlay-line {
+  fill: none;
+  stroke: #78716c;
+  stroke-width: 1.25;
+  stroke-dasharray: 5 4;
+}
+
+.chart .overlay-mark {
+  fill: #78716c;
+}
+
+.chart .point {
+  fill: var(--accent);
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+.chart .point.is-hover {
+  stroke: var(--text);
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  max-width: min(320px, 90%);
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  font-size: 0.8125rem;
+  pointer-events: none;
+}
+
+.tooltip ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tooltip li + li {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.tip-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+
+fieldset.toolbar-toggles {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}

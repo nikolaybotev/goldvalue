@@ -1,4 +1,5 @@
 import { computed, effect, signal } from "@preact/signals";
+import type { AxisUnit } from "../chart/model";
 import { localToday } from "../lib/clock";
 import { computeRow, type RowResult } from "./compute";
 import { table } from "./data";
@@ -46,16 +47,34 @@ export interface Settings {
   showLabel: boolean;
   showGbd: boolean;
   showOz: boolean;
+  /** Y axis unit the chart opens with (D11); changed only by "Save as default". */
+  axisDefault: AxisUnit;
+  logScale: boolean;
+  nominalOverlay: boolean;
 }
 
-const DEFAULT_SETTINGS: Settings = { showLabel: true, showGbd: true, showOz: true };
+const DEFAULT_SETTINGS: Settings = {
+  showLabel: true,
+  showGbd: true,
+  showOz: true,
+  axisDefault: "GB",
+  logScale: false,
+  nominalOverlay: false,
+};
 
 function loadSettings(): Settings {
   const stored = readJson(SETTINGS_KEY) as (Partial<Settings> & { v?: number }) | null;
   const settings = { ...DEFAULT_SETTINGS };
   if (stored?.v === 1) {
-    for (const key of Object.keys(DEFAULT_SETTINGS) as (keyof Settings)[]) {
+    for (const key of ["showLabel", "showGbd", "showOz", "logScale", "nominalOverlay"] as const) {
       if (typeof stored[key] === "boolean") settings[key] = stored[key];
+    }
+    if (
+      stored.axisDefault === "GB" ||
+      stored.axisDefault === "GBD" ||
+      stored.axisDefault === "OZ"
+    ) {
+      settings.axisDefault = stored.axisDefault;
     }
   }
   return settings;
