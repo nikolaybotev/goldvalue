@@ -2,6 +2,7 @@ import { signal } from "@preact/signals";
 import { exportSheet, importSheet, MAX_IMPORT_BYTES, MAX_IMPORT_LABEL } from "../io/csv-io";
 import { downloadBlob } from "../lib/download";
 import { parsePasted } from "../lib/paste";
+import { currency } from "../store/fx";
 import {
   applyPaste,
   type Field,
@@ -42,6 +43,7 @@ export const importReport = signal<{
   file: string;
   loaded: number;
   errors: { line: number; message: string }[];
+  warnings: string[];
   failure: string | null;
 } | null>(null);
 /** Direction the next "Sort by date" press applies. */
@@ -151,6 +153,7 @@ export async function importFile(file: File): Promise<void> {
       file: file.name,
       loaded: 0,
       errors: [],
+      warnings: [],
       failure: `${file.name} is larger than ${MAX_IMPORT_LABEL}; nothing was imported.`,
     };
     notice.value = "Import failed";
@@ -164,13 +167,14 @@ export async function importFile(file: File): Promise<void> {
       file: file.name,
       loaded: 0,
       errors: [],
+      warnings: [],
       failure: `${file.name} could not be read.`,
     };
     notice.value = "Import failed";
     return;
   }
   try {
-    const outcome = importSheet(text, today.peek());
+    const outcome = importSheet(text, today.peek(), currency.peek());
     const previous = rows.peek();
     undoSnapshot.value = previous.every(isBlank)
       ? null
@@ -182,6 +186,7 @@ export async function importFile(file: File): Promise<void> {
       file: file.name,
       loaded: outcome.loaded,
       errors: outcome.errors,
+      warnings: outcome.warnings,
       failure: null,
     };
     const skipped = outcome.errors.length;
@@ -193,6 +198,7 @@ export async function importFile(file: File): Promise<void> {
       file: file.name,
       loaded: 0,
       errors: [],
+      warnings: [],
       failure: `${file.name}: ${error instanceof Error ? error.message : String(error)}`,
     };
     notice.value = "Import failed";

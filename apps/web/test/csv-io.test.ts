@@ -1,4 +1,4 @@
-import { CsvFormatError } from "@goldvalue/core";
+import { CsvFormatError, FxRates } from "@goldvalue/core";
 import { expect, test } from "vitest";
 import { exportSheet, importSheet, MAX_IMPORT_BYTES } from "../src/io/csv-io";
 import { computeRow } from "../src/store/compute";
@@ -92,6 +92,29 @@ test("rows without a value are left out of the export and counted", () => {
   expect(out.exported).toBe(1);
   expect(out.skipped).toBe(2);
   expect(out.csv.trimEnd().split("\n")).toHaveLength(2);
+});
+
+test("importSheet warns when a currency column differs from the sheet currency", () => {
+  const imported = importSheet("date,amount,currency\n1980-01-21,1,GBP\n", today, "EUR");
+  expect(imported.warnings).toEqual([
+    "The file's currency column (GBP) differs from the sheet currency EUR; EUR is applied to every row.",
+  ]);
+  expect(importSheet("date,amount,currency\n1980-01-21,1,USD\n", today).warnings).toEqual([]);
+});
+
+test("EUR sheet export equals goldvalue.py --batch --currency EUR byte for byte", () => {
+  const fx = FxRates.fromCsv({
+    EUR: readVectorFile("snapshot", "fx_eur.csv"),
+    GBP: readVectorFile("snapshot", "fx_gbp.csv"),
+    CHF: readVectorFile("snapshot", "fx_chf.csv"),
+  });
+  const imported = importSheet(readVectorFile("batch-fx-eur-in.csv"), today, "EUR");
+  expect(imported.errors).toEqual([]);
+  expect(imported.warnings).toEqual([]);
+  const results = imported.rows.map((row) => computeRow(row, table, today, "EUR", fx));
+  expect(exportSheet(imported.rows, results, imported.extraColumns).csv).toBe(
+    readVectorFile("batch-fx-eur-out.csv"),
+  );
 });
 
 test("rows typed by hand pad the passthrough columns of an imported sheet", () => {
