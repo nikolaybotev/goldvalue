@@ -11,7 +11,7 @@
 ## Problem
 
 Dollar amounts from different dates are not comparable. The `gold-value-normalizer`
-skill (`skill/gold-value-normalizer/scripts/goldvalue.py`) already re-denominates
+skill (`.agents/skills/gold-value-normalizer/scripts/goldvalue.py`) already re-denominates
 a dated USD amount into gold units (goldbacks, GBD, troy oz) using historical
 gold prices, but it is only reachable through an agent or a terminal. A person who
 wants to enter a handful of dated amounts, see them in gold terms, and look at the
@@ -100,4 +100,4 @@ bear on this intent: LBMA daily USD fixes are available from 1968 and served wit
 `Access-Control-Allow-Origin: *`; the World Bank / Timothy Green monthly series
 (1833+) is served from GitHub raw, also with permissive CORS; FRED's LBMA series
 was removed. Historical simplifying assumptions are documented in
-`skill/gold-value-normalizer/historical-notes.md`.
+`.agents/skills/gold-value-normalizer/historical-notes.md`.
