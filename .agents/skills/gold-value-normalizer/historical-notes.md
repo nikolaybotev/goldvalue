@@ -69,15 +69,28 @@ same period, then to gold at the USD benchmark. This is deliberate: it
 normalizes everything to one bullion price rather than trying to reproduce
 local gold markets. Under Bretton Woods (to 1971) exchange rates were fixed par
 values against the dollar, movable only within a ±1% band and changed by
-discrete devaluations, so pre-1971 conversions use a small parity table and
-are flagged as such.
+discrete devaluations. The BIS daily series starts in August/September 1953
+and already contains the 1961, 1967 and 1969 revaluations and devaluations, so
+only dates before each currency's first BIS observation use the small parity
+table (GBP 1940-1953-08-09, CHF 1949-1953-08-31, DEM/EUR 1948-06-21 to
+1953-08-31). Those values are flagged `fx_mode = parity`; dates before the table
+starts are flagged `extrapolated` and use the earliest entry. In this era the
+official par is a stepwise approximation: the market rate could differ from it
+by a few percent (Swiss franc: legal parity 4.37 per dollar, BIS's first
+observation 4.29; sterling traded far below $4.03 in free markets before
+September 1949). Sources for each par value are in [reference.md](reference.md).
+
+Dates from 1953 use the BIS daily observations; the newest one is about a week
+old, and recent conversions say so.
 
 ### Deutsche Mark and the euro
 
 - The **Deutsche Mark (DEM)** was introduced in the Western occupation zones on
-  21 June 1948 (currency reform), initially at 3.33 DM per USD, devalued with
-  the sterling bloc to 4.20 on 28 Sept 1949, revalued to 4.00 on 6 March 1961
-  and to 3.66 on 27 Oct 1969, and floated from 1971.
+  21 June 1948 (currency reform), initially at 3.33 DM per USD (30 US cents),
+  devalued with the sterling bloc to 4.20 (23.8095 US cents; the Bank deutscher
+  Länder's records give 19 Sept 1949 as the effective date, the decision being
+  announced on 28-29 Sept, and the parity table uses 28 Sept), revalued to 4.00
+  on 6 March 1961 and to 3.66 on 27 Oct 1969, and floated from 1971.
 - The **euro** began on 1 Jan 1999 (cash from 1 Jan 2002). It did **not** start
   1:1 with the mark: the irrevocable conversion rate is **1 EUR = 1.95583 DEM**.
   The euro's official 1:1 predecessor was the ECU, a basket unit of account
@@ -91,6 +104,14 @@ are flagged as such.
   more value against the mark before 1999. Such rows are flagged
   `fx_mode = synthetic`. Symmetrically, DEM amounts dated after 1998 are
   derived from EUR at the same rate and flagged.
+- **Where the data comes from.** The BIS publishes one series, `D.DE.EUR`,
+  which is Germany's exchange rate history restated in euros at the fixed
+  conversion rate (daily from 1 Sept 1953; from 1999 identical to the ECB
+  reference rate). The project uses it for both EUR and DEM: pre-1999 the
+  deutsche-mark rate is the series times 1.95583, so a DEM query from 1953 to
+  1998 is a genuine daily rate (`daily`), while an EUR query in the same years
+  is `synthetic`. Before September 1953 the DEM parity rows (3.33, then 4.20)
+  supply the rate, times 1.95583 for EUR.
 
 ### Mark der DDR (East German mark)
 

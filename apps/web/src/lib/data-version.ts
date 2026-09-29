@@ -1,7 +1,9 @@
 /**
- * A short identity for the deployed data files: the `name:sha256` pairs of the manifest, in
- * name order. It changes exactly when a published data file changes (formatting of
+ * A short identity for the deployed gold data: the `name:sha256` pairs of the manifest, in
+ * name order. It changes exactly when a published gold data file changes (formatting of
  * `manifest.json` does not matter). Null when the manifest is missing or has no hashes.
+ * `fx_*.csv` files are left out: they change with every BIS update and do not affect the
+ * stored LBMA table, so including them would discard that 1.8 MB table on every deploy.
  */
 export function dataVersionOf(manifest: unknown): string | null {
   if (typeof manifest !== "object" || manifest === null) return null;
@@ -9,6 +11,7 @@ export function dataVersionOf(manifest: unknown): string | null {
   if (typeof files !== "object" || files === null) return null;
   const parts = Object.entries(files as Record<string, unknown>)
     .flatMap(([name, info]) => {
+      if (/^fx_[a-z]{3}\.csv$/.test(name)) return [];
       const sha = (info as { sha256?: unknown } | null)?.sha256;
       return typeof sha === "string" && sha !== "" ? [`${name}:${sha}`] : [];
     })

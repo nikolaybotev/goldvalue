@@ -42,12 +42,37 @@ DAILY = [
 
 # (month, usd)
 MONTHLY = (
-    [(f"1955-{m:02d}", "35.00") for m in range(1, 13)]
+    [("1950-06", "34.70")]
+    + [(f"1955-{m:02d}", "35.00") for m in range(1, 13)]
     + [(f"1965-{m:02d}", "35.10" if m == 6 else "35.00") for m in range(1, 13)]
     + [(f"1968-{m:02d}", "38.00") for m in range(1, 13)]
     + [("1980-01", "675.00"), ("2018-12", "1250.00")]
     + [(f"2026-{m:02d}", "3200.00") for m in range(1, 9)]
 )
+
+
+# Hand-made USD-per-unit tables in the shape of the BIS cache files (date, usd_per_unit).
+# The first dates match the real BIS coverage: GBP 1953-08-10, CHF and EUR 1953-09-01.
+FX_DAILY = {
+    "gbp": [("1953-08-10", "2.78"), ("1953-08-11", "2.79"), ("1980-01-18", "2.25"),
+            ("1980-01-21", "2.26"), ("2026-09-21", "1.34"), ("2026-09-22", "1.35")],
+    "chf": [("1953-09-01", "0.2333"), ("1980-01-21", "0.60"), ("1999-01-04", "0.7292"),
+            ("2026-09-22", "1.25")],
+    "eur": [("1953-09-01", "0.4656"), ("1980-01-21", "0.5"), ("1998-12-30", "1.10"),
+            ("1998-12-31", "1.12"), ("1999-01-04", "1.17"), ("1999-01-05", "1.18"),
+            ("2018-12-03", "1.13"), ("2018-12-04", "1.14"), ("2018-12-05", "1.15"),
+            ("2026-09-21", "1.17"), ("2026-09-22", "1.18")],
+}
+
+
+def write_fx(directory: Path, tables=FX_DAILY) -> dict:
+    directory.mkdir(parents=True, exist_ok=True)
+    paths = {}
+    for name, rows in tables.items():
+        path = directory / f"fx_{name}.csv"
+        path.write_text("date,usd_per_unit\n" + "".join(f"{d},{v}\n" for d, v in rows))
+        paths[name.upper()] = path
+    return paths
 
 
 def write_cache(directory: Path, daily=DAILY, monthly=MONTHLY) -> tuple[Path, Path]:
@@ -92,6 +117,11 @@ def hermetic_env(monkeypatch, tmp_path, gv):
 def cache_dir(hermetic_env):
     write_cache(hermetic_env)
     return hermetic_env
+
+
+@pytest.fixture
+def fx(gv, cache_dir):
+    return gv.FxRates(write_fx(cache_dir))
 
 
 @pytest.fixture

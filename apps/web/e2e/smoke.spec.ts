@@ -28,7 +28,12 @@ test.describe("smoke: the served site", () => {
     const manifest = JSON.parse(files.manifest.text) as {
       files: Record<string, { rows: number; last_date: string; sha256: string }>;
     };
-    expect(Object.keys(manifest.files)).toEqual(["monthly.csv"]);
+    expect(Object.keys(manifest.files).sort()).toEqual([
+      "fx_chf.csv",
+      "fx_eur.csv",
+      "fx_gbp.csv",
+      "monthly.csv",
+    ]);
     expect(manifest.files["monthly.csv"]?.sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(manifest.files["monthly.csv"]?.rows).toBeGreaterThan(2000);
     expect(files.monthly.ok).toBe(true);

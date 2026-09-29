@@ -53,7 +53,7 @@ jobs:
       - name: Initial-load budget (NFR1; synthetic monthly.csv stands in for the real one)
         run: |
           python3 tools/snapshot/sync_data.py --source-dir test-vectors/snapshot --out apps/web/dist/data
-          node scripts/check-size.mjs --require-data
+          node scripts/check-size.mjs --require-data --require-fx
 
   e2e:
     runs-on: ubuntu-latest

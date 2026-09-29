@@ -28,6 +28,10 @@ const manifestBody = (sha: string) =>
     },
   });
 
+/** A file of the committed synthetic snapshot, as text. */
+export const snapshotText = (name: string): string =>
+  readFileSync(join(SNAPSHOT, name)).toString("utf8");
+
 export const LBMA_URL = "https://prices.lbma.org.uk/json/*.json";
 
 /** The synthetic LBMA JSON for a `gold_am.json` / `gold_pm.json` URL. */

@@ -13,6 +13,13 @@ Price sources (fetched once, cached locally as CSV)
   Monthly USD gold price, 1833-present (World Bank Pink Sheet from 1960;
   Timothy Green / National Mining Association annual table before 1960)
       https://raw.githubusercontent.com/datasets/gold-prices/main/data/monthly.csv
+  Daily FX from the BIS (only for --currency EUR|GBP|CHF|DEM), 1953-present, stored as
+  USD per unit in fx_eur.csv / fx_gbp.csv / fx_chf.csv (DEM is derived from EUR)
+      https://stats.bis.org/api/v1/data/WS_XRU/D.{DE.EUR,GB.GBP,CH.CHF}.A?format=csv
+
+Non-USD amounts convert to USD first (USD-routing tenet), then to gold. Before a
+currency's first BIS observation a Bretton Woods parity table applies; every FX value
+that is not a daily observation carries an fx_mode flag and an explanatory fx_note.
 
 Only the Python standard library is required.
 
@@ -26,6 +33,7 @@ Test hooks (environment)
 from __future__ import annotations
 
 import argparse
+import bisect
 import csv
 import datetime as dt
 import json
@@ -51,6 +59,17 @@ MONTHLY_URL = (
 LBMA_START = dt.date(1968, 1, 2)
 STALE_AFTER_SECONDS = 12 * 3600
 ROLLBACK_DAYS = 9
+
+BIS_URL = "https://stats.bis.org/api/v1/data/WS_XRU/D.{area}.{ccy}.A?format=csv"
+# BIS series behind each cached FX file. D.DE.EUR is Germany's history restated in
+# euros at the fixed conversion rate, so it supplies both EUR and DEM (never XM).
+FX_SERIES = {"EUR": ("DE", "EUR"), "GBP": ("GB", "GBP"), "CHF": ("CH", "CHF")}
+CURRENCIES = ("USD", "EUR", "GBP", "CHF", "DEM")
+DEM_PER_EUR = 1.95583
+EURO_START = dt.date(1999, 1, 4)
+DEM_LAST_DAY = dt.date(1998, 12, 31)
+FX_STALE_DAYS = 3
+FX_MAX_GZ_BYTES = 110_000
 
 FX_KEYS = ("fx_rate", "fx_effective", "fx_mode", "fx_note")
 # Computed export columns (spec FR15). Ignored when found in a batch input file.
@@ -126,6 +145,53 @@ def fetch_lbma(path: Path) -> None:
     tmp.replace(path)
 
 
+def fx_path(directory: Path, source: str) -> Path:
+    return directory / f"fx_{source.lower()}.csv"
+
+
+def parse_bis_csv(text: str) -> list[tuple[str, float]]:
+    """Return (date, USD per unit) rows from a BIS WS_XRU CSV.
+
+    BIS quotes units of currency per USD in OBS_VALUE, so the value is inverted.
+    Rows before a series' first valid date carry `NaN` (or nothing) and are skipped.
+    """
+    rows: dict[str, float] = {}
+    for r in csv.DictReader(text.splitlines()):
+        raw = (r.get("OBS_VALUE") or "").strip()
+        day = (r.get("TIME_PERIOD") or "").strip()
+        if not raw or not day:
+            continue
+        try:
+            quote = float(raw)
+            dt.date.fromisoformat(day)
+        except ValueError:
+            continue
+        if math.isfinite(quote) and quote > 0:
+            rows[day] = 1.0 / quote
+    return sorted(rows.items())
+
+
+def format_rate(value: float) -> str:
+    """Six significant digits: keeps each fx_*.csv under the 110 KB gzip budget."""
+    text = format(value, ".6g")
+    if "e" in text or "E" in text:
+        raise ValueError(f"FX rate {value!r} is outside the supported range")
+    return text
+
+
+def fetch_fx(path: Path, source: str) -> None:
+    area, ccy = FX_SERIES[source]
+    rows = parse_bis_csv(_download(BIS_URL.format(area=area, ccy=ccy)).decode("utf-8"))
+    if not rows:
+        raise ValueError(f"BIS returned no {source} observations")
+    tmp = path.with_suffix(".tmp")
+    with tmp.open("w", newline="", encoding="utf-8") as fh:
+        fh.write("date,usd_per_unit\n")
+        for day, usd in rows:
+            fh.write(f"{day},{format_rate(usd)}\n")
+    tmp.replace(path)
+
+
 def fetch_monthly(path: Path) -> None:
     text = _download(MONTHLY_URL).decode("utf-8")
     rows = list(csv.DictReader(text.splitlines()))
@@ -139,6 +205,26 @@ def fetch_monthly(path: Path) -> None:
     tmp.replace(path)
 
 
+def _ensure_file(path: Path, fetch, label: str, force: bool, quiet: bool) -> None:
+    if offline():
+        if force:
+            sys.exit("error: --refresh cannot be combined with offline mode")
+        if not path.exists():
+            sys.exit(f"error: offline mode and the {label} cache is missing: {path}")
+        return
+    if force or not path.exists():
+        if not quiet:
+            print(f"Fetching {label} -> {path}", file=sys.stderr)
+        try:
+            fetch(path)
+        except (urllib.error.URLError, OSError, ValueError) as exc:
+            if path.exists():
+                print(f"warning: refresh of {label} failed ({exc}); using cached copy",
+                      file=sys.stderr)
+            else:
+                sys.exit(f"error: could not fetch {label}: {exc}")
+
+
 def ensure_cache(force: bool = False, quiet: bool = False) -> tuple[Path, Path]:
     d = cache_dir()
     lbma, monthly = d / "lbma_daily.csv", d / "monthly.csv"
@@ -146,24 +232,23 @@ def ensure_cache(force: bool = False, quiet: bool = False) -> tuple[Path, Path]:
         (lbma, fetch_lbma, "LBMA daily fixes"),
         (monthly, fetch_monthly, "monthly series"),
     ):
-        if offline():
-            if force:
-                sys.exit("error: --refresh cannot be combined with offline mode")
-            if not path.exists():
-                sys.exit(f"error: offline mode and the {label} cache is missing: {path}")
-            continue
-        if force or not path.exists():
-            if not quiet:
-                print(f"Fetching {label} -> {path}", file=sys.stderr)
-            try:
-                fetch(path)
-            except (urllib.error.URLError, OSError, ValueError) as exc:
-                if path.exists():
-                    print(f"warning: refresh of {label} failed ({exc}); using cached copy",
-                          file=sys.stderr)
-                else:
-                    sys.exit(f"error: could not fetch {label}: {exc}")
+        _ensure_file(path, fetch, label, force, quiet)
     return lbma, monthly
+
+
+def fx_sources_for(currencies) -> list[str]:
+    """Cached FX files needed for these currencies (DEM comes from the EUR file)."""
+    return sorted({"EUR" if c == "DEM" else c for c in currencies if c != "USD"})
+
+
+def ensure_fx_cache(sources, force: bool = False, quiet: bool = False) -> dict[str, Path]:
+    d = cache_dir()
+    paths = {}
+    for source in sources:
+        path = paths[source] = fx_path(d, source)
+        _ensure_file(path, lambda p, s=source: fetch_fx(p, s), f"{source} FX rates (BIS)",
+                     force, quiet)
+    return paths
 
 
 def refresh_if_stale(path: Path, fetch, label: str) -> None:
@@ -283,6 +368,243 @@ class GoldTable:
                 else "Timothy Green / NMA table (annual average)")
 
 
+# --------------------------------------------------------------------------- FX
+
+FX_MODES = ("daily", "synthetic", "parity", "extrapolated")
+
+# Bretton Woods par values (spec 6.2a): (effective from, USD per unit, description).
+# Used only before a currency's first BIS observation; DEM also drives EUR.
+PARITY_TABLE = {
+    "GBP": [(dt.date(1940, 1, 1), 4.03, "\u00a31 = $4.03"),
+            (dt.date(1949, 9, 18), 2.80, "\u00a31 = $2.80")],
+    "CHF": [(dt.date(1949, 1, 1), 1 / 4.37282, "CHF 1 = $0.2287 (4.37282 CHF per USD)")],
+    "DEM": [(dt.date(1948, 6, 21), 1 / 3.33, "DM 1 = $0.3003 (3.33 DM per USD)"),
+            (dt.date(1949, 9, 28), 1 / 4.20, "DM 1 = $0.2381 (4.20 DM per USD)")],
+}
+EUR_PARITY_LABELS = {
+    dt.date(1948, 6, 21): "\u20ac1 = $0.5873 (via DM 1 = $0.3003 at 1 \u20ac = 1.95583 DM)",
+    dt.date(1949, 9, 28): "\u20ac1 = $0.4657 (via DM 1 = $0.2381 at 1 \u20ac = 1.95583 DM)",
+}
+GBP_EXTRAPOLATION_NOTE = (" Indicative only: sterling was about $4.87 on the gold standard "
+                          "before 1931 and floated in the 1930s.")
+
+SYNTHETIC_EUR_NOTE = (
+    "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche "
+    "Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other "
+    "legacy currencies (francs, lire, \u2026) would differ.")
+SYNTHETIC_DEM_NOTE = (
+    "Synthetic Deutsche Mark: the Deutsche Mark was replaced by the euro in 1999. Value "
+    "derived from the euro at the fixed conversion rate 1 \u20ac = 1.95583 DM.")
+BIS_LAG_NOTE = "BIS data lags about a week"
+
+
+class FxTable:
+    """Daily USD-per-unit observations from one cached BIS file."""
+
+    def __init__(self, path: Path, source: str):
+        self.path, self.source = path, source
+        self._load()
+
+    def _load(self) -> None:
+        rows = []
+        with self.path.open(newline="", encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                rows.append((dt.date.fromisoformat(r["date"]), float(r["usd_per_unit"])))
+        rows.sort()
+        self.dates = [d for d, _ in rows]
+        self.values = [v for _, v in rows]
+        self._by_date = dict(rows)
+        if not rows:
+            raise LookupError(f"{self.path} has no FX observations")
+
+    @property
+    def first(self) -> dt.date:
+        return self.dates[0]
+
+    @property
+    def last(self) -> dt.date:
+        return self.dates[-1]
+
+    def value(self, day: dt.date) -> float | None:
+        return self._by_date.get(day)
+
+    def between(self, first: dt.date, last: dt.date) -> tuple[list[dt.date], list[float]]:
+        lo = bisect.bisect_left(self.dates, first)
+        hi = bisect.bisect_right(self.dates, last)
+        return self.dates[lo:hi], self.values[lo:hi]
+
+    def before(self, day: dt.date) -> dt.date:
+        return self.dates[bisect.bisect_left(self.dates, day) - 1]
+
+    def ensure_covers(self, target: dt.date) -> None:
+        if target > self.last:
+            refresh_if_stale(self.path, lambda p: fetch_fx(p, self.source),
+                             f"{self.source} FX rates (BIS)")
+            self._load()
+
+
+class FxRates:
+    """The FX tables a run needs, keyed by BIS source (EUR, GBP, CHF)."""
+
+    def __init__(self, paths: dict[str, Path]):
+        self.tables = {source: FxTable(path, source) for source, path in paths.items()}
+
+    def table_for(self, currency: str) -> FxTable:
+        source = "EUR" if currency == "DEM" else currency
+        try:
+            return self.tables[source]
+        except KeyError:
+            raise LookupError(f"no FX data loaded for {currency}") from None
+
+    def ensure_covers(self, target: dt.date) -> None:
+        for table in self.tables.values():
+            table.ensure_covers(target)
+
+
+def period_bounds(kind: str, anchor: dt.date) -> tuple[dt.date, dt.date]:
+    if kind == "day":
+        return anchor, anchor
+    if kind == "month":
+        first = anchor.replace(day=1)
+        nxt = (first + dt.timedelta(days=31)).replace(day=1)
+        return first, nxt - dt.timedelta(days=1)
+    return dt.date(anchor.year, 1, 1), dt.date(anchor.year, 12, 31)
+
+
+def period_midpoint(kind: str, anchor: dt.date) -> dt.date:
+    """Same point the chart uses (spec FR12): the day, the 16th, or 2 July."""
+    if kind == "day":
+        return anchor
+    if kind == "month":
+        return dt.date(anchor.year, anchor.month, 16)
+    return dt.date(anchor.year, 7, 2)
+
+
+def parity_rate(currency: str, when: dt.date, first_obs: dt.date | None) -> dict:
+    """Bretton Woods parity in force on `when`; `extrapolated` before the table starts."""
+    rows = PARITY_TABLE["DEM" if currency in ("EUR", "DEM") else currency]
+    idx = 0
+    for i, row in enumerate(rows):
+        if row[0] <= when:
+            idx = i
+    start, base, label = rows[idx]
+    extrapolated = when < rows[0][0]
+    rate, shown = base, label
+    if currency == "EUR":
+        rate, shown = base * DEM_PER_EUR, EUR_PARITY_LABELS[start]
+    if extrapolated:
+        text = (f"Extrapolated: no parity table entry before {start}; the earliest entry "
+                f"{shown} is used.")
+        if currency == "GBP":
+            text += GBP_EXTRAPOLATION_NOTE
+    else:
+        if idx + 1 < len(rows):
+            end = rows[idx + 1][0] - dt.timedelta(days=1)
+        else:
+            end = first_obs - dt.timedelta(days=1) if first_obs else None
+        span = f"{start} to {end}" if end else f"from {start}"
+        text = f"Bretton Woods parity {shown} ({span})."
+    return {"rate": rate, "effective": str(start), "note": text,
+            "kind": "extrapolated" if extrapolated else "parity"}
+
+
+def is_synthetic(currency: str, used_first: dt.date, used_last: dt.date) -> bool:
+    if currency == "EUR":
+        return used_first < EURO_START
+    if currency == "DEM":
+        return used_last > DEM_LAST_DAY
+    return False
+
+
+def resolve_fx(fx: FxRates, currency: str, kind: str, anchor: dt.date,
+               today: dt.date | None = None) -> dict:
+    """Resolve the USD-per-unit rate for a query (spec 6.2b, D10).
+
+    Returns rate, effective, mode, note. Daily observations win; before the first
+    observation the parity table applies (`parity`, or `extrapolated` before the table
+    starts); `synthetic` marks EUR before 1999-01-04 and DEM after 1998-12-31 by the
+    observation dates actually used. The reported mode is the highest of
+    daily < synthetic < parity < extrapolated and the note lists every explanation.
+    """
+    today = today or today_date()
+    table = fx.table_for(currency)
+    scale = (lambda v: v / DEM_PER_EUR) if currency == "DEM" else (lambda v: v)
+    start, end = period_bounds(kind, anchor)
+    notes: list[str] = []
+    parity = None
+
+    if kind == "day":
+        found = None
+        for back in range(0, ROLLBACK_DAYS + 1):
+            probe = anchor - dt.timedelta(days=back)
+            value = table.value(probe)
+            if value is not None:
+                found = (probe, value, back)
+                break
+        if found:
+            probe, value, back = found
+            if back:
+                text = f"no FX rate on {anchor}"
+                if anchor <= table.last and back <= FX_STALE_DAYS:
+                    text += " (non-trading day)"
+                text += f"; used previous rate from {probe}"
+                if anchor > table.last and back > FX_STALE_DAYS:
+                    text += f" ({BIS_LAG_NOTE})"
+                notes.append(text)
+        elif anchor > table.last:
+            probe, value = table.last, table.value(table.last)
+            notes.append(f"requested date is after the latest available FX rate; "
+                         f"used {probe} ({BIS_LAG_NOTE})")
+        elif anchor < table.first:
+            parity = parity_rate(currency, anchor, table.first)
+        else:
+            probe = table.before(anchor)
+            value = table.value(probe)
+            notes.append(f"no FX rate within {ROLLBACK_DAYS} days before {anchor}; "
+                         f"used previous rate from {probe}")
+        if parity is None:
+            rate, effective = scale(value), str(probe)
+            used = (probe, probe)
+    else:
+        label = f"{anchor.year}-{anchor.month:02d}" if kind == "month" else str(anchor.year)
+        dates, values = table.between(start, end)
+        if dates:
+            rate = statistics.fmean([scale(v) for v in values])
+            effective, used = label, (dates[0], dates[-1])
+            if start < table.first:
+                notes.append(f"period starts before the first BIS observation "
+                             f"({table.first}); average of the observations from that date")
+            if end > table.last and (min(end, today) - table.last).days > FX_STALE_DAYS:
+                notes.append(f"period extends past the latest BIS observation ({table.last}); "
+                             f"average of the {len(dates)} available daily rates "
+                             f"({BIS_LAG_NOTE})")
+        elif end < table.first:
+            parity = parity_rate(currency, period_midpoint(kind, anchor), table.first)
+        elif start > table.last:
+            probe = table.last
+            rate, effective, used = scale(table.value(probe)), str(probe), (probe, probe)
+            notes.append(f"requested period is after the latest available FX rate; "
+                         f"used {probe} ({BIS_LAG_NOTE})")
+        else:
+            probe = table.before(start)
+            rate, effective, used = scale(table.value(probe)), str(probe), (probe, probe)
+            notes.append(f"no FX rate in the period; used previous rate from {probe}")
+
+    modes = ["daily"]
+    lead: list[str] = []
+    if parity is not None:
+        rate, effective = parity["rate"], parity["effective"]
+        used = (period_midpoint(kind, anchor),) * 2
+        modes.append(parity["kind"])
+        lead.append(parity["note"])
+    if is_synthetic(currency, *used):
+        modes.append("synthetic")
+        lead.append(SYNTHETIC_EUR_NOTE if currency == "EUR" else SYNTHETIC_DEM_NOTE)
+    mode = max(modes, key=FX_MODES.index)
+    return {"rate": rate, "effective": effective, "mode": mode,
+            "note": " ".join([*lead, *notes])}
+
+
 # --------------------------------------------------------------------------- parsing
 
 
@@ -339,6 +661,14 @@ def check_not_future(anchor: dt.date, token: str, today: dt.date) -> None:
         raise argparse.ArgumentTypeError(f"{token!r}: date is in the future")
 
 
+def parse_currency(text: str) -> str:
+    key = text.strip().upper()
+    if key not in CURRENCIES:
+        raise argparse.ArgumentTypeError(
+            f"unknown currency {text!r}; use {', '.join(CURRENCIES)}")
+    return key
+
+
 def parse_unit(text: str) -> str:
     key = text.strip().lower().replace(" ", "")
     if key not in UNIT_ALIASES:
@@ -369,20 +699,36 @@ def resolve(table: GoldTable, kind: str, anchor: dt.date,
 
 
 def convert(table: GoldTable, amount: float, src_unit: str, kind: str, anchor: dt.date,
-            today: dt.date | None = None) -> dict:
-    """Resolve the price and convert; the result is the `--json` payload."""
+            today: dt.date | None = None, currency: str = "USD",
+            fx: FxRates | None = None) -> dict:
+    """Resolve the price (and FX) and convert; the result is the `--json` payload.
+
+    A non-USD `currency` (only with src_unit USD) is converted to USD at the FX rate
+    for the same period first (USD-routing tenet), then to gold.
+    """
     info = resolve(table, kind, anchor, today)
     price = info["price"]
-    oz = to_oz(amount, src_unit, price)
+    fx_out = {k: None for k in FX_KEYS}
+    usd_amount = amount
+    if currency != "USD":
+        if src_unit != "USD":
+            raise ValueError("a non-USD currency is only valid with --from USD")
+        if fx is None:
+            raise LookupError(f"no FX data loaded for {currency}")
+        got = resolve_fx(fx, currency, kind, anchor, today)
+        usd_amount = amount * got["rate"]
+        fx_out = {"fx_rate": got["rate"], "fx_effective": got["effective"],
+                  "fx_mode": got["mode"], "fx_note": got["note"]}
+    oz = to_oz(usd_amount, src_unit, price)
     out = from_oz(oz, price)
     return {
-        "input": {"amount": amount, "unit": src_unit,
+        "input": {"amount": amount, "unit": src_unit, "currency": currency,
                   "period": info["effective"], "granularity": info["granularity"]},
         "effective": info["effective"], "granularity": info["granularity"],
         "points": info["points"], "gold_usd_per_oz": price,
         "price_source": info["source"], "note": info["note"],
         "troy_oz": oz, "GB": out["GB"], "GBD": out["GBD"], "USD": out["USD"],
-        **{k: None for k in FX_KEYS},
+        **fx_out,
         "price_note": info["note"], "price_points": info["points"],
     }
 
@@ -447,7 +793,8 @@ def _field(row: list[str], idx: int | None) -> str:
     return row[idx] if idx is not None and idx < len(row) else ""
 
 
-def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path) -> int:
+def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path,
+              currency: str = "USD", fx: FxRates | None = None) -> int:
     """Read CSV rows of date,amount and emit one CSV row per input (spec FR15 schema)."""
     try:
         fh = (sys.stdin if path == "-"
@@ -475,29 +822,35 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path) -> 
         except argparse.ArgumentTypeError as exc:
             sys.exit(f"error: line {line}: {exc}")
     if parsed:
-        table.ensure_covers(max(anchor for (_, anchor), _, _ in parsed))
+        latest = max(anchor for (_, anchor), _, _ in parsed)
+        table.ensure_covers(latest)
+        if fx is not None:
+            fx.ensure_covers(latest)
 
     if hasattr(sys.stdout, "reconfigure"):
         try:
-            sys.stdout.reconfigure(newline="\n")
+            sys.stdout.reconfigure(encoding="utf-8", newline="\n")
         except (ValueError, OSError):
             pass
     w = csv.writer(sys.stdout, lineterminator="\n")
     w.writerow([*BATCH_FIXED_COLUMNS, *(name for name, _ in extra), *COMPUTED_COLUMNS])
     for (kind, anchor), amount, r in parsed:
         try:
-            res = convert(table, amount, src_unit, kind, anchor, today)
+            res = convert(table, amount, src_unit, kind, anchor, today, currency, fx)
         except LookupError as exc:
             print(f"warning: {exc}; row skipped", file=sys.stderr)
             continue
         w.writerow([
-            _field(r, date_idx), _field(r, amt_idx), src_unit,
+            _field(r, date_idx), _field(r, amt_idx),
+            currency if currency != "USD" else src_unit,
             _field(r, label_idx),
             *(_field(r, idx) for _, idx in extra),
             res["effective"], fixed(res["gold_usd_per_oz"], 4), fixed(res["troy_oz"], 6),
             fixed(res["GB"], 3), fixed(res["GBD"], 4), fixed(res["USD"], 2),
             res["price_source"], res["granularity"], res["note"],
-            *[("" if res[k] is None else res[k]) for k in FX_KEYS],
+            "" if res["fx_rate"] is None else fixed(res["fx_rate"], 6),
+            *[("" if res[k] is None else res[k])
+              for k in ("fx_effective", "fx_mode", "fx_note")],
         ])
     return 0
 
@@ -538,25 +891,32 @@ def run_vectors(cases_path: str, vectors_out: str | None, dates_out: str | None,
     defaults = {**VECTOR_DEFAULTS, **cases.get("defaults", {})}
     if vectors_out:
         table = GoldTable(lbma_path, monthly_path)
+        currencies = {case.get("currency", defaults["currency"]).upper()
+                      for case in cases.get("vectors", [])}
+        fx = None
+        if fx_sources_for(currencies):
+            paths = ensure_fx_cache(fx_sources_for(currencies))
+            fx = FxRates(paths)
         vectors = []
         for case in cases.get("vectors", []):
             name = case.get("name", case.get("date"))
             today = _case_today(case, defaults)
             unit = parse_unit(case.get("from", defaults["from"]))
             try:
+                currency = parse_currency(case.get("currency", defaults["currency"]))
                 if case["date"].strip().lower() in ("today", "now", "latest"):
                     raise argparse.ArgumentTypeError("the 'today' keyword is excluded from vectors")
                 amount = parse_amount(str(case["amount"]))
                 kind, anchor = parse_period(case["date"], today)
                 check_not_future(anchor, case["date"], today)
-                res = convert(table, amount, unit, kind, anchor, today)
-            except (argparse.ArgumentTypeError, LookupError, KeyError) as exc:
+                res = convert(table, amount, unit, kind, anchor, today, currency, fx)
+            except (argparse.ArgumentTypeError, LookupError, KeyError, ValueError) as exc:
                 sys.exit(f"error: vector {name!r}: {exc}")
             vectors.append({
                 "name": name,
                 "family": case.get("family", ""),
                 "input": {"amount": amount, "date": case["date"], "from": unit,
-                          "currency": defaults["currency"], "today": str(today)},
+                          "currency": currency, "today": str(today)},
                 "expected": {k: res[k] for k in VECTOR_FIELDS},
             })
         write_json(vectors_out, vectors)
@@ -579,6 +939,11 @@ def run_vectors(cases_path: str, vectors_out: str | None, dates_out: str | None,
 
 def main(argv: list[str] | None = None) -> int:
     global _no_refresh
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(errors="backslashreplace")
+        except (ValueError, OSError):
+            pass
     ap = argparse.ArgumentParser(
         description="Convert dated USD amounts to goldbacks (GB) / gold-backed dollars (GBD).")
     ap.add_argument("values", nargs="*", metavar="AMOUNT DATE",
@@ -587,6 +952,10 @@ def main(argv: list[str] | None = None) -> int:
                          "with --price-only give DATE alone")
     ap.add_argument("--from", dest="src_unit", type=parse_unit, default="USD",
                     help="unit of AMOUNT: USD (default), GB, GBD, OZ")
+    ap.add_argument("--currency", type=parse_currency, default="USD", metavar="CCY",
+                    help="currency of AMOUNT (and of --batch rows): USD (default), EUR, GBP, "
+                         "CHF, DEM; converted to USD at the historical FX rate first "
+                         "(needs --from USD)")
     ap.add_argument("--to", dest="dst_unit", type=parse_unit, default=None,
                     help="restrict output to one unit (GB, GBD, USD, OZ)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
@@ -595,7 +964,7 @@ def main(argv: list[str] | None = None) -> int:
                     help="never use the network or refresh a stale cache "
                          "(same as GOLDVALUE_OFFLINE=1)")
     ap.add_argument("--fetch-only", action="store_true",
-                    help="(pre)fetch the price tables into the cache and exit")
+                    help="(pre)fetch the gold and FX tables into the cache and exit")
     ap.add_argument("--price-only", action="store_true",
                     help="print only the resolved gold price for DATE")
     ap.add_argument("--vectors", metavar="OUT.json",
@@ -612,15 +981,23 @@ def main(argv: list[str] | None = None) -> int:
     _no_refresh = args.no_refresh or generating
     if generating and not args.cases:
         ap.error("--vectors and --dates-oracle need --cases FILE")
+    if args.currency != "USD" and args.src_unit != "USD":
+        ap.error("--currency EUR|GBP|CHF|DEM is only valid with --from USD")
+    if args.currency != "USD" and args.price_only:
+        ap.error("--currency does not apply to --price-only")
 
     lbma_path, monthly_path = ensure_cache(force=args.refresh, quiet=args.json)
     if generating:
         return run_vectors(args.cases, args.vectors, args.dates_oracle, lbma_path, monthly_path)
+    sources = sorted(FX_SERIES) if args.fetch_only else fx_sources_for([args.currency])
+    fx_paths = ensure_fx_cache(sources, force=args.refresh, quiet=args.json)
     if args.fetch_only:
         print(f"cache ready in {cache_dir()}")
         return 0
+    fx = FxRates(fx_paths) if args.currency != "USD" else None
     if args.batch:
-        return run_batch(args.batch, args.src_unit, lbma_path, monthly_path)
+        return run_batch(args.batch, args.src_unit, lbma_path, monthly_path,
+                         args.currency, fx)
     today = today_date()
     try:
         if args.price_only:
@@ -641,11 +1018,14 @@ def main(argv: list[str] | None = None) -> int:
     kind, anchor = args.date
     table = GoldTable(lbma_path, monthly_path)
     table.ensure_covers(anchor)
+    if fx is not None:
+        fx.ensure_covers(anchor)
     try:
         if args.price_only:
             info = resolve(table, kind, anchor, today)
         else:
-            res = convert(table, args.amount, args.src_unit, kind, anchor, today)
+            res = convert(table, args.amount, args.src_unit, kind, anchor, today,
+                          args.currency, fx)
     except LookupError as exc:
         sys.exit(f"error: {exc}")
 
@@ -665,18 +1045,26 @@ def main(argv: list[str] | None = None) -> int:
 
     price = res["gold_usd_per_oz"]
     out = {"GB": res["GB"], "GBD": res["GBD"], "OZ": res["troy_oz"], "USD": res["USD"]}
-    src_label = {"USD": f"${fmt_money(args.amount)}", "GB": f"{fmt_unit(args.amount)} GB",
+    usd_label = (f"${fmt_money(args.amount)}" if args.currency == "USD"
+                 else f"{fmt_money(args.amount)} {args.currency}")
+    src_label = {"USD": usd_label, "GB": f"{fmt_unit(args.amount)} GB",
                  "GBD": f"{fmt_unit(args.amount)} GBD", "OZ": f"{fmt_unit(args.amount)} oz"}
     print(f"{src_label[args.src_unit]} on {res['effective']} "
           f"@ ${fmt_money(price)}/troy oz [{res['price_source']}]")
     print(f"  granularity: {res['granularity']}; note: {res['note']}")
+    if res["fx_mode"] is not None:
+        print(f"  fx: 1 {args.currency} = ${res['fx_rate']:.6f} USD "
+              f"(effective {res['fx_effective']}; fx_mode: {res['fx_mode']})")
+        if res["fx_note"]:
+            print(f"  fx note: {res['fx_note']}")
     if args.dst_unit in (None, "GB"):
         print(f"  = {fmt_unit(out['GB'])} GB   (goldbacks, 1/1000 oz)")
     if args.dst_unit in (None, "GBD"):
         print(f"  = {fmt_unit(out['GBD'])} GBD  (gold-backed dollars, 50/oz)")
     if args.dst_unit in (None, "OZ"):
         print(f"  = {fmt_unit(out['OZ'])} troy oz")
-    if args.dst_unit == "USD" or (args.dst_unit is None and args.src_unit != "USD"):
+    if args.dst_unit == "USD" or (args.dst_unit is None
+                                  and (args.src_unit != "USD" or args.currency != "USD")):
         print(f"  = ${fmt_money(out['USD'])} USD")
     return 0
 
