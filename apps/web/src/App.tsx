@@ -9,7 +9,7 @@ export function App() {
       <header class="masthead">
         <h1>GoldValue</h1>
         <p class="tagline">
-          Dated dollar amounts in gold: goldbacks (GB), gold-backed dollars (GBD), and troy ounces.
+          Dated amounts in gold: goldbacks (GB), gold-backed dollars (GBD), and troy ounces.
         </p>
       </header>
       <main>

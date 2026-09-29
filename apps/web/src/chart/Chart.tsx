@@ -5,7 +5,9 @@ import { select } from "d3-selection";
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import { downloadPng, downloadSvg } from "../export/chart-image";
 import { sizeLabel } from "../export/size";
-import { formatPrice, formatUnit, sourceBadge } from "../lib/format";
+import { formatMoney, formatPrice, formatUnit, sourceBadge } from "../lib/format";
+import { fxStrong, fxWarns } from "../lib/fx-display";
+import { currency } from "../store/fx";
 import { results, rows, settings, updateSettings } from "../store/sheet-store";
 import { chartHeight, computeLayout, nearestGroup, type PlacedGroup } from "./layout";
 import { AXIS_UNITS, type AxisUnit, buildPoints, groupByX, logAvailable } from "./model";
@@ -13,7 +15,6 @@ import { AXIS_UNITS, type AxisUnit, buildPoints, groupByX, logAvailable } from "
 /** Y axis unit for this visit; it starts at the saved default (D11). */
 const axisUnit = signal<AxisUnit>(settings.peek().axisDefault);
 
-const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 const compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 3 });
 
 function exportError(error: unknown): string {
@@ -27,12 +28,14 @@ function unitInfo(unit: AxisUnit) {
 function Tooltip({
   group,
   unit,
+  money,
   left,
   top,
   flip,
 }: {
   group: PlacedGroup;
   unit: AxisUnit;
+  money: string;
   left: number;
   top: number;
   flip: boolean;
@@ -58,11 +61,21 @@ function Tooltip({
               </span>
             </div>
             <div>
-              {usd.format(point.amount)} = <strong>{formatUnit(point.value)}</strong> {short}
+              {formatMoney(point.amount, money)} = <strong>{formatUnit(point.value)}</strong>{" "}
+              {short}
             </div>
             <div class="muted">
               {formatPrice(point.price)}/oz, {sourceBadge(point.source).short}, {point.granularity}
             </div>
+            {point.fxNote !== "" && (
+              <div
+                class={fxWarns(point.fxMode) ? "tip-fx" : "muted"}
+                data-strong={fxStrong(point.fxMode) ? "true" : undefined}
+                data-testid="chart-fx-note"
+              >
+                {point.fxNote}
+              </div>
+            )}
           </li>
         ))}
       </ul>
@@ -76,6 +89,7 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
   const { logScale, nominalOverlay, axisDefault, chartCollapsed } = settings.value;
   const collapsed = collapsible && chartCollapsed;
   const unit = axisUnit.value;
+  const ccy = currency.value;
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [exportState, setExportState] = useState<{ busy: boolean; error: string | null }>({
@@ -240,7 +254,7 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
               aria-pressed={nominalOverlay}
               onClick={() => updateSettings({ nominalOverlay: !nominalOverlay })}
             >
-              Nominal USD
+              {`Nominal ${ccy}`}
             </button>
             {canLog && (
               <button
@@ -332,10 +346,13 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
                   {layout.placed.map((p) => (
                     <circle
                       key={p.point.rowId}
-                      class={`point${hover?.x === p.point.x ? " is-hover" : ""}`}
+                      class={`point${hover?.x === p.point.x ? " is-hover" : ""}${
+                        fxWarns(p.point.fxMode) ? " is-fx" : ""
+                      }${fxStrong(p.point.fxMode) ? " is-strong" : ""}`}
                       data-testid="point"
                       data-row={p.point.rowNumber}
                       data-date={p.point.plotted}
+                      data-fx-mode={p.point.fxMode ?? undefined}
                       data-x={p.px.toFixed(2)}
                       data-y={p.py.toFixed(2)}
                       cx={p.px}
@@ -358,7 +375,7 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
                     transform={`translate(${layout.width - 12},${layout.margins.top + layout.innerHeight / 2}) rotate(90)`}
                     text-anchor="middle"
                   >
-                    USD nominal
+                    {`${ccy} nominal`}
                   </text>
                 )}
               </svg>
@@ -366,6 +383,7 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
                 <Tooltip
                   group={hover.group}
                   unit={unit}
+                  money={ccy}
                   left={hover.px > layout.width / 2 ? layout.width - hover.px + 12 : hover.px + 12}
                   top={Math.max(4, Math.min(hover.py - 10, chartHeight(layout.width) - 130))}
                   flip={hover.px > layout.width / 2}

@@ -2,10 +2,12 @@ import {
   AmountParseError,
   type CivilDate,
   type ConversionResult,
+  type Currency,
   checkNotFuture,
   convert,
   DateParseError,
   FutureDateError,
+  type FxRates,
   type GoldTable,
   type Period,
   PriceNotFoundError,
@@ -22,7 +24,7 @@ export interface RowErrors {
 /** What one sheet row shows. `incomplete` is a neutral hint, not an error. */
 export type RowResult =
   | { status: "empty" }
-  | { status: "unavailable" }
+  | { status: "unavailable"; kind?: "fx" }
   | { status: "incomplete"; hint: string }
   | { status: "error"; errors: RowErrors }
   | { status: "ok"; conversion: ConversionResult; period: Period; amount: number };
@@ -36,7 +38,13 @@ function dateMessage(error: unknown): string {
   throw error;
 }
 
-export function computeRow(row: Row, table: GoldTable | null, today: CivilDate): RowResult {
+export function computeRow(
+  row: Row,
+  table: GoldTable | null,
+  today: CivilDate,
+  sheetCurrency: Currency = "USD",
+  fx?: FxRates,
+): RowResult {
   const amountText = row.amount.trim();
   const dateText = row.date.trim();
   if (amountText === "" && dateText === "") return { status: "empty" };
@@ -65,10 +73,13 @@ export function computeRow(row: Row, table: GoldTable | null, today: CivilDate):
   if (errors.amount || errors.date) return { status: "error", errors };
   if (amount === undefined) return { status: "incomplete", hint: "enter an amount" };
   if (period === undefined) return { status: "incomplete", hint: "enter a date" };
+  if (sheetCurrency !== "USD" && !fx?.has(sheetCurrency)) {
+    return { status: "unavailable", kind: "fx" };
+  }
   try {
     return {
       status: "ok",
-      conversion: convert(table, amount, "USD", period, today),
+      conversion: convert(table, amount, "USD", period, today, sheetCurrency, fx),
       period,
       amount,
     };
