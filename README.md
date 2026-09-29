@@ -14,15 +14,17 @@ Timothy Green monthly series (1833–present), fetched once and cached locally.
 
 | Path | What |
 |---|---|
-| `skill/gold-value-normalizer/` | Agent skill (Cursor / Claude) with the reference Python CLI `scripts/goldvalue.py` |
-| `intent.md` → `spec.md` → `plan.md` | AI-native SDLC artifacts for the companion web app |
+| `.agents/skills/gold-value-normalizer/` | Agent skill (Cursor / Claude / any AGENTS.md-aware agent) with the reference Python CLI `scripts/goldvalue.py` |
+| `intent/<change>/` | AI-native SDLC artifact chain per change: `intent.md` → `spec.md` → `plan.md` (currently `companion-app`) |
+| `AGENTS.md` | Agent-facing repo guide: commands, conventions, architecture, known pitfalls |
+| `REVIEW.md` | PR review policy: passes, severity, what to skip |
 
 ## Quick start (CLI)
 
 ```bash
-python3 skill/gold-value-normalizer/scripts/goldvalue.py 80000 2018-12
-python3 skill/gold-value-normalizer/scripts/goldvalue.py 200000 today
-python3 skill/gold-value-normalizer/scripts/goldvalue.py --batch series.csv > series_gold.csv
+python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py 80000 2018-12
+python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py 200000 today
+python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py --batch series.csv > series_gold.csv
 ```
 
 Standard library only (Python 3.9+). Cache lives in `~/.cache/gold-value/`
@@ -30,17 +32,18 @@ Standard library only (Python 3.9+). Cache lives in `~/.cache/gold-value/`
 
 ## Using as an agent skill
 
-Symlink or copy `skill/gold-value-normalizer` into your skills directory, e.g.
+Inside this repo the skill is discovered automatically from `.agents/skills/`.
+To use it elsewhere, symlink or copy it into that workspace's skills directory, e.g.
 
 ```bash
-ln -s "$(pwd)/skill/gold-value-normalizer" ~/.cursor/skills/gold-value-normalizer
+ln -s "$(pwd)/.agents/skills/gold-value-normalizer" ~/.cursor/skills/gold-value-normalizer
 ```
 
 ## Method
 
 Conversions are gold-denominated, not CPI-based. See
-`skill/gold-value-normalizer/reference.md` for sources and resolution rules and
-`skill/gold-value-normalizer/historical-notes.md` for the simplifying assumptions
+`.agents/skills/gold-value-normalizer/reference.md` for sources and resolution rules and
+`.agents/skills/gold-value-normalizer/historical-notes.md` for the simplifying assumptions
 in the pre-1974 era.
 
 ## Data terms

@@ -14,8 +14,10 @@ not calendar time.
 
 ```
 goldvalue/
-├── intent.md  spec.md  plan.md  README.md  LICENSE
-├── skill/gold-value-normalizer/          # agent skill + Python reference (exists)
+├── AGENTS.md  REVIEW.md  README.md  LICENSE
+├── intent/                               # artifact chain, one folder per change
+│   └── companion-app/{intent,spec,plan}.md
+├── .agents/skills/gold-value-normalizer/ # agent skill + Python reference (exists)
 │   ├── SKILL.md  reference.md  historical-notes.md
 │   └── scripts/goldvalue.py
 ├── test-vectors/                         # golden JSON emitted by Python
@@ -35,17 +37,18 @@ goldvalue/
 
 ## Phase 0 — Repository scaffolding (this commit + one follow-up)
 
-Files: `README.md`, `LICENSE`, `.gitignore`, `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `biome.json`, `.github/workflows/ci.yml`.
+Files: `README.md`, `AGENTS.md`, `REVIEW.md`, `LICENSE`, `.gitignore`, `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `biome.json`, `.github/workflows/ci.yml`.
 
-1. Commit intent/spec/plan and the skill (done in first commit).
-2. Add pnpm workspace with `packages/core` and `apps/web` stubs; CI runs `pnpm lint && pnpm test` and `pytest skill/`.
+1. Commit intent/spec/plan, the skill, `AGENTS.md`, and `REVIEW.md` (done).
+2. Add pnpm workspace with `packages/core` and `apps/web` stubs; CI runs `pnpm lint && pnpm test` and `pytest .agents/skills/`.
 3. Decide license (spec Q6).
+4. Keep `AGENTS.md` current as commands and conventions land in later phases.
 
 Verification: CI green on an empty workspace.
 
 ## Phase 1 — Python reference: vectors and snapshot
 
-Files: `skill/gold-value-normalizer/scripts/goldvalue.py`, `skill/gold-value-normalizer/tests/test_goldvalue.py`, `tools/snapshot/build_snapshot.py`, `test-vectors/gold-usd.json`.
+Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `.agents/skills/gold-value-normalizer/tests/test_goldvalue.py`, `tools/snapshot/build_snapshot.py`, `test-vectors/gold-usd.json`.
 
 1. Add `--vectors OUT.json` to `goldvalue.py`: emits ~200 cases covering every resolution branch (pre-1960 annual, 1960–67 monthly, Jan–Mar 1968 AM-only, weekends/holidays roll-back, month/year averages, YTD, `today`, reverse conversions, error cases). Each vector: input, expected `effective`, `price`, `oz`, `GB`, `GBD`, `note`.
 2. Add pytest suite: parsing, resolution branches, batch mode, cache refresh logic (mock network).
