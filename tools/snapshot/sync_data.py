@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Copy the freely licensed price tables into the web app's public data folder.
 
-Publishes only `monthly.csv` (World Bank / NMA, PDDL) plus, from v1.1, `fx_*.csv`,
-and writes `manifest.json`. `lbma_daily.csv` is NEVER copied or published (spec D15:
-LBMA data is licensed by ICE Benchmark Administration); the visitor's browser
-fetches LBMA itself.
+Publishes only `monthly.csv` (World Bank / NMA, PDDL) plus, from v1.1, `fx_eur.csv`,
+`fx_gbp.csv` and `fx_chf.csv` (BIS, free with attribution), and writes
+`manifest.json`. `lbma_daily.csv` is NEVER copied or published (spec D15: LBMA data is
+licensed by ICE Benchmark Administration); the visitor's browser fetches LBMA itself.
 
-By default the monthly series is fetched with the reference CLI's own fetcher into a
-temporary directory; `--source-dir` uses an existing cache directory instead (tests,
-offline runs). Files are copied byte for byte. The manifest carries no timestamp, so
-unchanged data produces no diff. The run fails without writing anything if any file's
-row count dropped by more than 1% relative to the previous manifest.
+By default the monthly series and the three FX files are fetched with the reference
+CLI's own fetchers into a temporary directory; `--source-dir` uses an existing cache
+directory instead (tests, offline runs). Files are copied byte for byte. The manifest
+carries no timestamp, so unchanged data produces no diff. The run fails without writing
+anything if any file's row count dropped by more than 1% relative to the previous
+manifest, or if an FX file exceeds the 110 KB gzip budget (spec NFR1).
 
 Standard library only.
 """
@@ -18,6 +19,7 @@ Standard library only.
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import importlib.util
 import json
@@ -30,6 +32,8 @@ ROOT = Path(__file__).resolve().parents[2]
 CLI = ROOT / ".agents/skills/gold-value-normalizer/scripts/goldvalue.py"
 DEFAULT_OUT = ROOT / "apps/web/public/data"
 MAX_ROW_DROP = 0.01
+FX_MAX_GZ_BYTES = 110_000
+FX_SOURCES = ("EUR", "GBP", "CHF")
 
 PUBLISHABLE = (re.compile(r"monthly\.csv"), re.compile(r"fx_[a-z]{3}\.csv"))
 
@@ -45,6 +49,15 @@ def load_cli():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def check_fx_file(name: str, data: bytes) -> None:
+    header = data.decode("utf-8").splitlines()[0] if data else ""
+    if header.strip() != "date,usd_per_unit":
+        sys.exit(f"error: unexpected {name} header {header!r}")
+    packed = len(gzip.compress(data, 9))
+    if packed > FX_MAX_GZ_BYTES:
+        sys.exit(f"error: {name} is {packed} bytes gzipped, over the {FX_MAX_GZ_BYTES} budget")
 
 
 def describe(data: bytes) -> dict:
@@ -78,6 +91,9 @@ def sync(source: Path, out: Path, previous_manifest: Path | None = None) -> dict
     if header.strip() != "month,usd":
         sys.exit(f"error: unexpected monthly.csv header {header!r}")
 
+    for name, data in files.items():
+        if name.startswith("fx_"):
+            check_fx_file(name, data)
     described = {name: describe(data) for name, data in files.items()}
     prev = previous_manifest if previous_manifest is not None else out / "manifest.json"
     if prev.exists():
@@ -107,6 +123,8 @@ def main(argv: list[str] | None = None) -> int:
         cli = load_cli()
         with tempfile.TemporaryDirectory() as tmp:
             cli.fetch_monthly(Path(tmp) / "monthly.csv")
+            for source in FX_SOURCES:
+                cli.fetch_fx(cli.fx_path(Path(tmp), source), source)
             manifest = sync(Path(tmp), args.out, args.previous)
     for name, info in sorted(manifest["files"].items()):
         print(f"{name}: {info['rows']} rows, last {info['last_date']}")

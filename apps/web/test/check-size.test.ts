@@ -28,16 +28,43 @@ afterEach(() => {
 });
 
 test("passes when the gzipped initial load is within budget and ignores fx_ files", () => {
-  const noise = randomBytes(400_000);
+  const fx = "date,usd_per_unit\n".concat("1999-01-04,1.1789\n".repeat(20_000));
   const dir = dist({
     "index.html": "<html></html>",
     "data/monthly.csv": "month,usd\n",
-    "data/fx_eur.csv": noise,
+    "data/fx_eur.csv": fx,
   });
   const result = run(dir, "--require-data");
   expect(result.status).toBe(0);
   expect(result.stdout).toContain("total gzipped");
-  expect(result.stdout).not.toContain("fx_eur");
+  expect(result.stdout).toContain("on demand");
+  expect(result.stdout).not.toMatch(/raw\s+data\/fx_eur/);
+});
+
+test("fails when an FX file is over its 110 KB gzip budget", () => {
+  const noise = randomBytes(400_000).toString("hex");
+  const result = run(dist({ "index.html": "x", "data/fx_gbp.csv": noise }));
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain("data/fx_gbp.csv is");
+  expect(result.stderr).toContain("FX budget");
+});
+
+test("--require-fx demands all three FX files", () => {
+  const csv = "date,usd_per_unit\n1999-01-04,1.0\n";
+  const some = run(dist({ "index.html": "x", "data/fx_eur.csv": csv }), "--require-fx");
+  expect(some.status).toBe(1);
+  expect(some.stderr).toContain("data/fx_gbp.csv missing");
+  expect(some.stderr).toContain("data/fx_chf.csv missing");
+  const all = run(
+    dist({
+      "index.html": "x",
+      "data/fx_eur.csv": csv,
+      "data/fx_gbp.csv": csv,
+      "data/fx_chf.csv": csv,
+    }),
+    "--require-fx",
+  );
+  expect(all.status).toBe(0);
 });
 
 test("fails when the initial load is over budget", () => {

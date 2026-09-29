@@ -8,6 +8,10 @@ headers, CSV headers, AM-only start, the 1968 London closure gap, weekday-only r
 and freshness. LBMA data is downloaded into memory or a temporary directory only and
 is never stored in the repository.
 
+The BIS FX series (v1.1) are checked the same way: CSV columns, first valid dates
+(GBP 1953-08-10, CHF and EUR 1953-09-01, the coverage boundaries the fixture copies),
+per-USD quoting, CORS, freshness, and the ECB cross-check for EUR from 1999.
+
 Exit status 1 means drift; the workflow reports it without failing the build.
 Standard library only.
 """
@@ -102,9 +106,39 @@ def check_monthly(cli) -> None:
     check((today.year - year) * 12 + today.month - month <= 3, f"monthly.csv is fresh (last {last})")
 
 
+def check_bis(cli) -> None:
+    firsts = {"GBP": "1953-08-10", "CHF": "1953-09-01", "EUR": "1953-09-01"}
+    for source, first in firsts.items():
+        area, ccy = cli.FX_SERIES[source]
+        body, headers = get(cli.BIS_URL.format(area=area, ccy=ccy))
+        reader = csv.DictReader(body.decode("utf-8").splitlines())
+        check({"TIME_PERIOD", "OBS_VALUE"} <= set(reader.fieldnames or []),
+              f"BIS {source} CSV has TIME_PERIOD and OBS_VALUE columns")
+        check(headers.get("access-control-allow-origin") in ("*", "https://nikolaybotev.github.io"),
+              f"BIS {source} sends a permissive Access-Control-Allow-Origin")
+        rows = cli.parse_bis_csv(body.decode("utf-8"))
+        check(rows[0][0] == first, f"BIS {source} starts {first} (got {rows[0][0]})")
+        last = dt.date.fromisoformat(rows[-1][0])
+        check((dt.date.today() - last).days <= 21, f"BIS {source} is fresh (last {last})")
+        if source == "EUR":
+            eur = dict(rows)
+            check(abs(1 / eur["1999-01-04"] - 0.848248) < 1e-5,
+                  "BIS EUR 1999-01-04 is 0.848248 EUR per USD (per-USD quoting)")
+            check(abs(1 / eur["1990-06-01"] * 1.95583 - 1.6935) < 1e-3,
+                  "BIS EUR 1990-06-01 is the Deutsche Mark restated (1.6935 DEM per USD)")
+    try:
+        ecb, _ = get("https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A"
+                     "?format=csvdata&startPeriod=1999-01-04&endPeriod=1999-01-04")
+    except OSError as exc:  # the ECB is only a cross-check; an unreachable host is not drift
+        print(f"skip  ECB cross-check unavailable ({exc})")
+        return
+    usd_per_eur = float(next(csv.DictReader(ecb.decode("utf-8").splitlines()))["OBS_VALUE"])
+    check(abs(usd_per_eur - 1.1789) < 1e-4, f"ECB USD per EUR on 1999-01-04 is 1.1789 ({usd_per_eur})")
+
+
 def main() -> int:
     cli = load_cli()
-    for step in (check_lbma, check_cache_shape, check_monthly):
+    for step in (check_lbma, check_cache_shape, check_monthly, check_bis):
         try:
             step(cli)
         except Exception as exc:  # network or parse failure is drift too

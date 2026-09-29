@@ -8,6 +8,8 @@ import time
 
 import pytest
 
+from conftest import write_fx
+
 JSON_KEYS = {
     "input", "effective", "granularity", "points", "gold_usd_per_oz", "price_source", "note",
     "troy_oz", "GB", "GBD", "USD", "fx_rate", "fx_effective", "fx_mode", "fx_note",
@@ -41,8 +43,8 @@ def test_json_legacy_aliases_match_new_keys(gv, capsys, cache_dir):
     out = run_json(gv, capsys, "5", "2018-12")
     assert out["price_note"] == out["note"] == "average of 3 LBMA daily fixes"
     assert out["price_points"] == out["points"] == 3
-    assert out["input"] == {"amount": 5.0, "unit": "USD", "period": "2018-12",
-                            "granularity": "month"}
+    assert out["input"] == {"amount": 5.0, "unit": "USD", "currency": "USD",
+                            "period": "2018-12", "granularity": "month"}
 
 
 def test_json_price_is_not_rounded(gv, capsys, cache_dir):
@@ -157,6 +159,7 @@ def test_no_data_is_error(gv, cache_dir):
 
 
 def test_fetch_only_offline_reports_cache(gv, capsys, cache_dir):
+    write_fx(cache_dir)
     assert gv.main(["--fetch-only"]) == 0
     assert "cache ready" in capsys.readouterr().out
 

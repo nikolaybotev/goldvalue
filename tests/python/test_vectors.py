@@ -42,12 +42,13 @@ def make_fixture():
 
 def test_fixture_regenerates_byte_identical(make_fixture, tmp_path):
     make_fixture.generate(tmp_path)
-    for name in ("lbma_daily.csv", "monthly.csv", "gold_am.json", "gold_pm.json"):
+    for name in ("lbma_daily.csv", "monthly.csv", "gold_am.json", "gold_pm.json",
+                 "fx_gbp.csv", "fx_chf.csv", "fx_eur.csv"):
         assert (tmp_path / name).read_bytes() == (SNAPSHOT / name).read_bytes(), name
 
 
 def test_snapshot_csv_files_are_lf_only(make_fixture):
-    for name in ("lbma_daily.csv", "monthly.csv"):
+    for name in ("lbma_daily.csv", "monthly.csv", "fx_gbp.csv", "fx_chf.csv", "fx_eur.csv"):
         assert b"\r" not in (SNAPSHOT / name).read_bytes()
 
 
@@ -194,3 +195,98 @@ def test_batch_output_reimports_unchanged(gv, tmp_path, monkeypatch, capsys):
 def test_batch_input_files_keep_their_bytes():
     assert (TV / "batch-crlf-in.csv").read_bytes().startswith(b"\xef\xbb\xbfdate,amount,label\r\n")
     assert b"\r" not in (TV / "batch-basic-out.csv").read_bytes()
+
+
+# ------------------------------------------------------------------ FX vectors (v1.1)
+
+FX_FAMILIES = {"fx-parity-steps", "fx-first-observation", "fx-euro-boundary",
+               "fx-euro-pre1953", "fx-euro-synthetic", "fx-extrapolated", "fx-daily",
+               "fx-rollback", "fx-latest"}
+
+
+def fx_vectors():
+    return json.loads((TV / "fx.json").read_text())
+
+
+def test_fx_vectors_regenerate_byte_identical(tmp_path):
+    out = tmp_path / "fx.json"
+    result = run_generator(tmp_path, "--vectors", str(out), "--cases", str(TV / "fx-cases.json"))
+    assert result.returncode == 0, result.stderr
+    assert out.read_bytes() == (TV / "fx.json").read_bytes()
+
+
+def test_fx_vector_file_format():
+    text = (TV / "fx.json").read_text()
+    vectors = json.loads(text)
+    assert text == json.dumps(vectors, sort_keys=True, indent=2) + "\n"
+    assert {v["family"] for v in vectors} >= FX_FAMILIES
+    for v in vectors:
+        assert set(v["input"]) == {"amount", "date", "from", "currency", "today"}
+        assert v["input"]["from"] == "USD"
+        assert v["input"]["currency"] in ("EUR", "GBP", "CHF", "DEM")
+        assert set(v["expected"]) == EXPECTED_KEYS
+        e = v["expected"]
+        assert e["fx_mode"] in ("daily", "synthetic", "parity", "extrapolated")
+        assert isinstance(e["fx_rate"], float) and isinstance(e["fx_note"], str)
+        assert e["USD"] == pytest.approx(v["input"]["amount"] * e["fx_rate"], rel=1e-12)
+
+
+def test_fx_vectors_cover_the_required_boundaries():
+    by_name = {v["name"]: v["expected"] for v in fx_vectors()}
+    assert by_name["GBP 1949-09-17"]["fx_rate"] == 4.03
+    assert by_name["GBP 1949-09-18"]["fx_rate"] == 2.8
+    assert by_name["GBP 1953-08-09 (day before first observation)"]["fx_mode"] == "parity"
+    assert by_name["GBP 1953-08-10 (first observation)"]["fx_mode"] == "daily"
+    assert by_name["CHF 1953-08-31 (day before)"]["fx_mode"] == "parity"
+    assert by_name["CHF 1953-09-01 (first observation)"]["fx_mode"] == "daily"
+    assert by_name["DEM 1949-09-27"]["fx_rate"] == pytest.approx(1 / 3.33)
+    assert by_name["DEM 1949-09-28"]["fx_rate"] == pytest.approx(1 / 4.2)
+    assert by_name["EUR 1998-12-31"]["fx_mode"] == "synthetic"
+    assert by_name["EUR 1999-01-04"]["fx_mode"] == "daily"
+    assert by_name["DEM 1998-12-31"]["fx_mode"] == "daily"
+    assert by_name["DEM 1999-01-04"]["fx_mode"] == "synthetic"
+    assert by_name["EUR 1950-06 month (parity and synthetic)"]["fx_mode"] == "parity"
+    assert "Synthetic euro" in by_name["EUR 1950-06 month (parity and synthetic)"]["fx_note"]
+    assert by_name["GBP 1900-01 month (AC11 extrapolated)"]["fx_mode"] == "extrapolated"
+    assert by_name["EUR 1985-06 month (AC10 synthetic)"]["fx_note"] == (
+        "Synthetic euro: the euro did not exist before 1999. Value derived from the Deutsche "
+        "Mark at the fixed conversion rate 1 \u20ac = 1.95583 DM. Amounts originally in other "
+        "legacy currencies (francs, lire, \u2026) would differ.")
+    assert by_name["EUR 250000 2005-06 (AC8)"]["fx_mode"] == "daily"
+    assert by_name["EUR 250000 2005-06 (AC8)"]["fx_note"] == ""
+
+
+def test_fx_snapshot_matches_the_real_coverage_boundaries():
+    def rows(name):
+        with (SNAPSHOT / name).open(newline="") as fh:
+            return list(csv.DictReader(fh))
+
+    gbp, chf, eur = rows("fx_gbp.csv"), rows("fx_chf.csv"), rows("fx_eur.csv")
+    assert gbp[0]["date"] == "1953-08-10"
+    assert chf[0]["date"] == eur[0]["date"] == "1953-09-01"
+    assert gbp[-1]["date"] == chf[-1]["date"] == eur[-1]["date"] == "2026-09-22"
+    eur_dates = {r["date"] for r in eur}
+    assert {"1998-12-31", "1999-01-04"} <= eur_dates and "1999-01-01" not in eur_dates
+    eur_values = {r["date"]: float(r["usd_per_unit"]) for r in eur}
+    assert abs(eur_values["1999-01-04"] / eur_values["1998-12-31"] - 1) < 0.05
+    assert all(dt.date.fromisoformat(r["date"]).weekday() < 5 for r in gbp + chf + eur)
+    assert (SNAPSHOT / "fx_eur.csv").read_text().startswith("date,usd_per_unit\n")
+
+
+def test_fx_snapshot_files_fit_the_gzip_budget():
+    import gzip
+
+    for name in ("fx_gbp.csv", "fx_chf.csv", "fx_eur.csv"):
+        assert len(gzip.compress((SNAPSHOT / name).read_bytes(), 9)) <= 110_000, name
+
+
+def test_fx_batch_output_regenerates(gv, monkeypatch, capsys):
+    monkeypatch.setenv("GOLD_PRICE_CACHE_DIR", str(SNAPSHOT))
+    monkeypatch.setenv("GOLDVALUE_TODAY", "2026-09-29")
+    assert gv.main(["--batch", str(TV / "batch-fx-eur-in.csv"), "--currency", "EUR"]) == 0
+    assert capsys.readouterr().out.encode() == (TV / "batch-fx-eur-out.csv").read_bytes()
+
+
+def test_fx_batch_output_is_utf8_with_lf():
+    data = (TV / "batch-fx-eur-out.csv").read_bytes()
+    assert b"\r" not in data and "\u20ac".encode() in data

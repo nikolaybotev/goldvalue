@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // NFR1: the initial static load (everything in dist except on-demand fx_*.csv) must be
-// at most 250 KB gzipped. Also guards spec D15: no LBMA price data may be published.
+// at most 250 KB gzipped, and each fx_*.csv at most 110 KB gzipped. Also guards spec D15: no
+// LBMA price data may be published. `--require-fx` demands all three FX files.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { gzipSync } from "node:zlib";
@@ -13,6 +14,9 @@ const option = (name, fallback) => {
 const dist = option("--dist", "apps/web/dist");
 const maxBytes = Number(option("--max-kb", "250")) * 1000;
 const requireData = args.includes("--require-data");
+const requireFx = args.includes("--require-fx");
+const fxMaxBytes = 110_000;
+const fxNames = ["fx_chf.csv", "fx_eur.csv", "fx_gbp.csv"];
 
 function* walk(dir) {
   for (const name of readdirSync(dir).sort()) {
@@ -35,6 +39,25 @@ const lbmaShaped = /lbma|gold_(am|pm)\.json/i;
 for (const file of files) {
   if (lbmaShaped.test(relative(dist, file))) {
     problems.push(`LBMA-shaped file must not be published (spec D15): ${relative(dist, file)}`);
+  }
+}
+
+const fxFiles = files.filter((file) => /(^|[\\/])fx_[^\\/]*\.csv$/.test(file));
+for (const file of fxFiles) {
+  const gz = gzipSync(readFileSync(file), { level: 9 }).length;
+  console.log(
+    `${String(gz).padStart(8)} gz  (on demand, budget ${fxMaxBytes})  ${relative(dist, file)}`,
+  );
+  if (gz > fxMaxBytes) {
+    problems.push(
+      `${relative(dist, file)} is ${gz} bytes gzipped, over the ${fxMaxBytes} FX budget`,
+    );
+  }
+}
+if (requireFx) {
+  const present = fxFiles.map((file) => relative(dist, file).split(/[\\/]/).pop());
+  for (const name of fxNames) {
+    if (!present.includes(name)) problems.push(`data/${name} missing from dist`);
   }
 }
 

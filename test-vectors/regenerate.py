@@ -5,8 +5,10 @@ Run from anywhere: `python3 test-vectors/regenerate.py`. CI re-runs it and fails
 `git status` shows any difference, which is the determinism check for the fixture,
 the golden vectors (AC7) and the batch outputs.
 
-Inputs (committed, hand-written): cases.json, batch-*-in.csv.
-Outputs (generated): snapshot/*, gold-usd.json, dates.json, batch-*-out.csv.
+Inputs (committed, hand-written): cases.json, fx-cases.json, batch-*-in.csv.
+Outputs (generated): snapshot/*, gold-usd.json, fx.json, dates.json, batch-*-out.csv.
+A batch input named `batch-fx-<ccy>-in.csv` (for example `batch-fx-eur-in.csv`) is run
+with `--currency <CCY>`; every other batch input runs in USD.
 The pinned "today" comes from cases.json defaults, so nothing depends on the clock.
 """
 
@@ -14,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -42,9 +45,12 @@ def main() -> None:
            "GOLDVALUE_OFFLINE": "1"}
     run_cli(env, "--vectors", "gold-usd.json", "--dates-oracle", "dates.json",
             "--cases", "cases.json")
+    run_cli(env, "--vectors", "fx.json", "--cases", "fx-cases.json")
     for source in sorted(HERE.glob("batch-*-in.csv")):
         out = source.with_name(source.name.replace("-in.csv", "-out.csv"))
-        out.write_bytes(run_cli(env, "--batch", str(source)))
+        fx = re.fullmatch(r"batch-fx-([a-z]{3})-in\.csv", source.name)
+        extra = ["--currency", fx.group(1).upper()] if fx else []
+        out.write_bytes(run_cli(env, "--batch", str(source), *extra))
         print(f"wrote {out.relative_to(HERE.parent)}")
 
 
