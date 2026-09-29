@@ -123,3 +123,58 @@ def test_bad_inputs(sync, tmp_path):
     src = make_source(tmp_path, monthly=b"Date,Price\n2000-01,1\n")
     with pytest.raises(SystemExit):
         sync.sync(src, tmp_path / "o2")
+
+
+def test_fx_header_and_gzip_budget_are_enforced(sync, tmp_path):
+    src = make_source(tmp_path)
+    (src / "fx_eur.csv").write_bytes(b"date,usd\n2000-01-04,1.0\n")
+    with pytest.raises(SystemExit) as exc:
+        sync.sync(src, tmp_path / "o1")
+    assert "header" in str(exc.value)
+    import random
+
+    rng = random.Random(1)
+    big = "date,usd_per_unit\n" + "".join(
+        f"{i:06d},{rng.random():.10f}{rng.random():.10f}\n" for i in range(12_000))
+    (src / "fx_eur.csv").write_text(big)
+    with pytest.raises(SystemExit) as exc:
+        sync.sync(src, tmp_path / "o2")
+    assert "gzipped" in str(exc.value)
+    assert not (tmp_path / "o2").exists()
+
+
+def test_default_mode_fetches_monthly_and_all_three_fx_files(sync, tmp_path, monkeypatch):
+    calls = []
+
+    class FakeCli:
+        @staticmethod
+        def fetch_monthly(path):
+            calls.append("monthly")
+            path.write_bytes(MONTHLY_LF)
+
+        @staticmethod
+        def fx_path(directory, source):
+            return directory / f"fx_{source.lower()}.csv"
+
+        @staticmethod
+        def fetch_fx(path, source):
+            calls.append(source)
+            path.write_bytes(b"date,usd_per_unit\n2000-01-04,1.0\n")
+
+    monkeypatch.setattr(sync, "load_cli", lambda: FakeCli)
+    out = tmp_path / "out"
+    assert sync.main(["--out", str(out)]) == 0
+    assert calls == ["monthly", "EUR", "GBP", "CHF"]
+    assert sorted(p.name for p in out.iterdir()) == [
+        "fx_chf.csv", "fx_eur.csv", "fx_gbp.csv", "manifest.json", "monthly.csv"]
+    manifest = json.loads((out / "manifest.json").read_text())
+    assert sorted(manifest["files"]) == ["fx_chf.csv", "fx_eur.csv", "fx_gbp.csv", "monthly.csv"]
+
+
+def test_snapshot_fixture_syncs_within_budget(sync, tmp_path):
+    from conftest import ROOT
+
+    out = tmp_path / "out"
+    sync.sync(ROOT / "test-vectors" / "snapshot", out)
+    assert sorted(p.name for p in out.iterdir()) == [
+        "fx_chf.csv", "fx_eur.csv", "fx_gbp.csv", "manifest.json", "monthly.csv"]
