@@ -113,6 +113,18 @@ Files: `test-vectors/snapshot/*`, `test-vectors/{gold-usd.json,dates.json,batch-
 
 DoD: AC7 (Python side) green; `AGENTS.md`: vectors command and the rule "change Python and TS together, regenerate vectors, commit all".
 
+Build notes (Phase 1b) — decisions and deviations:
+
+- **Driver.** `test-vectors/regenerate.py` regenerates everything (fixture, `gold-usd.json`, `dates.json`, `batch-*-out.csv`); CI runs it on Python 3.9 and 3.12 and fails on any `git status` difference under `test-vectors/`. Cross-version determinism found one hazard: `sum()` of floats changed in Python 3.12, so the fixture uses `math.fsum`.
+- **CLI interface.** `--vectors OUT.json` needs `--cases FILE` (the committed `test-vectors/cases.json`); `--dates-oracle OUT.json` reads the `dates` list from the same file. Both force offline mode and read the tables in `GOLD_PRICE_CACHE_DIR` (the snapshot).
+- **Vector schema** is spec §5.7 plus `input.today` (Phase 1a decision: MTD/YTD notes and the future-date rule depend on it), and `name` and `family` labels per vector. The `today` keyword is excluded from vectors. `expected.gold_usd_per_oz` is unrounded. `fx_*` are `null`. The file is a JSON array; `json.dumps(sort_keys=True, indent=2)` plus a newline.
+- **`dates.json`** is `{"today", "accept": [{"input", "kind", "anchor"}], "reject": [...]}`, including the `today`/`now`/`latest` keywords resolved against the pinned `today`. It accepts years `0001` to `9999`, so the TypeScript port must not use `Date` constructors that remap years below 100.
+- **Fixture.** `monthly.csv` is synthetic too (1833-01 to 2026-09; 20.67 through 1933, about 35 for 1934-1967, monthly means of the synthetic daily fixes from 1968), which keeps the whole snapshot pinned and licence-free. Beyond the plan's gaps, Dec 25, Dec 26 and Jan 1 are skipped on weekdays, and four days have a single fix (`PM_MISSING`: 1990-06-13, 2009-07-22; `AM_MISSING`: 2002-09-11, 2019-10-16). The generator ends 2026-09-25 (a Friday). The JSON stubs (`gold_am.json`, `gold_pm.json`) are committed (about 1.4 MB) so Playwright and vitest can load them directly.
+- **Real LBMA JSON shape (observed 2026-09-29):** rows are `{"is_cms_locked": 0, "d": "YYYY-MM-DD", "v": [usd, gbp, eur]}` and `eur` is `null` before 1999. The fixture reproduces this; `lbma.ts` (Phase 2) must ignore extra keys and null entries.
+- **`sync_data.py`** fetches only `monthly.csv`, by calling the CLI's `fetch_monthly` (not `--fetch-only`, which would also download LBMA). `--source-dir` and `--previous` exist for tests and the row-count guard. `apps/web/public/data/` is gitignored because Phase 5 syncs at build time.
+- **`weekly-drift.yml`** runs `tools/snapshot/check_drift.py` (shape, CORS, freshness, 1968 gap structure; never values, since the fixture is synthetic) and the live `-m network` pytest with `continue-on-error`.
+- `.gitattributes` adds `test-vectors/batch-*.csv -text` so the CRLF/BOM input fixture keeps its bytes.
+
 ## Phase 2 — `packages/core` (v1 USD)
 
 Files: `packages/core/src/*.ts`, `packages/core/test/*.test.ts`.

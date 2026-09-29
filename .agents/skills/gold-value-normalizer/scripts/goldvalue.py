@@ -286,7 +286,7 @@ class GoldTable:
 # --------------------------------------------------------------------------- parsing
 
 
-def parse_period(text: str) -> tuple[str, dt.date]:
+def parse_period(text: str, today: dt.date | None = None) -> tuple[str, dt.date]:
     """Return ("day"|"month"|"year", anchor date).
 
     The accepted forms are the contract for the TypeScript port (spec FR2); the
@@ -298,7 +298,7 @@ def parse_period(text: str) -> tuple[str, dt.date]:
         raise argparse.ArgumentTypeError(f"unrecognised date {text!r}; ASCII only")
     low = s.lower()
     if low in ("today", "now", "latest"):
-        return "day", today_date()
+        return "day", today or today_date()
     for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%d %B %Y", "%B %d, %Y", "%b %d, %Y", "%d %b %Y"):
         try:
             return "day", dt.datetime.strptime(s, fmt).date()
@@ -492,6 +492,78 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path) -> 
     return 0
 
 
+# --------------------------------------------------------------------------- vectors
+
+VECTOR_DEFAULTS = {"from": "USD", "currency": "USD"}
+VECTOR_FIELDS = ("effective", "granularity", "points", "gold_usd_per_oz", "price_source",
+                 "note", "troy_oz", "GB", "GBD", "USD", *FX_KEYS)
+
+
+def _case_today(case: dict, defaults: dict) -> dt.date:
+    try:
+        return dt.date.fromisoformat(case.get("today", defaults["today"]))
+    except (KeyError, ValueError) as exc:
+        sys.exit(f"error: cases need an ISO 'today' (per case or in defaults): {exc}")
+
+
+def write_json(path: str, payload) -> None:
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        fh.write(json.dumps(payload, sort_keys=True, indent=2) + "\n")
+
+
+def run_vectors(cases_path: str, vectors_out: str | None, dates_out: str | None,
+                lbma_path: Path, monthly_path: Path) -> int:
+    """Emit golden vectors (spec 5.7) and/or the date accept/reject oracle.
+
+    Reads a committed case list, resolves it against whatever tables the cache
+    directory holds (point GOLD_PRICE_CACHE_DIR at the pinned snapshot), and never
+    uses the network. The `today` keyword is excluded from vectors: every case has an
+    explicit `today`, so output does not depend on the clock.
+    """
+    try:
+        with open(cases_path, encoding="utf-8") as fh:
+            cases = json.load(fh)
+    except (OSError, ValueError) as exc:
+        sys.exit(f"error: cannot read cases file {cases_path}: {exc}")
+    defaults = {**VECTOR_DEFAULTS, **cases.get("defaults", {})}
+    if vectors_out:
+        table = GoldTable(lbma_path, monthly_path)
+        vectors = []
+        for case in cases.get("vectors", []):
+            name = case.get("name", case.get("date"))
+            today = _case_today(case, defaults)
+            unit = parse_unit(case.get("from", defaults["from"]))
+            try:
+                if case["date"].strip().lower() in ("today", "now", "latest"):
+                    raise argparse.ArgumentTypeError("the 'today' keyword is excluded from vectors")
+                amount = parse_amount(str(case["amount"]))
+                kind, anchor = parse_period(case["date"], today)
+                check_not_future(anchor, case["date"], today)
+                res = convert(table, amount, unit, kind, anchor, today)
+            except (argparse.ArgumentTypeError, LookupError, KeyError) as exc:
+                sys.exit(f"error: vector {name!r}: {exc}")
+            vectors.append({
+                "name": name,
+                "family": case.get("family", ""),
+                "input": {"amount": amount, "date": case["date"], "from": unit,
+                          "currency": defaults["currency"], "today": str(today)},
+                "expected": {k: res[k] for k in VECTOR_FIELDS},
+            })
+        write_json(vectors_out, vectors)
+    if dates_out:
+        today = _case_today({}, defaults)
+        accept, reject = [], []
+        for text in cases.get("dates", []):
+            try:
+                kind, anchor = parse_period(text, today)
+            except argparse.ArgumentTypeError:
+                reject.append(text)
+            else:
+                accept.append({"input": text, "kind": kind, "anchor": str(anchor)})
+        write_json(dates_out, {"today": str(today), "accept": accept, "reject": reject})
+    return 0
+
+
 # --------------------------------------------------------------------------- main
 
 
@@ -516,13 +588,24 @@ def main(argv: list[str] | None = None) -> int:
                     help="(pre)fetch the price tables into the cache and exit")
     ap.add_argument("--price-only", action="store_true",
                     help="print only the resolved gold price for DATE")
+    ap.add_argument("--vectors", metavar="OUT.json",
+                    help="write golden test vectors for the cases in --cases, resolved "
+                         "offline against the cache directory (test tooling)")
+    ap.add_argument("--dates-oracle", metavar="OUT.json",
+                    help="write the date accept/reject oracle for the strings in --cases")
+    ap.add_argument("--cases", metavar="FILE", help="case list for --vectors/--dates-oracle")
     ap.add_argument("--batch", metavar="FILE",
                     help="re-denominate a time series: CSV with 'date' and 'amount' "
                          "columns ('-' for stdin); writes CSV to stdout")
     args = ap.parse_args(argv)
-    _no_refresh = args.no_refresh
+    generating = bool(args.vectors or args.dates_oracle)
+    _no_refresh = args.no_refresh or generating
+    if generating and not args.cases:
+        ap.error("--vectors and --dates-oracle need --cases FILE")
 
     lbma_path, monthly_path = ensure_cache(force=args.refresh, quiet=args.json)
+    if generating:
+        return run_vectors(args.cases, args.vectors, args.dates_oracle, lbma_path, monthly_path)
     if args.fetch_only:
         print(f"cache ready in {cache_dir()}")
         return 0

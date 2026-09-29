@@ -9,6 +9,9 @@ planned (see `intent/companion-app/`).
 - Run CLI: `python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py AMOUNT DATE`
 - Prefetch/refresh price cache: `... goldvalue.py --fetch-only` / `--refresh`
 - Batch: `... goldvalue.py --batch rows.csv > out.csv` (FR15 schema: `date, amount, currency, label, <passthrough…>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`; computed columns and `currency` are ignored on input, so output re-imports unchanged)
+- Regenerate the synthetic fixture, golden vectors, date oracle, and batch outputs (deterministic; CI fails on any diff): `python3 test-vectors/regenerate.py`. It runs `make_fixture.py`, then `goldvalue.py --vectors gold-usd.json --dates-oracle dates.json --cases cases.json` with `GOLD_PRICE_CACHE_DIR=test-vectors/snapshot`, then `--batch` on each `test-vectors/batch-*-in.csv`.
+- Publish free data for the web app: `python3 tools/snapshot/sync_data.py` (fetches `monthly.csv` only; writes `apps/web/public/data/{monthly.csv,manifest.json}`, gitignored; `--source-dir DIR` copies from an existing cache instead)
+- Live-source drift check (non-blocking weekly workflow): `python3 tools/snapshot/check_drift.py`
 - Node/pnpm: Node 26 (`.nvmrc`), pnpm 12 (`packageManager` in `package.json`; `npm i -g pnpm@12.6.0` if `pnpm` is missing)
 - Install: `pnpm install --frozen-lockfile`; lint: `pnpm lint` (Biome; `pnpm format` fixes); types: `pnpm typecheck` (`tsc -b`); tests: `pnpm test` (Vitest per package); build: `pnpm build`
 - Python tests: `python3 -m pip install pytest && python3 -m pytest tests/python -q` (network tests are excluded; `-m network` runs the live smoke test)
@@ -22,17 +25,19 @@ planned (see `intent/companion-app/`).
 - Every price used carries `effective`, `source`, `granularity`, `note`; never print a gold value without them.
 - Gold price is always USD per troy oz from the LBMA benchmark (PM fix, AM fallback) or the monthly series pre-1968. Never use non-USD LBMA fixes or dealer quotes.
 - Non-USD amounts convert to USD at the historical FX rate first, then to gold (USD-routing tenet). Curated currencies: USD, EUR, GBP, CHF, DEM. Parity-table values apply only before each currency's first BIS observation (1953) and are flagged; pre-1999 EUR is synthetic via DEM at 1.95583; every non-daily FX value carries an `fx_mode` flag and is shown with an amber ⚠.
-- Site data files are the CLI's cache CSVs copied verbatim (`lbma_daily.csv`, `monthly.csv`, `fx_*.csv`); never introduce a second data format.
+- Site data files are the CLI's cache CSVs copied verbatim (`monthly.csv`, and `fx_*.csv` from v1.1; never `lbma_daily.csv`, D15); never introduce a second data format.
 - Comparisons are gold-denominated, not CPI. Say so when the user asked about "inflation" or "purchasing power".
 - Dates: ISO forms `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, plus `Mon YYYY` and `today`. Year/month queries average daily fixes; days roll back to the previous fix.
 - Amounts are plain decimals only (no `1e3`, `nan`, `inf`); a period starting after today is an error in single-query and `--batch` mode.
 - `--json` `gold_usd_per_oz` is unrounded; `--batch` writes fixed-point numbers (price 4, oz 6, GB 3, GBD 4, USD 2 decimals) with LF endings. `fx_*` keys/columns exist but are empty/`null` until v1.1.
+- **Python and TypeScript change together.** Any change to resolution, parsing, notes, or output in `goldvalue.py` must be mirrored in `packages/core` in the same PR: edit `test-vectors/cases.json` if new cases are needed, run `python3 test-vectors/regenerate.py`, and commit the regenerated vectors with both implementations.
+- Synthetic-fixture determinism: `make_fixture.py` uses integer arithmetic and `math.fsum` only (no `random`, no libm, no `sum()` of floats, whose result changed in Python 3.12). Keep it that way so output is byte-identical on every Python version.
 - Docs follow the AI-native SDLC chain: `intent/<change>/intent.md` → `spec.md` → `plan.md`. Update `plan.md` in the same commit when implementation departs from it.
 
 ## Architecture
 
 - `.agents/skills/gold-value-normalizer/` — the shipping unit for agents: `SKILL.md` (loaded by agents), `reference.md` (sources/method), `historical-notes.md` (pre-1974 caveats), `scripts/goldvalue.py` (reference implementation).
-- `intent/companion-app/` — spec and plan for the SPA. Planned packages: `packages/core` (TS port, no DOM), `apps/web` (Vite + Preact), `tools/snapshot` (copy cache CSVs → `apps/web/public/data/`), `test-vectors/` (golden JSON from Python).
+- `intent/companion-app/` — spec and plan for the SPA. Packages: `packages/core` (TS port, no DOM), `apps/web` (Vite + Preact, planned), `tools/snapshot` (`sync_data.py`: free CSVs → `apps/web/public/data/`; `check_drift.py`), `test-vectors/` (synthetic fixture in `snapshot/`, `make_fixture.py`, `cases.json`, generated `gold-usd.json`, `dates.json`, `batch-*-out.csv`), `tests/python/` (pytest).
 - Cache: `~/.cache/gold-value/{lbma_daily.csv,monthly.csv}`; override with `GOLD_PRICE_CACHE_DIR`.
 
 ## Things agents get wrong
