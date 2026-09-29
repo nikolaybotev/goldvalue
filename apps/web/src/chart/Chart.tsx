@@ -3,6 +3,8 @@ import { axisBottom, axisLeft, axisRight } from "d3-axis";
 import type { NumberValue } from "d3-scale";
 import { select } from "d3-selection";
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
+import { downloadPng, downloadSvg } from "../export/chart-image";
+import { sizeLabel } from "../export/size";
 import { formatPrice, formatUnit, sourceBadge } from "../lib/format";
 import { results, rows, settings, updateSettings } from "../store/sheet-store";
 import { chartHeight, computeLayout, nearestGroup, type PlacedGroup } from "./layout";
@@ -13,6 +15,10 @@ const axisUnit = signal<AxisUnit>(settings.peek().axisDefault);
 
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 const compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 3 });
+
+function exportError(error: unknown): string {
+  return `Download failed: ${error instanceof Error ? error.message : String(error)}`;
+}
 
 function unitInfo(unit: AxisUnit) {
   return AXIS_UNITS.find((u) => u.id === unit) ?? (AXIS_UNITS[0] as (typeof AXIS_UNITS)[number]);
@@ -71,6 +77,11 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
   const collapsed = collapsible && chartCollapsed;
   const unit = axisUnit.value;
   const wrapRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [exportState, setExportState] = useState<{ busy: boolean; error: string | null }>({
+    busy: false,
+    error: null,
+  });
   const xAxisRef = useRef<SVGGElement>(null);
   const yAxisRef = useRef<SVGGElement>(null);
   const y2AxisRef = useRef<SVGGElement>(null);
@@ -149,6 +160,27 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
         py: (first ? first.py : y) + layout.margins.top,
       });
     } else if (event.pointerType === "mouse") setHover(null);
+  };
+
+  const saveSvg = () => {
+    if (!svgRef.current) return;
+    try {
+      downloadSvg(svgRef.current);
+      setExportState({ busy: false, error: null });
+    } catch (error) {
+      setExportState({ busy: false, error: exportError(error) });
+    }
+  };
+
+  const savePng = async () => {
+    if (!svgRef.current) return;
+    setExportState({ busy: true, error: null });
+    try {
+      await downloadPng(svgRef.current);
+      setExportState({ busy: false, error: null });
+    } catch (error) {
+      setExportState({ busy: false, error: exportError(error) });
+    }
   };
 
   const info = unitInfo(unit);
@@ -231,6 +263,7 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
           ) : (
             <>
               <svg
+                ref={svgRef}
                 class="chart"
                 data-testid="chart"
                 data-unit={unit}
@@ -344,6 +377,24 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
             </>
           )}
         </div>
+        {layout !== null && (
+          <div class="chart-export">
+            <button type="button" class="btn" onClick={saveSvg}>
+              Download SVG
+            </button>
+            <button type="button" class="btn" disabled={exportState.busy} onClick={savePng}>
+              Download PNG
+            </button>
+            <span class="muted" data-testid="download-size">
+              {sizeLabel({ width: layout.width, height: layout.height })}
+            </span>
+            {exportState.error && (
+              <span class="error" role="alert">
+                {exportState.error}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
