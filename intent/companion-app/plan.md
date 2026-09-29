@@ -3,198 +3,196 @@
 | | |
 |---|---|
 | Implements | [spec.md](spec.md) Draft 4 |
-| Status | Draft 4 — fresh-eyes reviewed; ready for Build |
+| Status | Draft 4 — fresh-eyes review applied; **blocked on owner gate G0 (LBMA data licensing)** before Phase 1b |
 | Stage | 2 · Design → 3 · Build |
 
-## Standing rules (apply to every phase)
+Each phase is one PR with a definition of done (DoD). v1 (USD-only) ships at the
+end of Phase 5; Phases 6a–6c add multi-currency (v1.1). Update `plan.md` in the
+same commit whenever implementation departs from it.
 
-1. **Execution order is `0 → 1 → 2 → 3 → 4 → 6 → 5`.** Phases 0–4 and 6 deliver **v1 (USD only)**. Phase 5 is **v1.1 (multi-currency)** and starts only after v1 is deployed and verified. Phase numbers are stable identifiers, not the order.
-2. **Spec is the source of truth.** Where this plan and `spec.md` disagree, follow the spec and fix the plan in the same commit. Any intentional departure from the plan updates `plan.md` **in the same commit** as the code.
-3. **One PR-sized commit series per phase**, on a branch `phase-N-name`, merged to `main` (fast-forward or squash) only when that phase's Definition of Done passes. Commit messages state the phase.
-4. **No live network in automated tests.** Python and TS tests use the frozen fixtures in `testdata/` (Phase 1). Only `tools/snapshot/sync_data.sh` and manual `--fetch-only`/`--refresh` touch the network.
-5. **Docs stay current.** Each phase updates `AGENTS.md` (Commands / Architecture), and `SKILL.md` / `reference.md` where CLI behavior changes. A phase is not done until docs match the code.
-6. **Checkpoints.** At the end of Phases 1, 4, and 6 the builder pushes, runs the full DoD, and writes a short status note to `intent/companion-app/status.md` (what shipped, what departed from the plan, open issues). It then continues. It stops and asks the human only for: an action that needs credentials or settings it does not have; a spec contradiction it cannot resolve by the spec's own precedence rules; a failing DoD after three distinct fix attempts.
-7. **Data-licensing hold (spec V3).** LBMA Gold Price data is licensed by ICE Benchmark Administration; redistribution needs a paid licence and LBMA's historical tables are limited to licensees and self-certified non-commercial/educational users. **Until the owner records a decision in this file, do not commit or publish any LBMA-derived data** (`testdata/cache/lbma_daily.csv`, `apps/web/public/data/lbma_daily.csv`, vectors containing real LBMA prices). Steps that would do so are marked **[HOLD-V3]** below. Work not touching LBMA-derived files may proceed.
-8. **Toolchain pins** (set in Phase 0, never floated): Node `>=22` (`engines`, `.nvmrc` = 22), pnpm via Corepack (`packageManager` field, pnpm 10.x), TypeScript 5.x, Vite 6.x or later stable, Preact 10.x, `@preact/signals` 2.x, Vitest current stable, Playwright current stable, Biome 2.x, Python 3.9+ for `goldvalue.py` (stdlib only), pytest for tests only. Commit `pnpm-lock.yaml`.
+## Owner gate G0 — LBMA data licensing (decide before Phase 1b)
+
+Research on 2026-09-28: the LBMA Gold Price is administered by ICE Benchmark
+Administration (IBA). IBA/LBMA state that a licence is required to obtain, use
+or **redistribute** historical benchmark data; redistributors pay a licence fee
+(2026 fee schedule lists non-real-time redistribution from USD 9,000 a year);
+LBMA moved its historical tables behind a portal (Nov 2025) that requires
+self-certification as non-commercial/educational. Personal, non-commercial use
+is permitted. Publishing a daily LBMA snapshot in a public repo or on a public
+site (spec D14, §6.3) is redistribution.
+
+| Option | What ships | Cost to spec |
+|---|---|---|
+| **A (recommended)** | No LBMA rows in the repo or on the site. The site ships the free monthly series (World Bank, PDDL) and BIS FX; the visitor's browser fetches LBMA JSON directly (user-initiated, personal use), caches it in IndexedDB, and shows an attribution/terms notice. CLI users fetch LBMA to their own cache as today. Tests use a **synthetic** fixture (deterministic made-up prices in the same CSV shape), so nothing licensed is committed. | D1/D14/§6.3/NFR1/AC1/AC5 amended: first visit downloads ~1.8 MB (once per 12 h) instead of a 76 KB snapshot; offline works after first load via IndexedDB (`persist()`), not the service worker; AC1's real-price number becomes a non-blocking live check. |
+| B | Obtain an IBA redistribution licence (or written permission) and keep spec Draft 4 unchanged. | Fees and paperwork; owner-only. |
+| C | Monthly series only (no LBMA at all). | Loses day-level precision from 1968; largest product change. |
+
+Until G0 is answered, the agent may execute Phases 0, 1a, 2, and everything in
+3–4 that does not read real LBMA data, using the synthetic fixture. Phase 1b
+(real snapshot, `sync_data.py` data set), Phase 5 (deploy), and the AC1
+real-value check are held.
 
 ## Target repository layout
 
 ```
 goldvalue/
-├── AGENTS.md  REVIEW.md  README.md  LICENSE  .nvmrc
-├── intent/companion-app/{intent,spec,plan,status}.md
+├── AGENTS.md  REVIEW.md  README.md  LICENSE  .gitattributes  .nvmrc
+├── intent/companion-app/{intent,spec,plan}.md
 ├── .agents/skills/gold-value-normalizer/
 │   ├── SKILL.md  reference.md  historical-notes.md
-│   ├── scripts/goldvalue.py
-│   └── tests/test_goldvalue.py
-├── testdata/
-│   ├── cache/{lbma_daily,monthly}.csv    # FROZEN snapshot for tests (fx_*.csv added in Phase 5)
-│   └── bad-batch/                        # malformed CSV fixtures
-├── test-vectors/{gold-usd.json,fx.json}  # emitted by goldvalue.py --vectors from testdata/cache
-├── tools/snapshot/sync_data.sh           # refresh CLI cache → apps/web/public/data/
-├── packages/core/                        # TypeScript library (no DOM)
-│   ├── src/{dates,amounts,units,table,resolve,convert,csv,lbma,fx,parity}.ts
-│   └── test/
-├── apps/web/                             # Vite + Preact SPA
-│   ├── public/data/{lbma_daily,monthly}.csv, manifest.json (+ fx_*.csv in v1.1)  # generated by CI
-│   ├── e2e/                              # Playwright specs
-│   └── src/{app,sheet,chart,store,method,export}/
-├── .github/workflows/{ci.yml,data-refresh.yml,deploy-pages.yml}
-└── package.json  pnpm-workspace.yaml  pnpm-lock.yaml  biome.json  tsconfig.base.json  .gitignore
+│   └── scripts/goldvalue.py
+├── tests/python/                          # pytest for goldvalue.py (kept out of the shipped skill folder)
+├── test-vectors/
+│   ├── snapshot/{lbma_daily,monthly}.csv  # pinned fixture (content per G0); fx_*.csv added in 6a
+│   ├── gold-usd.json  dates.json  batch-*.csv  fx.json(6a)
+├── tools/snapshot/sync_data.py            # stdlib; copies cache CSVs -> apps/web/public/data + manifest
+├── packages/core/src/{dates,amounts,units,csvdata,table,resolve,convert,csv,lbma}.ts  (+ fx,parity in 6b)
+├── apps/web/
+│   ├── public/data/                       # generated: monthly.csv, manifest.json, (lbma_daily.csv per G0), fx_*.csv
+│   ├── e2e/                               # Playwright specs
+│   └── src/{app,sheet,chart,store,method,export,sw}/
+├── scripts/check-size.mjs
+├── .github/workflows/{ci.yml,deploy-pages.yml,weekly-drift.yml}
+└── package.json  pnpm-workspace.yaml  biome.json  tsconfig.base.json
 ```
 
-## Phase 0 — Repository scaffolding
+## Acceptance-criteria coverage map
 
-Files: `package.json` (root, private, `packageManager`, `engines`, scripts `lint`, `test`, `build`, `e2e`), `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `.nvmrc`, `tsconfig.base.json`, `biome.json`, `packages/core/{package.json,tsconfig.json,src/index.ts}`, `apps/web/{package.json,index.html,vite.config.ts,src/main.tsx}` stubs, `.github/workflows/ci.yml`.
+| AC | Test | Phase |
+|---|---|---|
+| AC1 | Playwright with `page.clock` pinned inside the fixture; expected values read from `test-vectors`. Real-price check (63,979.53 GB) is a non-blocking live job. | 3a |
+| AC2 | rAF-based DOM assertion | 3b |
+| AC3 | vitest round-trip + comparison with Python-generated `test-vectors/batch-*.csv` | 4a |
+| AC4 | Playwright download; PNG IHDR width/height = 2× SVG `width`/`height` | 4b |
+| AC5 | Playwright `context.setOffline(true)` against `vite preview` | 4c |
+| AC6 | Playwright | 3c |
+| AC7 | `pytest` + `vitest` on the same vector JSON | 1b, 2 |
+| AC7a | Playwright: FR12 midpoint + side-by-side, 899/900 px layout, FR18 keymap, FR2a future date; `@axe-core/playwright` | 3b, 3c |
+| AC8–AC11 | `e2e/fx.spec.ts` + FX vectors | 6c |
 
-1. Create the workspace (`@goldvalue/core`, `@goldvalue/web`) with a placeholder test in each package.
-2. `ci.yml`: on push/PR — Corepack + `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm -r test`, `pnpm build`, and `python3 -m pytest .agents/skills/gold-value-normalizer/tests` (skipped if the directory does not exist yet).
-3. Update `AGENTS.md` Commands with the real `pnpm` scripts.
+## Phase 0 — Scaffolding and CI skeleton
 
-**Definition of done**
-```bash
-corepack enable && pnpm install --frozen-lockfile
-pnpm lint && pnpm -r test && pnpm build      # all exit 0
-```
-CI green on the branch.
+Files: `package.json` (`packageManager`, `engines`), `.nvmrc`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `tsconfig.base.json` (`lib: ["ES2022"]` for core), `biome.json`, `.gitattributes` (`apps/web/public/data/*.csv -text`, `test-vectors/snapshot/*.csv -text`), `.github/workflows/ci.yml`, empty `packages/core`, `apps/web`.
 
-## Phase 1 — Python reference: contract, fixtures, vectors, data sync
+1. Node and pnpm pinned; CI uses `pnpm/action-setup` and `--frozen-lockfile`.
+2. CI jobs (each added as its content lands): `python` (pytest 3.9 + 3.12, vector diff), `node` (biome, `tsc -b`, vitest, build, `scripts/check-size.mjs`), `e2e` (Playwright chromium, optional webkit), `lighthouse` (`lhci`, median of 3).
+3. Owner-only prerequisite, noted here so the agent doesn't stall: Pages source must be set to "GitHub Actions" (Phase 5).
 
-Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `.../tests/test_goldvalue.py`, `testdata/**`, `test-vectors/gold-usd.json`, `tools/snapshot/sync_data.sh`, `SKILL.md`, `AGENTS.md`.
+DoD: CI green on the empty workspace. Update `AGENTS.md` commands (`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, Node/pnpm versions, the "data CSVs are never re-encoded" rule).
 
-1. **[HOLD-V3] Freeze test data.** Copy the current cache into `testdata/cache/{lbma_daily,monthly}.csv` and commit it. It is only ever changed by a deliberate PR.
-2. **Batch/JSON contract (spec §5.6 items 2–3, FR14, FR15).**
-   - `run_batch` output columns become exactly `date, amount, currency, label(if present as passthrough), <passthrough…>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`. `currency` = the `--from` unit's currency (`USD` in v1); `fx_*` are empty strings until Phase 5. Rename `amount_<unit>` → `amount`; add `granularity` and `note` (from `info["granularity"]`, `info["note"]`).
-   - Input detection: define one shared constant `COMPUTED_COLUMNS = {effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note}`; **drop those columns before** detecting the date column (`date|period|month|year`) and amount column (`amount|usd|value|price`), case-insensitive. Consequence: an exported file re-imports with `amount` chosen and computed columns ignored.
-   - `--json` uses the same names (`granularity`, `note`, `price_source`, `gold_usd_per_oz`, `troy_oz`, `GB`, `GBD`, `USD`); keep the existing `price_note` key only if `SKILL.md` documents it, else rename and document.
-3. **`--vectors OUT.json`** (spec §5.7). Requires `GOLD_PRICE_CACHE_DIR` to point at `testdata/cache` (exit non-zero otherwise) and performs **no network access** (fail if a fetch would be attempted). Emits vectors in the §5.7 schema covering all required families; `today` is never used. Add `--vectors-check` that regenerates in memory and diffs against the committed file.
-4. **pytest** (`tests/test_goldvalue.py`), network-free (set `GOLD_PRICE_CACHE_DIR`, monkeypatch `urllib`): `parse_period` (all forms in FR2), `parse_amount`, every resolution branch, roll-back boundary (9 days), after-latest-fix note, future-date rejection, unit conversions, batch schema/order, FR14 ignore-computed-columns, **export → import → export byte-identical**, error paths (`testdata/bad-batch/`), vectors regenerate identically.
-5. **[HOLD-V3] `tools/snapshot/sync_data.sh`** (D14): with `GOLD_PRICE_CACHE_DIR=$(mktemp -d)`, run `goldvalue.py --refresh --fetch-only`, copy `lbma_daily.csv` and `monthly.csv` verbatim to `apps/web/public/data/`, and write `manifest.json` = `{"generated": ISO date, "files": {name: {"rows": n, "last_date": "...", "sha256": "..."}}}`. Assert combined gzip size of the two CSVs ≤ 100 KB (measured 76 KB) and fail otherwise.
-6. **Docs:** update `SKILL.md` (batch schema, new column names), `AGENTS.md` Commands (pytest, vectors, sync), `reference.md` if needed. **Do this in this phase**, since the schema change is breaking.
+## Phase 1a — Reference CLI changes (spec §5.6 items 1–3 and test hooks)
 
-**Definition of done**
-```bash
-GOLD_PRICE_CACHE_DIR=testdata/cache python3 -m pytest .agents/skills/gold-value-normalizer/tests -q
-GOLD_PRICE_CACHE_DIR=testdata/cache python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py --vectors test-vectors/gold-usd.json
-git diff --exit-code test-vectors/                   # vectors are reproducible
-GOLD_PRICE_CACHE_DIR=testdata/cache python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py 80000 2018-12   # 63,979.53 GB
-bash tools/snapshot/sync_data.sh && ls apps/web/public/data/   # 2 CSVs + manifest.json
-```
-Checkpoint note written; CI green.
+Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `tests/python/{conftest.py,test_*.py}`, `SKILL.md`, `reference.md`.
 
-## Phase 2 — `packages/core` (TypeScript port)
+1. `--batch` emits the FR15 schema (`date, amount, currency, label…passthrough, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`); `amount` echoes the input token; LF line endings; computed export columns are ignored on input and an imported `currency` column is dropped and regenerated.
+2. `--json` and text output expose top-level `effective`, `granularity`, `note`, `points` (keep old keys as aliases where SKILL.md/reference.md document them).
+3. Behavior fixes: `--batch` rejects future dates like single-query mode; month queries for the current month say "(month to date)"; `parse_amount` rejects non-finite values (`nan`, `inf`) and exponent forms are kept only if intentional (decide and document).
+4. Test hooks: `GOLDVALUE_TODAY=YYYY-MM-DD` overrides "today"; `GOLDVALUE_OFFLINE=1` (or `--no-refresh`) prevents network and stale-refresh.
+5. pytest scaffolding: `conftest.py` loads the script via `importlib.util.spec_from_file_location`; `tmp_path` sets `GOLD_PRICE_CACHE_DIR`; `_download` is monkeypatched; network tests are `@pytest.mark.network` and excluded by default.
+6. Tests: parsing (every FR2 form, lenient `strptime` cases), resolution branches, batch schema/round-trip, hooks.
+
+DoD: `pytest tests/python -q` green on 3.9 and 3.12. `AGENTS.md`: pytest command, env hooks, batch schema.
+
+## Phase 1b — Pinned fixture, vectors, data sync *(real data gated by G0)*
+
+Files: `test-vectors/snapshot/*`, `test-vectors/{gold-usd.json,dates.json,batch-*.csv}`, `tools/snapshot/sync_data.py`, `.github/workflows/weekly-drift.yml`.
+
+1. Fixture per G0 (A: synthetic deterministic prices generated by a committed script; B: real snapshot).
+2. `--vectors OUT.json` reads a committed case-input file (not the shipping script) and writes `json.dumps(sort_keys=True, indent=2)` output plus trailing newline, from the fixture with `GOLDVALUE_OFFLINE=1`. Schema is spec §5.7 extended with `input.currency`, `expected.fx_note`, `expected.points`. Families per §5.7; the London closure boundary is 1968-03-15 → 1968-04-01.
+3. `dates.json`: accept/reject strings generated by the CLI's own parser (oracle for `dates.ts`).
+4. `sync_data.py` (stdlib): runs the CLI fetch into a temp cache, copies CSVs verbatim to `apps/web/public/data/`, writes `manifest.json` (`files: {name: {rows, last_date, sha256}}`, no timestamp, so unchanged data means no diff), and fails if any file's row count drops more than 1% from the previous manifest.
+5. CI: regenerate vectors from the fixture and diff byte-for-byte (determinism). `weekly-drift.yml`: non-blocking comparison of live sources with the fixture.
+
+DoD: AC7 (Python side) green; `AGENTS.md`: vectors command and the rule "change Python and TS together, regenerate vectors, commit all".
+
+## Phase 2 — `packages/core` (v1 USD)
 
 Files: `packages/core/src/*.ts`, `packages/core/test/*.test.ts`.
 
-1. `dates.ts`: `parsePeriod(text, today) → {kind, anchor}` accepting **exactly** the CLI forms (FR2), `today` injected (no hidden `Date.now()`); future-date error (FR2a).
-2. `amounts.ts`, `units.ts`: `parseAmount`; unit aliases (`GB`, goldback(s), `GBD`, `OZ`, `USD`); `toOz`/`fromOz` with `GB_PER_OZ = 1000`, `GBD_PER_OZ = 50`.
-3. `table.ts`: `GoldTable` from the two CSV texts via `parseDataCsv(text, columns)` (fixed schema, dependency-free); `merge(newerLbmaRows)`; `lastDaily`, `lastMonth`.
-4. `resolve.ts`: `priceForDay/Month/Year` — port line-for-line from `goldvalue.py`, including `note` texts, 9-day roll-back, after-latest-fix behavior, YTD.
-5. `convert.ts`: `convert({amount, unit, period}) → Result` with the field names of the CLI `--json` output.
-6. `csv.ts`: import/export per FR14/FR15 using papaparse, sharing the `COMPUTED_COLUMNS` list (copied from Python; a test asserts the two lists are equal by parsing `goldvalue.py`).
-7. `lbma.ts`: `fetchLbmaSince(date, fetchImpl)` fetching `gold_pm.json` and `gold_am.json` and returning rows newer than `date`, in `usd_am`/`usd_pm` form, with the fetch injected for tests.
-8. Tests (Vitest): load `test-vectors/gold-usd.json` and assert relative 1e-9 on numbers and exact match on text fields; property test `toOz`/`fromOz`; CSV round-trip identical to Python's on the same rows.
+1. `dates.ts` (all FR2 forms; tested against `dates.json`), `amounts.ts`, `units.ts` (`GB_PER_OZ=1000`, `GBD_PER_OZ=50`).
+2. `csvdata.ts`: `parseDataCsv(text, columns)` accepting `\r\n` and `\n` (tested with CRLF input).
+3. `table.ts`, `resolve.ts` (line-for-line port including note texts), `convert.ts` (result shape = CLI JSON), `csv.ts` (papaparse; FR14/FR15 with the dedupe rule), `lbma.ts` (`fetchLbmaSince(fetchFn, date)`; fetch injected so core needs no DOM lib).
+4. Vitest loads `test-vectors/gold-usd.json`: 1e-9 relative on doubles, exact on text.
 
-**Definition of done**
-```bash
-pnpm --filter @goldvalue/core test          # all vectors pass
-pnpm --filter @goldvalue/core exec tsc --noEmit
-pnpm lint
-```
-`packages/core` contains no DOM imports (`rg -n "document|window" packages/core/src` returns nothing).
+DoD: `pnpm --filter @goldvalue/core test` green; `tsc --noEmit` clean; no DOM imports. `AGENTS.md`: core commands and the no-DOM rule.
 
-## Phase 3 — SPA v1 (sheet + chart, USD only)
+## Phase 3a — App shell, store, sheet
 
-Files: `apps/web/src/**`, `apps/web/index.html`, `apps/web/vite.config.ts`, `apps/web/e2e/*.spec.ts`.
+Files: `apps/web/**` scaffold (Vite + Preact + signals, `build.target: 'safari16'`, `base: process.env.VITE_BASE ?? './'`, runtime URLs via `import.meta.env.BASE_URL`).
 
-1. Vite + Preact + TS + `@preact/signals`; import `@goldvalue/core`; `base: '/goldvalue/'`.
-2. `store/`: signals for rows and settings; `localStorage` keys `gv.rows`, `gv.settings`, `gv.topup.lastAttempt`; IndexedDB (`idb-keyval`) as a derived cache of the merged gold table only. **Boot algorithm:** read `data/manifest.json` → fetch `lbma_daily.csv` + `monthly.csv` → build table → render. Then, after the sheet is interactive: if `manifest.last_date` (or the merged latest fix) is older than the last business day **and** `now - gv.topup.lastAttempt > 12h`, set the timestamp, call `fetchLbmaSince`, merge, persist. Call `navigator.storage.persist()` once if available. If neither network nor cached data is available, show the FR20 "price data not available offline" state.
-3. `sheet/`: ARIA grid; columns per FR1 (no currency selector in v1); FR2/FR2a validation with per-cell errors; row lifecycle FR4–FR6 (delete, drag-reorder, sort by date, label column); FR7 persistence and Clear; FR8 column toggles; keyboard model FR18.
-4. `chart/`: SVG via `d3-scale`/`d3-shape`/`d3-axis`; x = midpoint of the requested period (FR12) with side-by-side offset for coincident points and combined tooltip; linear Y, log toggle only when all values > 0 (FR10); axis-unit toolbar (GB default; GBD / oz; "save as default", D11); nominal overlay toggle off by default; single-point and empty states; `ResizeObserver` for responsiveness.
-5. `method/`: Method panel (FR19; states "gold-denominated, not CPI"); freshness indicator and Refresh button (FR20); footer data-terms notice.
-6. Layout FR17 (CSS grid, ≥900 px side by side, resizable divider; stacked below).
+1. Store: signals for rows/settings; `localStorage` persistence and Clear (FR7); boot: read manifest → load data → staleness rule (previous London business day, last attempt >12 h) → top-up after interactive (per G0 option) → IndexedDB derived cache invalidated when manifest sha differs; `navigator.storage.persist()`; offline/unavailable state (FR20).
+2. Sheet: ARIA grid; columns per FR1; label column toggle (FR6); GBD/oz toggles (FR8); FR2a errors. Keymap: navigate mode (arrows move, Enter/F2/typing edits); edit mode (Enter commits+down, Tab commits+right, Esc cancels, arrows move caret); TSV/CSV paste fills rows (S2); row reorder via move buttons/keys with drag as enhancement (FR5); sort by date.
 
-Unit tests (Vitest, in `apps/web`): chart x-midpoint rules and collision offset (FR12), top-up gating logic (three cases: stale+eligible fetches, within 12 h does not, up to date does not).
+DoD: AC1 (fixture values), FR18 keymap and FR2a Playwright specs green. `AGENTS.md`: `pnpm dev/build/preview`, `pnpm test:e2e`, `VITE_BASE`.
 
-**Definition of done**
-```bash
-pnpm --filter @goldvalue/web test
-pnpm --filter @goldvalue/web build && pnpm --filter @goldvalue/web preview &   # then:
-pnpm --filter @goldvalue/web exec playwright test e2e/smoke.spec.ts e2e/ac12.spec.ts
-```
-`smoke.spec.ts` covers AC1 (with a stubbed clock and stubbed LBMA responses), AC2, AC6; `ac12.spec.ts` covers AC7a (FR12, FR17 at 899 px, FR18 keys, FR2a future date, axe-core on the sheet via `@axe-core/playwright`, zero violations). Playwright fixtures serve `testdata/cache` CSVs as the data files so no live network is used.
+## Phase 3b — Chart
 
-## Phase 4 — Import/export, downloads, offline
+`chart/`: d3-scale/shape/axis SVG; x = midpoint of requested period (day itself, month 16th, year 2 July; FR12); side-by-side same-x points with shared tooltip; linear Y, log toggle only when all values positive, negatives plotted (FR10); axis-unit toolbar with "save as default" (D11); nominal overlay toggle (off by default); `ResizeObserver`; empty/single-point states.
 
-Files: `apps/web/src/export/*`, `apps/web/src/sw.ts` (or `vite-plugin-pwa` config), `apps/web/vite.config.ts`, `apps/web/e2e/{io,offline}.spec.ts`.
+DoD: AC2, AC7a (FR12) green.
 
-1. CSV import (file picker + drag-drop) and export using `core/csv.ts`; per-line error list (FR16); export schema FR15.
-2. SVG export: clone the chart node, inline computed styles, set explicit `width`/`height`, serialize, download. PNG export: rasterize that SVG on a canvas at exactly 2× its CSS size, `toBlob`, download (FR13).
-3. Service worker via `vite-plugin-pwa` (Workbox `injectManifest` or `generateSW`): **precache** the app shell plus `data/lbma_daily.csv`, `data/monthly.csv`, `data/manifest.json`; runtime-cache `data/fx_*.csv` (used from Phase 5); LBMA top-up URLs are network-only (never cached). Cache versioning follows the build revision; `manifest.json` is fetched network-first so a new snapshot is noticed.
+## Phase 3c — Layout, Method, freshness, accessibility
 
-**Definition of done**
-```bash
-pnpm --filter @goldvalue/web exec playwright test e2e/io.spec.ts e2e/offline.spec.ts
-```
-`io.spec.ts`: AC3 (export → import → export byte-identical; shared columns equal a checked-in `goldvalue.py --batch` output for the same rows) and AC4 (SVG equals the serialized on-screen `<svg>`; PNG dimensions = 2× SVG). `offline.spec.ts`: AC5 (load online, go offline via Playwright, reload, rows still compute) plus the FR20 empty state when storage is cleared. Checkpoint note written.
+Wide/narrow layout, resizable divider, collapsible chart (FR17); Method panel (FR19) with the "gold-denominated, not CPI" statement and **absolute GitHub URLs** to `historical-notes.md`; freshness indicator and Refresh (12 h rate limit, FR20); attribution/terms footer (per G0); axe-core.
 
-## Phase 6 — Deployment and hardening (completes v1)
+DoD: AC6, AC7a (899/900 px, axe) green; Lighthouse ≥ 90 mobile; `check-size.mjs` enforces gold data ≤ 130 KB gz and initial `dist/` (excluding `fx_*`) ≤ 250 KB gz.
 
-Files: `.github/workflows/{data-refresh,deploy-pages,ci}.yml`, `README.md`, `apps/web/public/robots.txt`, `scripts/check-size.mjs`.
+## Phase 4a — CSV import/export
 
-1. **Size budget (NFR1).** `scripts/check-size.mjs` gzips every file in `apps/web/dist` (excluding `fx_*.csv`) and fails if the total exceeds 250 KB; run in `ci.yml` after `pnpm build`.
-2. **[HOLD-V3] `deploy-pages.yml` with LBMA data:** on push to `main` and `workflow_dispatch`; permissions `contents: read, pages: write, id-token: write`; build `apps/web` with `base: '/goldvalue/'`; `actions/upload-pages-artifact` + `actions/deploy-pages`. Enable Pages with source "GitHub Actions" via `gh api -X POST repos/nikolaybotev/goldvalue/pages -f build_type=workflow` (repo setting; the builder may do this with the authenticated `gh`, since the owner asked for GitHub Pages hosting).
-3. **[HOLD-V3] `data-refresh.yml`:** cron `30 16 * * 1-5` (after the London PM fix) and `workflow_dispatch`; permissions `contents: write` only; runs `tools/snapshot/sync_data.sh`; commits **only** `apps/web/public/data/*` when it changed, with a bot identity, directly to `main`; the push triggers `deploy-pages.yml`. No secrets are required. If branch protection later blocks bot pushes, switch to a PR-per-refresh and note it in `status.md`.
-4. README: Pages URL, `pnpm` scripts, shared-hosting recipe (`pnpm build`, upload `apps/web/dist/` under the chosen path; adjust Vite `base` accordingly), optional nginx `Dockerfile` for Cloud Run, data-terms notice (LBMA personal/non-commercial; PDDL monthly series).
-5. Failure surfacing only in the freshness indicator (no telemetry).
+Import per FR14 (file picker, drag-drop, 5 MB limit, per-line errors); export per FR15. DoD: AC3.
 
-**Definition of done**
-```bash
-node scripts/check-size.mjs                         # <= 250 KB gzipped
-gh workflow run data-refresh.yml && gh run watch    # succeeds; data files current
-gh workflow run deploy-pages.yml && gh run watch    # succeeds
-curl -sI https://nikolaybotev.github.io/goldvalue/ | head -1   # HTTP/2 200
-```
-Then run the AC1–AC7 and AC7a Playwright suites against the production URL (`BASE_URL=https://nikolaybotev.github.io/goldvalue/ pnpm --filter @goldvalue/web exec playwright test`). **v1 is complete here.** Write the checkpoint note and stop unless asked to continue to Phase 5.
+## Phase 4b — SVG/PNG download
 
-## Phase 5 — Multi-currency (v1.1, G7)
+Serialize SVG with explicit `width`/`height`, `xmlns`, inlined styles, system fonts; PNG canvas = **exactly 2× the SVG's `width`/`height`** (independent of `devicePixelRatio`), `await img.decode()` before `drawImage`. DoD: AC4.
 
-Start only when v1 is deployed. Files: `goldvalue.py` (`--currency`), `tools/snapshot/sync_data.sh`, `testdata/cache/fx_*.csv`, `packages/core/src/{fx,parity}.ts`, `apps/web/src/sheet/CurrencySelector.tsx`, `test-vectors/fx.json`, `.agents/skills/.../{SKILL,reference,historical-notes}.md`.
+## Phase 4c — Service worker and offline
 
-1. **Fetch (Python).** For `EUR`, `GBP`, `CHF` only: `https://stats.bis.org/api/v1/data/WS_XRU/D.{AREA}.{CCY}.A?format=csv` with `(GB,GBP)`, `(CH,CHF)`, **`(DE,EUR)`** (not `XM`). BIS quotes currency per USD: store `usd_per_unit = 1 / OBS_VALUE`. Cache as `fx_{eur,gbp,chf}.csv` (`date,usd_per_unit`). **DEM has no file and no BIS series**: it is computed from the EUR table (`usd_per_dem = usd_per_eur / DEM_PER_EUR`). Sanity test against known values (GBP 1971-01-04 ≈ 2.39, CHF 2000-01-04 ≈ 0.63, EUR 2005-06 ≈ 1.2).
-2. **Constants and formulas, exactly as in D10.** `DEM_PER_EUR = 1.95583`. `usd_per_eur = usd_per_dem × DEM_PER_EUR`; `usd_per_dem = usd_per_eur / DEM_PER_EUR`. `fx_mode` precedence `daily < synthetic < parity < extrapolated`; the synthetic-euro note text is fixed in spec D10 and reused verbatim by the UI.
-3. **Parity table** (spec §6.2a: GBP 1940/1949, CHF 1949, DEM 1948/1949, EUR-via-DEM): hard-code in `goldvalue.py`. **V1 gate:** verify each value and date against IMF IFS / central-bank sources and cite them in `reference.md`. If a value cannot be verified, keep it, mark it "unverified" in `reference.md`, list it in `status.md`, and continue.
-4. **Resolution (spec §6.2b):** FX resolved independently of gold, same 9-day roll-back, month/year **ratio of means**, `fx_effective` reported, stale-rate note when > 3 days old. Add `--currency` (single, `--json`, `--batch`; batch rows all use the given currency), populate the empty `fx_*` columns, and the ECB cross-check test for EUR (fixture, no network).
-5. **`--fetch-only`** also fetches the three FX files; `sync_data.sh` copies them and adds them to `manifest.json`. Measure each gzipped size against the 110 KB budget (V2); fail the script if exceeded.
-6. **Fixtures and vectors:** freeze `testdata/cache/fx_*.csv`; extend `--vectors` with the v1.1 families in §5.7 including a month whose mean FX differs from FX at the midpoint (ratio-of-means test) and both sides of 1999-01-04 for EUR and DEM.
-7. **Core:** `fx.ts` (daily tables, lazy loader), `parity.ts`, resolution with modes and notes, `convert` gains `currency` and returns `fxRate`, `fxEffective`, `fxMode`, `fxNote`.
-8. **UI:** currency selector (USD, EUR, GBP, CHF, DEM) in the sheet header (D9), lazy FX load with loading and error states; amber ⚠ with `fxNote` tooltip and hollow chart points (FR8a, FR10a); FX columns populated in CSV export; Method panel gains the USD-routing tenet, parity, and synthetic-euro explanations linking to `historical-notes.md`.
-9. Update `SKILL.md` (`--currency`, new columns), `reference.md`, `AGENTS.md`.
+`vite-plugin-pwa` with `globPatterns` including `csv,json`; precache shell + `monthly.csv`, `manifest.json` (and `lbma_daily.csv` under G0-B); `fx_*.csv` cached on first use; the LBMA top-up response is never cached by the SW; update strategy: prompt-free `autoUpdate`, IndexedDB discarded on manifest sha change; AC5 runs against `vite preview` (SW inactive in `vite dev`). DoD: AC5.
 
-**Definition of done**
-```bash
-GOLD_PRICE_CACHE_DIR=testdata/cache python3 -m pytest .agents/skills/gold-value-normalizer/tests -q
-GOLD_PRICE_CACHE_DIR=testdata/cache python3 .../goldvalue.py --vectors test-vectors/fx.json && git diff --exit-code test-vectors/
-pnpm --filter @goldvalue/core test && pnpm --filter @goldvalue/web exec playwright test e2e/fx.spec.ts
-```
-`fx.spec.ts` asserts AC8–AC11 with the spec's exact inputs (`250000`/`2005-06` EUR daily; `1000`/`1950-06` GBP parity £1 = $2.80; `1000`/`1985-06` EUR synthetic tooltip; `1000`/`2005-06` DEM synthetic; `1000`/`1900-01` GBP extrapolated).
+## Phase 5 — Deploy and v1 tag *(held until G0 is answered)*
+
+1. `deploy-pages.yml`: triggers on `push` to main, daily `schedule` (~16:30 UTC), and `workflow_dispatch`; runs `sync_data.py` **before** `vite build` and commits nothing (avoids `GITHUB_TOKEN` non-triggering and history noise); `permissions: {pages: write, id-token: write, contents: read}`, `environment: github-pages`, `upload-pages-artifact` + `deploy-pages`; `VITE_BASE=/goldvalue/`.
+2. Owner action: Pages source → GitHub Actions (`gh api` if permitted).
+3. README: shared-hosting recipe (`VITE_BASE=./ pnpm build`, upload `apps/web/dist/`); Cloud Run static container optional. Data-terms notice per G0.
+4. Tag `v1.0.0`.
+
+DoD: production URL passes AC1–AC7a; two scheduled deploys observed. `AGENTS.md`: deploy workflow and `gh workflow run deploy-pages.yml`.
+
+## Phase 6a — CLI: FX and parity (v1.1)
+
+Files: `goldvalue.py`, `tests/python/`, `test-vectors/{snapshot/fx_*.csv,fx.json}`, `tools/snapshot/sync_data.py`, `reference.md`, `SKILL.md`, `historical-notes.md`.
+
+1. `--currency EUR|GBP|CHF|DEM` (valid only with `--from USD`; error otherwise; `currency` column reflects it in `--batch`).
+2. BIS fetcher: `D.GB.GBP`, `D.CH.CHF`, `D.DE.EUR` (per-USD quotes inverted to `usd_per_unit`; skip blank/`NaN` values; use `TIME_PERIOD`/`OBS_VALUE`). Cache/snapshot files: `fx_gbp.csv`, `fx_chf.csv`, `fx_eur.csv` only; `usd_per_dem = usd_per_eur / 1.95583`. `--fetch-only` also fetches FX.
+3. Parity table (spec §6.2a) in the CLI; sources: any of IMF IFS, Bank of England, SNB, Bundesbank or a central-bank history page; values that cannot be confirmed stay, marked `unverified` in `reference.md` and noted in the PR (does not block merge).
+4. Resolution: rate from the daily table, else parity if before the first observation; `synthetic` set for EUR before 1999-01-04 / DEM after 1998-12-31 regardless of data source; `fx_mode` = highest of daily < synthetic < parity < extrapolated, `fx_note` lists all; EUR before 1953-09-01 = DEM parity × 1.95583. Period straddling a first observation: mean of the observations if any exist, else parity at the midpoint.
+5. Emit `fx_rate`, `fx_effective`, `fx_mode`, `fx_note` in text, `--json`, `--batch`. Vectors: each parity step, day before/after each first observation, EUR 1998-12-31/1999-01-04, DEM likewise, EUR 1950 (parity + synthetic), GBP 1900 (extrapolated), CHF 1999-01-04 = 0.7292 USD. BIS 1-week lag note (`fx_note` when rate older than 3 days).
+6. Check each `fx_*.csv` ≤ 110 KB gz; round stored inverse to ~8 decimals if not.
+
+DoD: pytest + vector determinism green. `AGENTS.md`: `--currency`, FX vectors command, corrected parity sentence.
+
+## Phase 6b — Core FX
+
+`fx.ts`, `parity.ts`, `convert` gains `currency`, returns `fxMode`, `fxNote`, `fxRate`, `fxEffective`; ratio-of-means for month/year; `currency` passthrough warning on import. DoD: FX vectors green in vitest (AC12).
+
+## Phase 6c — UI FX
+
+Sheet-wide currency selector (D9); lazy `fx_*.csv` download; amber ⚠ with `fxNote` tooltip and hollow chart points; `fx_*` in export; Method panel gains the USD-routing, parity, and synthetic-euro text. DoD: AC8–AC11, AC13 (Playwright). Tag `v1.1.0`.
 
 ## Deferred / explicitly out of plan
 
 - Optional HTTP backend (spec D2/D3) — only if a source loses CORS.
 - CPI comparison series.
-- Other legacy euro currencies (FRF, ITL, NLG, …); the ECU; the East German Mark der DDR (no market USD rate).
-- Richer pre-1940 GBP history; an FX runtime top-up; Lighthouse scoring.
-- Additional gold units (grams, gold-backed stablecoins).
+- Other legacy euro currencies (FRF, ITL, NLG, …); the ECU; the East German Mark der DDR.
+- A richer pre-1940 GBP table.
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
-| LBMA changes JSON shape or removes CORS | Snapshot refreshed daily; app degrades to snapshot-only; backend fallback path documented in spec D1–D3 |
-| GitHub raw / datasets repo disappears | Snapshot keeps the monthly series in-repo; pin a fork |
-| BIS schema change, lag, or rate limits | Fetch at CI time only; frozen fixtures for tests; ECB cross-check for EUR |
-| Python/TS parity drift | Golden vectors from frozen fixtures; CI runs both suites on every PR |
-| Bundle bloat on shared hosting | `check-size.mjs` in CI (250 KB budget); FX files lazy |
-| Wrong par values in the parity table | V1 gate with cited sources; flagged rows are always amber |
-| Bot pushes blocked by branch protection | Documented fallback: PR-per-refresh |
+| LBMA licensing (G0) | Owner decision; option A removes redistribution entirely |
+| LBMA changes JSON shape, removes CORS, or closes the endpoint | Drift job; degrade to monthly series; backend fallback documented |
+| BIS schema change or outage | Fetch at build time only; ECB/FRED are cross-checks, not replacements (ECB starts 1999) |
+| Parity drift between Python and TS | Byte-diffed vectors in CI; change both together |
+| Bundle bloat | `check-size.mjs` in CI |
+| Scheduled workflows disabled after 60 days of repo inactivity | Daily deploys are commits-free, so add a monthly keep-alive or note in README |
