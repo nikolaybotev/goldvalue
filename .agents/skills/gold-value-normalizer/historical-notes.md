@@ -62,6 +62,46 @@ must be curated by hand; the usual sources are Timothy Green, *The World of
 Gold*, and the IMF's contemporaneous reports on premium gold markets. No
 machine-readable series is known.
 
+## Currencies routed through the dollar
+
+Non-USD amounts are converted to USD at the historical exchange rate for the
+same period, then to gold at the USD benchmark. This is deliberate: it
+normalizes everything to one bullion price rather than trying to reproduce
+local gold markets. Under Bretton Woods (to 1971) exchange rates were fixed par
+values against the dollar, movable only within a ±1% band and changed by
+discrete devaluations, so pre-1971 conversions use a small parity table and
+are flagged as such.
+
+### Deutsche Mark and the euro
+
+- The **Deutsche Mark (DEM)** was introduced in the Western occupation zones on
+  21 June 1948 (currency reform), initially at 3.33 DM per USD, devalued with
+  the sterling bloc to 4.20 on 28 Sept 1949, revalued to 4.00 on 6 March 1961
+  and to 3.66 on 27 Oct 1969, and floated from 1971.
+- The **euro** began on 1 Jan 1999 (cash from 1 Jan 2002). It did **not** start
+  1:1 with the mark: the irrevocable conversion rate is **1 EUR = 1.95583 DEM**.
+  The euro's official 1:1 predecessor was the ECU, a basket unit of account
+  (1979–1998) in which almost no real-world amounts were denominated.
+- **Synthetic euro.** For dates before 1999 this project derives EUR from DEM at
+  the conversion rate (`usd_per_eur = usd_per_dem × 1.95583`). This is the
+  Bundesbank convention for long-run euro series and matches how Germans still
+  mentally convert pre-euro prices (divide by 1.95583, or "roughly halve").
+  It is a German-centric fiction: an amount that was actually in French francs
+  or Italian lire would convert differently, because those currencies lost
+  more value against the mark before 1999. Such rows are flagged
+  `fx_mode = synthetic`. Symmetrically, DEM amounts dated after 1998 are
+  derived from EUR at the same rate and flagged.
+
+### Mark der DDR (East German mark)
+
+Out of scope. The East German mark (M, 1948–1990) was not convertible; the
+official 1:1 rate with the DEM was a political fiction and the street rate ran
+roughly 5–10 M per DM through the 1980s. At monetary union on 1 July 1990,
+wages, prices and savings up to age-dependent limits (2,000 / 4,000 / 6,000 M)
+were converted at 1:1, larger balances at 2:1, some liabilities at 3:1. With
+no market USD rate to route through, any gold value for M amounts would be a
+guess; the project does not attempt one.
+
 ## Why 50 GBD per ounce
 
 The 1 oz American Gold Eagle (Gold Bullion Coin Act, 1985) and 1 oz American
