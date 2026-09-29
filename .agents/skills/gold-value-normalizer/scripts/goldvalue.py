@@ -407,34 +407,44 @@ def fixed(x: float, digits: int) -> str:
 # --------------------------------------------------------------------------- batch
 
 
-def batch_layout(fieldnames: list[str]) -> tuple[str, str, str | None, list[str]]:
-    """Return (date column, amount column, label column or None, passthrough columns).
+def batch_layout(header: list[str]) -> tuple[int, int, int | None, list[tuple[str, int]]]:
+    """Return (date index, amount index, label index or None, [(name, index)] passthrough).
 
-    Computed export columns and `currency` are ignored on input (spec FR14). `USD`
-    is also a legacy alias for the amount column, so it is treated as computed only
-    when the header carries other export columns (`troy_oz` or `gold_usd_per_oz`).
+    Rules (spec FR14, plus the "dedupe rule" of plan Phase 2):
+    - Header names compare trimmed and case-insensitively; when a name repeats, the
+      first column wins and later ones are dropped.
+    - Computed export columns and `currency` are ignored when picking the date and
+      amount columns and never pass through. `USD` is also a legacy alias for the
+      amount column, so it counts as computed only when the header carries other
+      export columns (`troy_oz` or `gold_usd_per_oz`).
+    - Passthrough columns whose names collide with any output column (FR15 fixed or
+      computed names) are dropped, so the output header never repeats a name.
     """
-    lowered: dict[str, str] = {}
-    for c in fieldnames:
-        lowered.setdefault(c.strip().lower(), c)
-    exported = "troy_oz" in lowered or "gold_usd_per_oz" in lowered
-    ignored = {c.lower() for c in COMPUTED_COLUMNS}
-    if not exported:
-        ignored.discard("usd")
-    ignored.add("currency")
+    first: dict[str, int] = {}
+    for idx, name in enumerate(header):
+        first.setdefault(name.strip().lower(), idx)
+    exported = "troy_oz" in first or "gold_usd_per_oz" in first
+    computed = {c.lower() for c in COMPUTED_COLUMNS}
+    ignored = (computed - ({"usd"} if not exported else set())) | {"currency"}
+    reserved = computed | {c.lower() for c in BATCH_FIXED_COLUMNS}
 
-    def first(names: tuple[str, ...]) -> str | None:
-        return next((lowered[k] for k in names if k in lowered and k not in ignored), None)
+    def pick(names: tuple[str, ...]) -> int | None:
+        return next((first[k] for k in names if k in first and k not in ignored), None)
 
-    date_col = first(("date", "period", "month", "year"))
-    amt_col = first(("amount", "usd", "value", "price"))
-    if not date_col or not amt_col:
+    date_idx = pick(("date", "period", "month", "year"))
+    amt_idx = pick(("amount", "usd", "value", "price"))
+    if date_idx is None or amt_idx is None:
         sys.exit("error: --batch CSV needs a 'date' column and an 'amount' column")
-    label_col = lowered.get("label")
-    passthrough = [c for c in fieldnames
-                   if c not in (date_col, amt_col, label_col)
-                   and c.strip().lower() not in ignored]
-    return date_col, amt_col, label_col, passthrough
+    label_idx = first.get("label")
+    used = {date_idx, amt_idx, label_idx}
+    passthrough = [(header[idx], idx) for key, idx in first.items()
+                   if idx not in used and key not in reserved]
+    passthrough.sort(key=lambda item: item[1])
+    return date_idx, amt_idx, label_idx, passthrough
+
+
+def _field(row: list[str], idx: int | None) -> str:
+    return row[idx] if idx is not None and idx < len(row) else ""
 
 
 def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path) -> int:
@@ -445,23 +455,23 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path) -> 
     except OSError as exc:
         sys.exit(f"error: cannot read {path}: {exc}")
     with fh:
-        reader = csv.DictReader(fh)
-        fieldnames = [c.lstrip("\ufeff") for c in (reader.fieldnames or [])]
-        if not fieldnames:
+        reader = csv.reader(fh)
+        header = next(reader, None)
+        if header is None:
             sys.exit("error: --batch CSV is empty")
-        reader.fieldnames = fieldnames
-        date_col, amt_col, label_col, extra = batch_layout(fieldnames)
-        rows = [(reader.line_num, r) for r in reader]
+        header = [header[0].lstrip("\ufeff"), *header[1:]] if header else header
+        date_idx, amt_idx, label_idx, extra = batch_layout(header)
+        rows = [(reader.line_num, r) for r in reader if r]
 
     today = today_date()
     table = GoldTable(lbma_path, monthly_path)
     parsed = []
     for line, r in rows:
-        token = r.get(date_col) or ""
+        token = _field(r, date_idx)
         try:
             kind, anchor = parse_period(token)
             check_not_future(anchor, token, today)
-            parsed.append(((kind, anchor), parse_amount(r.get(amt_col)), r))
+            parsed.append(((kind, anchor), parse_amount(_field(r, amt_idx)), r))
         except argparse.ArgumentTypeError as exc:
             sys.exit(f"error: line {line}: {exc}")
     if parsed:
@@ -473,7 +483,7 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path) -> 
         except (ValueError, OSError):
             pass
     w = csv.writer(sys.stdout, lineterminator="\n")
-    w.writerow([*BATCH_FIXED_COLUMNS, *extra, *COMPUTED_COLUMNS])
+    w.writerow([*BATCH_FIXED_COLUMNS, *(name for name, _ in extra), *COMPUTED_COLUMNS])
     for (kind, anchor), amount, r in parsed:
         try:
             res = convert(table, amount, src_unit, kind, anchor, today)
@@ -481,9 +491,9 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path) -> 
             print(f"warning: {exc}; row skipped", file=sys.stderr)
             continue
         w.writerow([
-            r.get(date_col) or "", r.get(amt_col) or "", src_unit,
-            (r.get(label_col) or "") if label_col else "",
-            *((r.get(c) or "") for c in extra),
+            _field(r, date_idx), _field(r, amt_idx), src_unit,
+            _field(r, label_idx),
+            *(_field(r, idx) for _, idx in extra),
             res["effective"], fixed(res["gold_usd_per_oz"], 4), fixed(res["troy_oz"], 6),
             fixed(res["GB"], 3), fixed(res["GBD"], 4), fixed(res["USD"], 2),
             res["price_source"], res["granularity"], res["note"],

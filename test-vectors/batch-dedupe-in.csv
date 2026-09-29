@@ -1,0 +1,4 @@
+Period,Amount,amount,USD,Region,region,Note,currency,GB,Extra
+2018-12,100,999,7,north,south,mine,EUR,8,x
+1975,"2,500.50",1,7,,ignored,mine,,,"multi
+line"

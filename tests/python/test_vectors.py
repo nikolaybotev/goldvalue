@@ -174,7 +174,7 @@ def test_dates_oracle_matches_parser(gv):
     assert {"", "Sept 2024", "20240603", "٢٠٢٤"} <= set(oracle["reject"])
 
 
-@pytest.mark.parametrize("stem", ["basic", "legacy", "crlf"])
+@pytest.mark.parametrize("stem", ["basic", "legacy", "crlf", "dedupe"])
 def test_batch_outputs_regenerate(gv, stem, tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("GOLD_PRICE_CACHE_DIR", str(SNAPSHOT))
     monkeypatch.setenv("GOLDVALUE_TODAY", "2026-09-29")
@@ -185,7 +185,7 @@ def test_batch_outputs_regenerate(gv, stem, tmp_path, monkeypatch, capsys):
 def test_batch_output_reimports_unchanged(gv, tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("GOLD_PRICE_CACHE_DIR", str(SNAPSHOT))
     monkeypatch.setenv("GOLDVALUE_TODAY", "2026-09-29")
-    for stem in ("basic", "legacy", "crlf"):
+    for stem in ("basic", "legacy", "crlf", "dedupe"):
         out = TV / f"batch-{stem}-out.csv"
         assert gv.main(["--batch", str(out)]) == 0
         assert capsys.readouterr().out.encode() == out.read_bytes(), stem
