@@ -30,9 +30,9 @@
 
 | Query | 1968-01-02 onward | Before 1968 |
 |-------|-------------------|-------------|
-| Exact day | LBMA fix that day; if none (weekend/holiday), most recent prior fix within 10 days | Monthly value for that month |
-| Month | Arithmetic mean of LBMA daily fixes in the month | Monthly series value |
-| Year | Arithmetic mean of LBMA daily fixes in the year (year-to-date for current year) | Mean of the 12 monthly values |
+| Exact day | LBMA fix that day; if none (weekend/holiday), most recent prior fix up to 9 calendar days earlier; if there is none, the monthly value for that month (note: "no LBMA fix within 9 days before D; used the monthly price"). A day after the latest fix uses the latest fix (within 9 days: previous-fix note; beyond: "requested date is after the latest available fix") | Monthly value for that month |
+| Month | Arithmetic mean of LBMA daily fixes in the month; the current month says "(month to date)" | Monthly series value |
+| Year | Arithmetic mean of LBMA daily fixes in the year; the current year says "(year to date)" | Mean of the 12 monthly values |
 
 Averages are simple (unweighted) means of trading-day fixes, which matches how LBMA and the World Bank publish their own monthly averages.
 
@@ -64,3 +64,23 @@ month,usd
 ```
 
 Delete the directory or run with `--refresh` to rebuild.
+
+## Input grammar (contract for ports)
+
+- **Dates** (`parse_period`): `YYYY`; `YYYY-MM`, `MM/YYYY`, `YYYY/MM`, `Mon YYYY`, `Month YYYY`; `YYYY-MM-DD`, `MM/DD/YYYY`, `D Month YYYY`, `D Mon YYYY`, `Month D, YYYY`, `Mon D, YYYY`; `today`/`now`/`latest`. The parser uses Python `strptime`, so it is lenient: unpadded numbers (`2024-6-3`), case-insensitive month names, repeated spaces, surrounding whitespace. Non-ASCII input is rejected. "Today" is the local calendar date unless `GOLDVALUE_TODAY` is set. A period whose first day is after today is an error.
+- **Amounts** (`parse_amount`): after removing `,`, `$`, `_` and surrounding whitespace, a plain decimal (`[+-]digits[.digits]` or `.digits`). Exponent forms, `nan`, `inf`, and values that overflow a double are rejected (decision: spec FR3 lists only plain decimals).
+
+## Output contract
+
+`--json` object (top-level keys): `input` (`amount`, `unit`, `period`, `granularity`; legacy), `effective`, `granularity`, `points`, `gold_usd_per_oz` (unrounded), `price_source`, `note`, `troy_oz`, `GB`, `GBD`, `USD`, `fx_rate`, `fx_effective`, `fx_mode`, `fx_note` (all four `null` until multi-currency), and the legacy aliases `price_note`, `price_points`. `--price-only --json` returns `gold_usd_per_oz`, `price_source`, `price`, `source`, `granularity`, `effective`, `points`, `note`.
+
+`--batch` CSV (spec FR15), in order: `date, amount, currency, label, <passthrough columns>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`.
+
+- Input: date column = first of `date`, `period`, `month`, `year`; amount column = first of `amount`, `usd`, `value`, `price` (case-insensitive). Computed columns above and `currency` are dropped on input. `USD` is both an amount alias and a computed column, so it is treated as computed only when the header also contains `troy_oz` or `gold_usd_per_oz` (an exported file). A `label` column is optional and always emitted.
+- `amount` echoes the input token; `date` echoes the input date token; `currency` is `USD`, or the `--from` unit code (`GB`, `GBD`, `OZ`) because the amount is denominated in that unit.
+- Fixed-point formatting: `gold_usd_per_oz` 4 decimals, `troy_oz` 6, `GB` 3, `GBD` 4, `USD` 2. LF line endings. UTF-8 BOM and CRLF input accepted.
+- Errors abort with the line number (unparsable date or amount, future date, missing columns). Rows without price data are skipped with a warning on stderr.
+
+## Test hooks
+
+`GOLDVALUE_TODAY=YYYY-MM-DD` overrides today. `GOLDVALUE_OFFLINE=1` or `--no-refresh` disables downloads and stale-refresh; a missing cache file is an error and `--refresh` is rejected. `GOLD_PRICE_CACHE_DIR` relocates the cache.

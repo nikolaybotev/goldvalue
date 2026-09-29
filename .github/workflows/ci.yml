@@ -26,6 +26,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Compile check (standard library only)
         run: python -m compileall -q .agents/skills/gold-value-normalizer/scripts
+      - name: Install pytest
+        run: python -m pip install pytest
+      - name: pytest
+        run: python -m pytest tests/python -q
 
   node:
     runs-on: ubuntu-latest
