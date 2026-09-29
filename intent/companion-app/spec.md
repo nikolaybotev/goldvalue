@@ -249,8 +249,8 @@ Display precision: stored values are full doubles; the UI formats like the CLI
 ## 10. Design decisions (answers to intent.md open questions)
 
 **D1 — Backend: none.** Both gold sources send `Access-Control-Allow-Origin: *`,
-BIS and ECB APIs are CORS-friendly, and the datasets are small. A build-time
-snapshot plus runtime top-up satisfies freshness, offline, and shared-hosting
+and the datasets are small; FX is snapshot-only (§6.3). A build-time
+snapshot plus runtime gold top-up satisfies freshness, offline, and shared-hosting
 constraints with zero server code. A backend would only be justified by (a) a
 source dropping CORS, (b) a paid/keyed source, or (c) server-side batch jobs.
 The `core` package is designed so a thin HTTP wrapper can be added later.
@@ -372,11 +372,12 @@ Parsing 15k rows takes single-digit milliseconds.
 
 ## 11. Open items (data verification, owned by Phase 5 implementer)
 
-No product questions are outstanding. Two data-verification tasks remain and
+No product questions are outstanding. Three data-verification tasks remain and
 are gated in the plan, not by the owner:
 
 - V1. Verify each §6.2a par value and effective date against IMF IFS / central-bank sources and cite them in `reference.md`.
 - V2. Measure the gzipped size of each `fx_*.csv` and confirm the 110 KB budget (NFR1).
+- V3. Confirm LBMA's terms permit publishing a daily-price snapshot on a public site (Phase 6). If not, ship only the monthly series and have the SPA fetch LBMA directly.
 
 ## 12. Acceptance criteria
 
@@ -389,7 +390,7 @@ are gated in the plan, not by the owner:
 - AC5. With network disabled after first load (browser storage retained), existing rows still compute and the app shell loads.
 - AC6. The Method panel is visible and states "gold-denominated, not CPI".
 - AC7. Golden-vector suite (§5.7) passes in CI for Python and TypeScript.
-- AC12. FR12: a `1975` row plots at 2 July 1975 and its tooltip says "year average of N fixes"; two rows with the same x are drawn side by side. FR17: a 899 px viewport stacks sheet above chart. FR18: Enter/Tab/arrow navigation verified by Playwright. FR2a: a future date shows a row error. NFR3: axe-core clean.
+- AC7a. FR12: a `1975` row plots at 2 July 1975 and its tooltip says "year average of N fixes"; two rows with the same x are drawn side by side. FR17: a 899 px viewport stacks sheet above chart. FR18: Enter/Tab/arrow navigation verified by Playwright. FR2a: a future date shows a row error. NFR3: axe-core clean.
 
 **v1.1 (multi-currency)**
 
