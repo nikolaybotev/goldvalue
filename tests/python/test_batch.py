@@ -262,3 +262,35 @@ def test_fixed_formatting_has_no_exponents_and_no_negative_zero(gv):
     assert gv.fixed(-0.0, 2) == "0.00"
     assert gv.fixed(1e-06, 6) == "0.000001"
     assert gv.fixed(12345678.9, 2) == "12345678.90"
+
+
+def test_duplicate_header_names_first_column_wins(gv, capsys, tmp_path, cache_dir):
+    out, _ = run(gv, capsys, tmp_path,
+                 "date,Amount,region,Region,DATE,amount\n1980-01-21,850,a,b,1999-01-01,1\n")
+    header, rows = parse(out)
+    assert header == [*FR15, "region", *COMPUTED]
+    assert rows[0]["date"] == "1980-01-21" and rows[0]["amount"] == "850"
+    assert rows[0]["region"] == "a"
+
+
+def test_passthrough_columns_that_collide_with_output_names_are_dropped(
+        gv, capsys, tmp_path, cache_dir):
+    out, _ = run(gv, capsys, tmp_path,
+                 "date,amount,USD,Note,GB,granularity,keep\n1980-01-21,850,7,n,8,g,k\n")
+    header, rows = parse(out)
+    assert header == [*FR15, "keep", *COMPUTED]
+    assert rows[0]["keep"] == "k" and rows[0]["USD"] == "850.00" and rows[0]["note"] != "n"
+
+
+def test_extra_fields_beyond_header_are_ignored(gv, capsys, tmp_path, cache_dir):
+    out, _ = run(gv, capsys, tmp_path, "date,amount\n1980-01-21,850,extra,more\n")
+    _, rows = parse(out)
+    assert rows[0]["amount"] == "850"
+
+
+def test_multiline_quoted_field_reports_end_line(gv, tmp_path, cache_dir):
+    path = tmp_path / "m.csv"
+    path.write_text('date,amount,label\n1980-01-21,850,"two\nlines"\nbad,1,x\n')
+    with pytest.raises(SystemExit) as exc:
+        gv.main(["--batch", str(path)])
+    assert "line 4" in str(exc.value)
