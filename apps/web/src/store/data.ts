@@ -7,10 +7,11 @@ import {
 } from "@goldvalue/core";
 import { signal } from "@preact/signals";
 import { createStore, del, get, set, type UseStore } from "idb-keyval";
-import { attemptAllowed, isDailyStale } from "../lib/clock";
-import { readNumber, writeNumber } from "./storage";
+import { attemptAllowed, isDailyStale, REFRESH_INTERVAL_MS } from "../lib/clock";
+import { readFlag, readNumber, writeFlag, writeNumber } from "./storage";
 
 const ATTEMPT_KEY = "goldvalue:v1:lbma-attempt";
+const FAILED_KEY = "goldvalue:v1:lbma-attempt-failed";
 const IDB_KEY = "lbma-daily";
 const FETCH_TIMEOUT_MS = 90_000;
 
@@ -28,6 +29,22 @@ export interface DailyStatus {
   error: string | null;
   /** False when the browser refused to store the table (it lasts for this visit only). */
   saved: boolean;
+}
+
+/** Epoch ms of the last download attempt (successful or not), kept in localStorage. */
+export const lastAttempt = signal<number | null>(readNumber(ATTEMPT_KEY));
+/** True after a failed attempt; a manual refresh may then retry inside the 12 h window. */
+export const lastAttemptFailed = signal<boolean>(readFlag(FAILED_KEY));
+
+/** Whether "Refresh" is allowed at `now` (spec 6.3.2 limit, but failures may be retried). */
+export function manualRefreshAllowed(now: number): boolean {
+  return attemptAllowed(lastAttempt.value, now) || lastAttemptFailed.value;
+}
+
+/** Earliest time the next non-retry refresh is allowed, or null when allowed now. */
+export function nextRefreshAt(): number | null {
+  const last = lastAttempt.value;
+  return last === null ? null : last + REFRESH_INTERVAL_MS;
 }
 
 export const monthlyStatus = signal<MonthlyStatus>({ state: "loading" });
@@ -77,6 +94,18 @@ function useDaily(daily: [string, number][], fetchedAt: number, saved: boolean):
   };
 }
 
+/**
+ * Only the Lighthouse CI build sets VITE_LBMA_BASE, pointing at the synthetic fixture
+ * served next to the app so the run never touches the real LBMA feed. Production
+ * builds leave it unset and use the LBMA URLs from core unchanged.
+ */
+const LBMA_BASE = import.meta.env.VITE_LBMA_BASE as string | undefined;
+
+function lbmaUrl(url: string): string {
+  if (!LBMA_BASE) return url;
+  return new URL(url.slice(url.lastIndexOf("/") + 1), new URL(LBMA_BASE, location.href)).href;
+}
+
 async function fetchText(url: string): Promise<string> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`${url} returned HTTP ${response.status}`);
@@ -111,19 +140,24 @@ let inflight: Promise<"refreshed" | "skipped" | "failed"> | null = null;
  * Download the LBMA history in the visitor's browser (spec 6.3.2) and keep it in
  * IndexedDB. Never called with `ignoreRateLimit` except for the first-ever download.
  */
-export function refreshDaily(options: { ignoreRateLimit?: boolean } = {}) {
+export function refreshDaily(options: { ignoreRateLimit?: boolean; manual?: boolean } = {}) {
   if (inflight) return inflight;
-  if (!options.ignoreRateLimit && !attemptAllowed(readNumber(ATTEMPT_KEY), Date.now())) {
+  const allowed = options.manual
+    ? manualRefreshAllowed(Date.now())
+    : attemptAllowed(readNumber(ATTEMPT_KEY), Date.now());
+  if (!options.ignoreRateLimit && !allowed) {
     return Promise.resolve("skipped" as const);
   }
   inflight = (async () => {
-    writeNumber(ATTEMPT_KEY, Date.now());
+    const startedAt = Date.now();
+    writeNumber(ATTEMPT_KEY, startedAt);
+    lastAttempt.value = startedAt;
     dailyStatus.value = { ...dailyStatus.value, phase: "loading", error: null };
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
       const rows = await fetchLbmaSince(
-        (url) => fetch(url, { cache: "no-store", signal: controller.signal }),
+        (url) => fetch(lbmaUrl(url), { cache: "no-store", signal: controller.signal }),
         null,
       );
       const daily = lbmaToDaily(rows);
@@ -135,10 +169,14 @@ export function refreshDaily(options: { ignoreRateLimit?: boolean } = {}) {
       } catch {
         saved = false;
       }
+      writeFlag(FAILED_KEY, false);
+      lastAttemptFailed.value = false;
       useDaily(daily, fetchedAt, saved);
       if (saved) void requestPersistence();
       return "refreshed" as const;
     } catch (error) {
+      writeFlag(FAILED_KEY, true);
+      lastAttemptFailed.value = true;
       dailyStatus.value = {
         ...dailyStatus.value,
         phase: "failed",

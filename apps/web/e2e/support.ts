@@ -34,6 +34,8 @@ export function monthlyPrice(month: string): number {
 
 export interface Stubs {
   lbmaRequests: string[];
+  /** Switch the LBMA stub between serving the fixture and failing, mid-test. */
+  lbma: LbmaMode;
 }
 
 export type LbmaMode = "ok" | "fail";
@@ -43,7 +45,7 @@ export type LbmaMode = "ok" | "fail";
  * fetches LBMA from prices.lbma.org.uk in the browser; nothing licensed is involved.
  */
 export async function stubData(page: Page, lbma: LbmaMode = "ok"): Promise<Stubs> {
-  const stubs: Stubs = { lbmaRequests: [] };
+  const stubs: Stubs = { lbmaRequests: [], lbma };
   await page.route("**/data/manifest.json", (route) =>
     route.fulfill({ contentType: "application/json", body: manifest }),
   );
@@ -53,7 +55,7 @@ export async function stubData(page: Page, lbma: LbmaMode = "ok"): Promise<Stubs
   await page.route("https://prices.lbma.org.uk/json/*.json", (route) => {
     const url = route.request().url();
     stubs.lbmaRequests.push(url);
-    if (lbma === "fail") return route.abort("internetdisconnected");
+    if (stubs.lbma === "fail") return route.abort("internetdisconnected");
     return route.fulfill({
       contentType: "application/json",
       headers: { "access-control-allow-origin": "*" },
