@@ -101,7 +101,7 @@ Verification: AC3, AC4, AC5 automated where possible (Playwright offline mode).
 
 ## Phase 5 — Multi-currency (G7)
 
-Files: `skill/.../goldvalue.py` (`--currency`), `tools/snapshot/build_fx.py`, `packages/core/src/fx.ts`, `apps/web/src/sheet/CurrencyCell.tsx`, `test-vectors/fx.json`.
+Files: `.agents/skills/.../goldvalue.py` (`--currency`), `tools/snapshot/build_fx.py`, `packages/core/src/fx.ts`, `apps/web/src/sheet/CurrencyCell.tsx`, `test-vectors/fx.json`.
 
 1. Python: add `fetch_fx(ccy)` from BIS WS_XRU (daily USD per unit) with cache `~/.cache/gold-value/fx_{ccy}.csv`; `--currency EUR|GBP|CHF` on single and batch modes; resolution mirrors gold (day roll-back, month/year means). ECB cross-check test for EUR.
 2. Update SKILL.md and reference.md; add FX vectors to `--vectors`.

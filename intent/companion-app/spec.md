@@ -156,7 +156,7 @@ FX resolution mirrors the same three granularities against the daily FX table
 ```
 
 - **No runtime backend in v1.** See D1–D3.
-- **Packages (monorepo):** `skill/` (Python reference + agent skill), `packages/core` (TS library: parsing, resolution, conversion, CSV), `apps/web` (SPA), `tools/snapshot` (Python or TS script producing `data/*.json`), `test-vectors/` (golden JSON emitted by Python).
+- **Packages (monorepo):** `.agents/skills/` (agent skill + Python reference), `packages/core` (TS library: parsing, resolution, conversion, CSV), `apps/web` (SPA), `tools/snapshot` (Python or TS script producing `data/*.json`), `test-vectors/` (golden JSON emitted by Python).
 
 ## 8. Technology choices
 
