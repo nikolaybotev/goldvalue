@@ -1,3 +1,4 @@
+import { SYNTHETIC_DEM_NOTE, SYNTHETIC_EUR_NOTE } from "@goldvalue/core";
 import { BIS_ATTRIBUTION, LBMA_ATTRIBUTION, LINKS, MONTHLY_ATTRIBUTION } from "../lib/attribution";
 
 /** FR19: the methodology, always visible (AC6). */
@@ -27,8 +28,9 @@ export function Method() {
         </li>
       </ul>
       <p>
-        The price is the USD spot benchmark per troy ounce, not a dealer quote with premium. Amounts
-        are US dollars.
+        The price is the USD spot benchmark per troy ounce, not a dealer quote with premium. The
+        sheet currency is US dollars unless another is selected; other currencies become dollars
+        first.
       </p>
 
       <h3>Sources</h3>
@@ -88,6 +90,31 @@ export function Method() {
         The chart places a row at the middle of the period you entered (the day itself, the 16th of
         a month, 2 July of a year), whichever fix was used.
       </p>
+
+      <h3>Other currencies</h3>
+      <p>
+        EUR, GBP, CHF, and DEM follow the USD-routing tenet: the amount becomes US dollars at the
+        historical exchange rate for the same day, month, or year, and that dollar amount becomes
+        gold at the USD benchmark. Gold prices quoted in other currencies are never used. A month or
+        a year is a ratio of means: the mean exchange rate over the period and the mean gold price
+        over the period, each over its own observations. One currency applies to every row.
+      </p>
+      <p>
+        Rates are the BIS daily series, published from 1953 and about a week behind today. The euro
+        and the Deutsche Mark share one series (there is no separate mark file): the mark is the
+        euro divided by 1.95583, and choosing either currency loads that series.
+      </p>
+      <p>
+        Before a currency's first BIS observation (GBP 1953-08-10; CHF, EUR, and DEM 1953-09-01) the
+        rate is the Bretton Woods par value in force on that date, a fixed stepwise approximation.
+        Those rows and chart points are amber. A date before the parity table starts (GBP 1940, CHF
+        1949, DEM and EUR 1948) uses the earliest table entry and is marked more strongly, because
+        the rate is only indicative. Sterling was about $4.87 on the gold standard before 1931 and
+        floated in the 1930s.
+      </p>
+      <p>{SYNTHETIC_EUR_NOTE}</p>
+      <p>{SYNTHETIC_DEM_NOTE}</p>
+      <p>Caveats for early rates are in the historical notes linked above.</p>
 
       <h3>Data terms</h3>
       <p>{LBMA_ATTRIBUTION}</p>

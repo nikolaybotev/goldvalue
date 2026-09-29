@@ -3,6 +3,7 @@ import type { AxisUnit } from "../chart/model";
 import { localToday } from "../lib/clock";
 import { computeRow, type RowResult } from "./compute";
 import { table } from "./data";
+import { currency, fxRates } from "./fx";
 import { newRow, normalize, type Row } from "./rows-logic";
 import { readJson, writeJson } from "./storage";
 
@@ -146,18 +147,25 @@ export function refreshToday(): void {
   }
 }
 
-const cache = new WeakMap<Row, { table: unknown; day: string; result: RowResult }>();
+const cache = new WeakMap<
+  Row,
+  { table: unknown; day: string; currency: string; fx: unknown; result: RowResult }
+>();
 
-/** One result per row, recomputed only for rows that changed or when the table or date did. */
+/** One result per row, recomputed when that row, the gold table, the date, or the currency changes. */
 export const results = computed<RowResult[]>(() => {
   const gold = table.value;
   const day = today.value;
+  const ccy = currency.value;
+  const rates = fxRates.value;
   const key = `${day.year}-${day.month}-${day.day}`;
   return rows.value.map((row) => {
     const hit = cache.get(row);
-    if (hit && hit.table === gold && hit.day === key) return hit.result;
-    const result = computeRow(row, gold, day);
-    cache.set(row, { table: gold, day: key, result });
+    if (hit && hit.table === gold && hit.day === key && hit.currency === ccy && hit.fx === rates) {
+      return hit.result;
+    }
+    const result = computeRow(row, gold, day, ccy, rates);
+    cache.set(row, { table: gold, day: key, currency: ccy, fx: rates, result });
     return result;
   });
 });

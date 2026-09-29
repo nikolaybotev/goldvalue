@@ -1,3 +1,4 @@
+import { SYNTHETIC_DEM_NOTE, SYNTHETIC_EUR_NOTE } from "@goldvalue/core";
 import { expect, test } from "@playwright/test";
 import { openApp } from "./support";
 
@@ -44,5 +45,26 @@ test.describe("AC6 and FR19: the Method panel", () => {
     await expect(page.getByRole("contentinfo").getByText(LBMA_TEXT, { exact: true })).toBeVisible();
     await expect(page.getByRole("contentinfo")).toContainText("Open Data Commons Public Domain");
     await expect(page.getByRole("contentinfo")).toContainText("Bank for International Settlements");
+  });
+
+  test("states USD routing, parity, and the synthetic euro, and attributes BIS in the present tense", async ({
+    page,
+  }) => {
+    await openApp(page);
+    const method = page.getByRole("region", { name: "Method" });
+    await expect(method).toContainText("USD-routing tenet");
+    await expect(method).toContainText("ratio of means");
+    await expect(method).toContainText("Bretton Woods");
+    await expect(method).toContainText(SYNTHETIC_EUR_NOTE);
+    await expect(method).toContainText(SYNTHETIC_DEM_NOTE);
+    await expect(method.getByRole("link", { name: "historical notes" })).toHaveAttribute(
+      "href",
+      NOTES,
+    );
+    const bis =
+      "Foreign-exchange rates come from the Bank for International Settlements (BIS) statistics, which are free to use with attribution.";
+    await expect(method.getByText(bis, { exact: true })).toBeVisible();
+    await expect(page.getByRole("contentinfo").getByText(bis, { exact: true })).toBeVisible();
+    await expect(method).not.toContainText("will come from");
   });
 });

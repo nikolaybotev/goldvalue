@@ -6,6 +6,7 @@ import {
   nextRefreshAt,
   refreshDaily,
 } from "./store/data";
+import { currency, fxStatus } from "./store/fx";
 
 const when = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" });
 
@@ -31,6 +32,8 @@ export function Freshness() {
   const loading = daily.phase === "loading";
   const allowed = manualRefreshAllowed(Date.now());
   const next = nextRefreshAt();
+  const ccy = currency.value;
+  const fx = fxStatus.value;
 
   let status: string;
   if (monthly.state === "loading") status = "Loading price data";
@@ -44,12 +47,21 @@ export function Freshness() {
   if (monthly.state === "ready" && monthly.lastMonth) {
     details.push(`monthly series through ${monthly.lastMonth}`);
   }
+  if (ccy !== "USD") {
+    if (fx.phase === "ready" && fx.lastDate) details.push(`FX (${ccy}) through ${fx.lastDate}`);
+    else if (fx.phase === "loading") details.push(`loading ${ccy} exchange rates`);
+  }
 
   return (
     <section class="freshness" aria-label="Data freshness">
       <p class="data-status" role="status" data-testid="data-status">
         {status}
         {details.length > 0 && <span class="muted">{` (${details.join("; ")})`}</span>}
+        {ccy !== "USD" && fx.phase === "failed" && (
+          <span class="error">{` ${ccy} exchange rates could not be loaded${
+            fx.error ? `: ${fx.error}` : ""
+          }.`}</span>
+        )}
       </p>
       <button
         type="button"

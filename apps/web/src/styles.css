@@ -9,6 +9,10 @@
   --accent: #1e4e79;
   --accent-soft: #e8f0f7;
   --error: #b42318;
+  --warn: #92400e;
+  --warn-bg: #fffbeb;
+  --warn-strong: #7c2d12;
+  --warn-strong-bg: #ffedd5;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
@@ -138,7 +142,6 @@ button {
 .toolbar h2 {
   font-size: 1rem;
   font-weight: 650;
-  margin-right: auto;
 }
 
 .toolbar-actions,
@@ -146,6 +149,23 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.currency-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+  font-size: 0.875rem;
+}
+
+.currency-field select {
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  font: inherit;
 }
 
 .btn,
@@ -207,6 +227,14 @@ button {
 .import-report.is-failure {
   border-color: var(--error);
   color: var(--error);
+}
+
+.import-warning {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--warn);
+  background: var(--warn-bg);
+  color: var(--warn);
 }
 
 .import-report ul {
@@ -360,6 +388,35 @@ button {
 
 .is-active-row {
   background: #f5f5f4;
+}
+
+.sheet-row.is-fx-warn > .col-gb,
+.sheet-row.is-fx-warn > .col-gbd,
+.sheet-row.is-fx-warn > .col-oz,
+.sheet-row.is-fx-warn > .col-price {
+  color: var(--warn);
+  background: var(--warn-bg);
+}
+
+.sheet-row.is-fx-strong > .col-gb,
+.sheet-row.is-fx-strong > .col-gbd,
+.sheet-row.is-fx-strong > .col-oz,
+.sheet-row.is-fx-strong > .col-price {
+  color: var(--warn-strong);
+  background: var(--warn-strong-bg);
+}
+
+.fx-marker {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  color: var(--warn);
+  font-weight: 700;
+  cursor: help;
+}
+
+.fx-marker.is-strong {
+  color: var(--warn-strong);
 }
 
 .price {
@@ -612,6 +669,34 @@ button {
 
 .chart .point.is-hover {
   stroke: var(--text);
+}
+
+.chart .point.is-fx {
+  fill: #fff;
+  stroke: var(--warn);
+  stroke-width: 1.75;
+}
+
+.chart .point.is-fx.is-strong {
+  stroke: var(--warn-strong);
+  stroke-width: 2.5;
+}
+
+.chart .point.is-fx.is-hover {
+  stroke: var(--warn);
+  stroke-width: 2.5;
+}
+
+.chart .point.is-fx.is-strong.is-hover {
+  stroke: var(--warn-strong);
+}
+
+.tip-fx {
+  color: var(--warn);
+}
+
+.tip-fx[data-strong="true"] {
+  color: var(--warn-strong);
 }
 
 .tooltip {
