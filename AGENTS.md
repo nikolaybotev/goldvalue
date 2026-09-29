@@ -12,6 +12,7 @@ planned (see `intent/companion-app/`).
 - Regenerate the synthetic fixture, golden vectors, date oracle, and batch outputs (deterministic; CI fails on any diff): `python3 test-vectors/regenerate.py`. It runs `make_fixture.py`, then `goldvalue.py --vectors gold-usd.json --dates-oracle dates.json --cases cases.json` with `GOLD_PRICE_CACHE_DIR=test-vectors/snapshot`, then `--batch` on each `test-vectors/batch-*-in.csv`.
 - Publish free data for the web app: `python3 tools/snapshot/sync_data.py` (fetches `monthly.csv` only; writes `apps/web/public/data/{monthly.csv,manifest.json}`, gitignored; `--source-dir DIR` copies from an existing cache instead)
 - Live-source drift check (non-blocking weekly workflow): `python3 tools/snapshot/check_drift.py`
+- Core tests: `pnpm --filter @goldvalue/core test` (Vitest loads `test-vectors/*` and compares with Python at 1e-9 relative on numbers, exact on text and on batch CSV bytes)
 - Node/pnpm: Node 26 (`.nvmrc`), pnpm 12 (`packageManager` in `package.json`; `npm i -g pnpm@12.6.0` if `pnpm` is missing)
 - Install: `pnpm install --frozen-lockfile`; lint: `pnpm lint` (Biome; `pnpm format` fixes); types: `pnpm typecheck` (`tsc -b`); tests: `pnpm test` (Vitest per package); build: `pnpm build`
 - Python tests: `python3 -m pip install pytest && python3 -m pytest tests/python -q` (network tests are excluded; `-m network` runs the live smoke test)
@@ -30,6 +31,7 @@ planned (see `intent/companion-app/`).
 - Dates: ISO forms `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, plus `Mon YYYY` and `today`. Year/month queries average daily fixes; days roll back to the previous fix.
 - Amounts are plain decimals only (no `1e3`, `nan`, `inf`); a period starting after today is an error in single-query and `--batch` mode.
 - `--json` `gold_usd_per_oz` is unrounded; `--batch` writes fixed-point numbers (price 4, oz 6, GB 3, GBD 4, USD 2 decimals) with LF endings. `fx_*` keys/columns exist but are empty/`null` until v1.1.
+- `packages/core` has no DOM and no Node imports in `src/` (`lib: ES2022`, `types: []`, plus a scan test); `fetch` is injected (`FetchLike`). Dates are `{year, month, day}` triples, never `Date`. Sums use the `fsum` port (not `reduce`) and CSV numbers use `formatFixed` (not `toFixed`) so results match Python.
 - **Python and TypeScript change together.** Any change to resolution, parsing, notes, or output in `goldvalue.py` must be mirrored in `packages/core` in the same PR: edit `test-vectors/cases.json` if new cases are needed, run `python3 test-vectors/regenerate.py`, and commit the regenerated vectors with both implementations.
 - Synthetic-fixture determinism: `make_fixture.py` uses integer arithmetic and `math.fsum` only (no `random`, no libm, no `sum()` of floats, whose result changed in Python 3.12). Keep it that way so output is byte-identical on every Python version.
 - Docs follow the AI-native SDLC chain: `intent/<change>/intent.md` → `spec.md` → `plan.md`. Update `plan.md` in the same commit when implementation departs from it.
