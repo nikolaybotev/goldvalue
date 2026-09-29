@@ -83,4 +83,4 @@ Delete the directory or run with `--refresh` to rebuild.
 
 ## Test hooks
 
-`GOLDVALUE_TODAY=YYYY-MM-DD` overrides today. `GOLDVALUE_OFFLINE=1` or `--no-refresh` disables downloads and stale-refresh; a missing cache file is an error and `--refresh` is rejected. `GOLD_PRICE_CACHE_DIR` relocates the cache.
+`--vectors OUT.json --cases FILE` writes golden test vectors (spec 5.7) and `--dates-oracle OUT.json` writes the date accept/reject oracle, both offline against the cache directory (repository test tooling; see `test-vectors/regenerate.py`). `GOLDVALUE_TODAY=YYYY-MM-DD` overrides today. `GOLDVALUE_OFFLINE=1` or `--no-refresh` disables downloads and stale-refresh; a missing cache file is an error and `--refresh` is rejected. `GOLD_PRICE_CACHE_DIR` relocates the cache.

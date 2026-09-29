@@ -1,0 +1,2675 @@
+[
+  {
+    "expected": {
+      "GB": 28612.303290414875,
+      "GBD": 1430.6151645207437,
+      "USD": 1000.0,
+      "effective": "1955",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 34.95,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 28.612303290414875
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1955",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1955 year"
+  },
+  {
+    "expected": {
+      "GB": 28612.303290414875,
+      "GBD": 1430.6151645207437,
+      "USD": 1000.0,
+      "effective": "1955-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 34.95,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 28.612303290414875
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1955-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1955-06 month"
+  },
+  {
+    "expected": {
+      "GB": 28612.303290414875,
+      "GBD": 1430.6151645207437,
+      "USD": 1000.0,
+      "effective": "1955-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 34.95,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 28.612303290414875
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1955-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1955-06-15 day"
+  },
+  {
+    "expected": {
+      "GB": 4837.929366231252,
+      "GBD": 241.89646831156261,
+      "USD": 100.0,
+      "effective": "1833",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 4.837929366231252
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 100.0,
+      "currency": "USD",
+      "date": "1833",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1833 year"
+  },
+  {
+    "expected": {
+      "GB": 4837.929366231252,
+      "GBD": 241.89646831156261,
+      "USD": 100.0,
+      "effective": "1833-01",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 20.67,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 4.837929366231252
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 100.0,
+      "currency": "USD",
+      "date": "1833-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1833-01 month"
+  },
+  {
+    "expected": {
+      "GB": 28546.959748786754,
+      "GBD": 1427.3479874393377,
+      "USD": 1000.0,
+      "effective": "1945-12",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.03,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 28.546959748786755
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1945-12-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1945-12-31 day"
+  },
+  {
+    "expected": {
+      "GB": 28538.812785388127,
+      "GBD": 1426.9406392694063,
+      "USD": 1000.0,
+      "effective": "1959",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.04,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 28.538812785388128
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1959",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1959 year"
+  },
+  {
+    "expected": {
+      "GB": 28538.812785388127,
+      "GBD": 1426.9406392694063,
+      "USD": 1000.0,
+      "effective": "1959-12",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.04,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 28.538812785388128
+    },
+    "family": "annual-pre1960",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1959-12",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1959-12 month"
+  },
+  {
+    "expected": {
+      "GB": 28506.27137970354,
+      "GBD": 1425.313568985177,
+      "USD": 1000.0000000000001,
+      "effective": "1965-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.08,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 28.506271379703538
+    },
+    "family": "monthly-pre1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1965-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1965-06 month"
+  },
+  {
+    "expected": {
+      "GB": 28506.27137970354,
+      "GBD": 1425.313568985177,
+      "USD": 1000.0000000000001,
+      "effective": "1965-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.08,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 28.506271379703538
+    },
+    "family": "monthly-pre1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1965-06-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1965-06-15 day"
+  },
+  {
+    "expected": {
+      "GB": 28522.53280091272,
+      "GBD": 1426.126640045636,
+      "USD": 999.9999999999999,
+      "effective": "1967-12",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.06,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 28.522532800912717
+    },
+    "family": "monthly-pre1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1967-12-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1967-12-31 day (Sunday)"
+  },
+  {
+    "expected": {
+      "GB": 28511.01237853121,
+      "GBD": 1425.5506189265604,
+      "USD": 1000.0,
+      "effective": "1960",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.07416666666666,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 28.51101237853121
+    },
+    "family": "monthly-pre1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1960",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1960 year"
+  },
+  {
+    "expected": {
+      "GB": 28533.38405934944,
+      "GBD": 1426.6692029674718,
+      "USD": 1000.0,
+      "effective": "1965",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.04666666666667,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 28.533384059349437
+    },
+    "family": "monthly-pre1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1965",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1965 year"
+  },
+  {
+    "expected": {
+      "GB": 28498.14762040467,
+      "GBD": 1424.9073810202335,
+      "USD": 1000.0,
+      "effective": "1960-01",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.09,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 28.49814762040467
+    },
+    "family": "monthly-pre1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1960-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1960-01 month"
+  },
+  {
+    "expected": {
+      "GB": 28538.134081666627,
+      "GBD": 1426.9067040833313,
+      "USD": 999.9999999999999,
+      "effective": "1967",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 35.04083333333333,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 28.538134081666627
+    },
+    "family": "monthly-pre1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1967",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1967 year"
+  },
+  {
+    "expected": {
+      "GB": 25660.764690787786,
+      "GBD": 1283.0382345393894,
+      "USD": 1000.0,
+      "effective": "1968-01-02",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 38.97,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.660764690787786
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-01-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-01-02 first fix"
+  },
+  {
+    "expected": {
+      "GB": 25614.754098360656,
+      "GBD": 1280.7377049180327,
+      "USD": 1000.0,
+      "effective": "1968-01-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.04,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.614754098360656
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-01-03",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-01-03"
+  },
+  {
+    "expected": {
+      "GB": 25535.965085371376,
+      "GBD": 1276.7982542685688,
+      "USD": 1000.0,
+      "effective": "1968-01",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.16045454545454,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 25.535965085371377
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-01 month"
+  },
+  {
+    "expected": {
+      "GB": 25472.144390669917,
+      "GBD": 1273.607219533496,
+      "USD": 1000.0,
+      "effective": "1968-02",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.25857142857143,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 25.472144390669918
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-02 month"
+  },
+  {
+    "expected": {
+      "GB": 25497.195308516064,
+      "GBD": 1274.8597654258033,
+      "USD": 1000.0000000000001,
+      "effective": "1968-02-09",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.22,
+      "granularity": "day",
+      "note": "no LBMA fix on 1968-02-10 (non-trading day); used previous fix from 1968-02-09",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.497195308516066
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-02-10",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-02-10 Saturday"
+  },
+  {
+    "expected": {
+      "GB": 25342.118601115053,
+      "GBD": 1267.1059300557527,
+      "USD": 1000.0,
+      "effective": "1968-03-14",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.46,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.342118601115054
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-03-14",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-03-14 last before closure"
+  },
+  {
+    "expected": {
+      "GB": 25405.213149738327,
+      "GBD": 1270.2606574869162,
+      "USD": 1000.0,
+      "effective": "1968-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.362,
+      "granularity": "month",
+      "note": "average of 10 LBMA daily fixes",
+      "points": 10,
+      "price_source": "LBMA",
+      "troy_oz": 25.405213149738326
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-03",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-03 month (AM only, closure)"
+  },
+  {
+    "expected": {
+      "GB": 25536.261491317673,
+      "GBD": 1276.8130745658837,
+      "USD": 1000.0,
+      "effective": "1968-01",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.16,
+      "granularity": "month",
+      "note": "no daily data before 1968; used the monthly price",
+      "points": 1,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 25.536261491317674
+    },
+    "family": "am-only-1968",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-01-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-01-01 holiday before first fix"
+  },
+  {
+    "expected": {
+      "GB": 25342.118601115053,
+      "GBD": 1267.1059300557527,
+      "USD": 1000.0,
+      "effective": "1968-03-14",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.46,
+      "granularity": "day",
+      "note": "no LBMA fix on 1968-03-15 (non-trading day); used previous fix from 1968-03-14",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.342118601115054
+    },
+    "family": "london-closure-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-03-15",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-03-15 closure day 1"
+  },
+  {
+    "expected": {
+      "GB": 25342.118601115053,
+      "GBD": 1267.1059300557527,
+      "USD": 1000.0,
+      "effective": "1968-03-14",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.46,
+      "granularity": "day",
+      "note": "no LBMA fix on 1968-03-23 (non-trading day); used previous fix from 1968-03-14",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.342118601115054
+    },
+    "family": "london-closure-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-03-23",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-03-23 nine days after last fix"
+  },
+  {
+    "expected": {
+      "GB": 25406.50406504065,
+      "GBD": 1270.3252032520325,
+      "USD": 1000.0,
+      "effective": "1968-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.36,
+      "granularity": "month",
+      "note": "no LBMA fix within 9 days before 1968-03-24; used the monthly price",
+      "points": 1,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 25.40650406504065
+    },
+    "family": "london-closure-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-03-24",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-03-24 ten days after last fix"
+  },
+  {
+    "expected": {
+      "GB": 25406.50406504065,
+      "GBD": 1270.3252032520325,
+      "USD": 1000.0,
+      "effective": "1968-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.36,
+      "granularity": "month",
+      "note": "no LBMA fix within 9 days before 1968-03-31; used the monthly price",
+      "points": 1,
+      "price_source": "World Bank Pink Sheet (monthly)",
+      "troy_oz": 25.40650406504065
+    },
+    "family": "london-closure-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-03-31",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-03-31 last closed day"
+  },
+  {
+    "expected": {
+      "GB": 25220.680958385878,
+      "GBD": 1261.034047919294,
+      "USD": 1000.0,
+      "effective": "1968-04-01",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.65,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.220680958385877
+    },
+    "family": "london-closure-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-04-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-04-01 reopening"
+  },
+  {
+    "expected": {
+      "GB": 25233.40903356043,
+      "GBD": 1261.6704516780214,
+      "USD": 999.9999999999999,
+      "effective": "1968-04-02",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.63,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 25.23340903356043
+    },
+    "family": "london-closure-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-04-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-04-02"
+  },
+  {
+    "expected": {
+      "GB": 24690.79262422306,
+      "GBD": 1234.539631211153,
+      "USD": 1000.0,
+      "effective": "1968",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 40.50092741935484,
+      "granularity": "year",
+      "note": "average of 248 LBMA daily fixes",
+      "points": 248,
+      "price_source": "LBMA",
+      "troy_oz": 24.69079262422306
+    },
+    "family": "london-closure-boundary",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968 year"
+  },
+  {
+    "expected": {
+      "GB": 428.2893694295614,
+      "GBD": 21.41446847147807,
+      "USD": 1000.0,
+      "effective": "2024-05-31",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2334.87,
+      "granularity": "day",
+      "note": "no LBMA fix on 2024-06-01 (non-trading day); used previous fix from 2024-05-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4282893694295614
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024-06-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2024-06-01 Saturday"
+  },
+  {
+    "expected": {
+      "GB": 428.2893694295614,
+      "GBD": 21.41446847147807,
+      "USD": 1000.0,
+      "effective": "2024-05-31",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2334.87,
+      "granularity": "day",
+      "note": "no LBMA fix on 2024-06-02 (non-trading day); used previous fix from 2024-05-31",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4282893694295614
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024-06-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2024-06-02 Sunday"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024-06-03",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2024-06-03 Monday exact"
+  },
+  {
+    "expected": {
+      "GB": 482.98212483156004,
+      "GBD": 24.149106241578004,
+      "USD": 1000.0,
+      "effective": "2023-12-22",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2070.47,
+      "granularity": "day",
+      "note": "no LBMA fix on 2023-12-25 (non-trading day); used previous fix from 2023-12-22",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.48298212483156006
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2023-12-25",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2023-12-25 Christmas Monday"
+  },
+  {
+    "expected": {
+      "GB": 478.9501412902917,
+      "GBD": 23.947507064514582,
+      "USD": 1000.0,
+      "effective": "2023-12-29",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2087.9,
+      "granularity": "day",
+      "note": "no LBMA fix on 2024-01-01 (non-trading day); used previous fix from 2023-12-29",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4789501412902917
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024-01-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2024-01-01 New Year Monday"
+  },
+  {
+    "expected": {
+      "GB": 552.0591807441757,
+      "GBD": 27.602959037208784,
+      "USD": 999.9999999999999,
+      "effective": "2022-12-23",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 1811.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2022-12-26 (non-trading day); used previous fix from 2022-12-23",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.5520591807441757
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2022-12-26",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2022-12-26 Boxing Day Monday"
+  },
+  {
+    "expected": {
+      "GB": 1847.609193703348,
+      "GBD": 92.3804596851674,
+      "USD": 1000.0,
+      "effective": "1980-01-18",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 541.24,
+      "granularity": "day",
+      "note": "no LBMA fix on 1980-01-19 (non-trading day); used previous fix from 1980-01-18",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.8476091937033479
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1980-01-19",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1980-01-19 Saturday"
+  },
+  {
+    "expected": {
+      "GB": 1857.6311487591022,
+      "GBD": 92.88155743795511,
+      "USD": 1000.0,
+      "effective": "1980-01-21",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 538.32,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.8576311487591022
+    },
+    "family": "weekend-holiday-rollback",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1980-01-21",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1980-01-21 Monday"
+  },
+  {
+    "expected": {
+      "GB": 2521.114332534981,
+      "GBD": 126.05571662674903,
+      "USD": 1000.0,
+      "effective": "1990-06-13",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 396.65,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.5211143325349807
+    },
+    "family": "missing-single-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1990-06-13",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1990-06-13 PM missing (AM used)"
+  },
+  {
+    "expected": {
+      "GB": 3161.855376735068,
+      "GBD": 158.0927688367534,
+      "USD": 999.9999999999999,
+      "effective": "2002-09-11",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 316.27,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 3.161855376735068
+    },
+    "family": "missing-single-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2002-09-11",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2002-09-11 AM missing (PM used)"
+  },
+  {
+    "expected": {
+      "GB": 2531.5570643099873,
+      "GBD": 126.57785321549937,
+      "USD": 999.9999999999999,
+      "effective": "1990-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 395.0138095238096,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 2.5315570643099874
+    },
+    "family": "missing-single-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1990-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1990-06 month with AM fallback"
+  },
+  {
+    "expected": {
+      "GB": 3135.8822580741503,
+      "GBD": 156.79411290370751,
+      "USD": 1000.0000000000001,
+      "effective": "2002-09",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 318.88952380952384,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 3.13588225807415
+    },
+    "family": "missing-single-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2002-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2002-09 month with PM only day"
+  },
+  {
+    "expected": {
+      "GB": 1009.6420818819727,
+      "GBD": 50.48210409409863,
+      "USD": 999.9999999999999,
+      "effective": "2009-07-22",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 990.45,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.0096420818819727
+    },
+    "family": "missing-single-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2009-07-22",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2009-07-22 PM missing"
+  },
+  {
+    "expected": {
+      "GB": 659.7306979291053,
+      "GBD": 32.98653489645527,
+      "USD": 1000.0,
+      "effective": "2019-10-16",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 1515.77,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.6597306979291053
+    },
+    "family": "missing-single-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2019-10-16",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2019-10-16 AM missing"
+  },
+  {
+    "expected": {
+      "GB": 60767.963129837946,
+      "GBD": 3038.398156491897,
+      "USD": 80000.0,
+      "effective": "2018-12",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 1316.483157894737,
+      "granularity": "month",
+      "note": "average of 19 LBMA daily fixes",
+      "points": 19,
+      "price_source": "LBMA",
+      "troy_oz": 60.767963129837945
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 80000.0,
+      "currency": "USD",
+      "date": "2018-12",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2018-12 month"
+  },
+  {
+    "expected": {
+      "GB": 62134.37165969426,
+      "GBD": 3106.718582984713,
+      "USD": 80000.0,
+      "effective": "2018",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 1287.5321317829457,
+      "granularity": "year",
+      "note": "average of 258 LBMA daily fixes",
+      "points": 258,
+      "price_source": "LBMA",
+      "troy_oz": 62.13437165969426
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 80000.0,
+      "currency": "USD",
+      "date": "2018",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2018 year"
+  },
+  {
+    "expected": {
+      "GB": 1880.2309949242308,
+      "GBD": 94.01154974621154,
+      "USD": 1000.0,
+      "effective": "1980-01",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 531.8495454545455,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 1.8802309949242308
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1980-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1980-01 month"
+  },
+  {
+    "expected": {
+      "GB": 11048.228515049572,
+      "GBD": 552.4114257524785,
+      "USD": 999.9999999999999,
+      "effective": "1973",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 90.5122480620155,
+      "granularity": "year",
+      "note": "average of 258 LBMA daily fixes",
+      "points": 258,
+      "price_source": "LBMA",
+      "troy_oz": 11.048228515049571
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1973",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1973 year"
+  },
+  {
+    "expected": {
+      "GB": 3530.3356405034588,
+      "GBD": 176.51678202517294,
+      "USD": 1000.0,
+      "effective": "2000",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 283.2591860465116,
+      "granularity": "year",
+      "note": "average of 258 LBMA daily fixes",
+      "points": 258,
+      "price_source": "LBMA",
+      "troy_oz": 3.5303356405034587
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2000",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2000 year"
+  },
+  {
+    "expected": {
+      "GB": 613.6501568182975,
+      "GBD": 30.68250784091488,
+      "USD": 1000.0000000000001,
+      "effective": "2020-02",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 1629.593,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 0.6136501568182976
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2020-02",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2020-02 month (leap)"
+  },
+  {
+    "expected": {
+      "GB": 105615.07307005337,
+      "GBD": 5280.753653502668,
+      "USD": 250000.0,
+      "effective": "2024",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2367.0863706563705,
+      "granularity": "year",
+      "note": "average of 259 LBMA daily fixes",
+      "points": 259,
+      "price_source": "LBMA",
+      "troy_oz": 105.61507307005337
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 250000.0,
+      "currency": "USD",
+      "date": "2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2024 year"
+  },
+  {
+    "expected": {
+      "GB": 23821.898821898823,
+      "GBD": 1191.094941094941,
+      "USD": 1000.0,
+      "effective": "1971-08",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 41.97818181818182,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 23.821898821898824
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1971-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1971-08 month"
+  },
+  {
+    "expected": {
+      "GB": 25171.048717420654,
+      "GBD": 1258.5524358710327,
+      "USD": 999.9999999999999,
+      "effective": "1968-04",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 39.72818181818182,
+      "granularity": "month",
+      "note": "average of 22 LBMA daily fixes",
+      "points": 22,
+      "price_source": "LBMA",
+      "troy_oz": 25.171048717420653
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1968-04",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1968-04 month (first PM)"
+  },
+  {
+    "expected": {
+      "GB": 324.4339670995789,
+      "GBD": 16.221698354978948,
+      "USD": 1000.0,
+      "effective": "2025",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3082.2913178294575,
+      "granularity": "year",
+      "note": "average of 258 LBMA daily fixes",
+      "points": 258,
+      "price_source": "LBMA",
+      "troy_oz": 0.32443396709957895
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2025",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2025 year (complete)"
+  },
+  {
+    "expected": {
+      "GB": 287.8184934346546,
+      "GBD": 14.39092467173273,
+      "USD": 1000.0,
+      "effective": "2026-08",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3474.4119047619047,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 0.2878184934346546
+    },
+    "family": "month-and-year-means",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-08",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2026-08 month"
+  },
+  {
+    "expected": {
+      "GB": 288.1951219188339,
+      "GBD": 14.409756095941695,
+      "USD": 1000.0000000000001,
+      "effective": "2026",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3469.871361256545,
+      "granularity": "year",
+      "note": "average of 191 LBMA daily fixes (year to date)",
+      "points": 191,
+      "price_source": "LBMA",
+      "troy_oz": 0.2881951219188339
+    },
+    "family": "to-date-pinned-year",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2026 year to date"
+  },
+  {
+    "expected": {
+      "GB": 284.3847761944198,
+      "GBD": 14.219238809720991,
+      "USD": 1000.0000000000001,
+      "effective": "2026-09",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3516.3626315789475,
+      "granularity": "month",
+      "note": "average of 19 LBMA daily fixes (month to date)",
+      "points": 19,
+      "price_source": "LBMA",
+      "troy_oz": 0.2843847761944198
+    },
+    "family": "to-date-pinned-year",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-09",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2026-09 month to date"
+  },
+  {
+    "expected": {
+      "GB": 284.3847761944198,
+      "GBD": 14.219238809720991,
+      "USD": 1000.0000000000001,
+      "effective": "2026-09",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3516.3626315789475,
+      "granularity": "month",
+      "note": "average of 19 LBMA daily fixes",
+      "points": 19,
+      "price_source": "LBMA",
+      "troy_oz": 0.2843847761944198
+    },
+    "family": "to-date-pinned-year",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-09",
+      "from": "USD",
+      "today": "2026-10-01"
+    },
+    "name": "2026-09 after month end (no MTD note)"
+  },
+  {
+    "expected": {
+      "GB": 288.1951219188339,
+      "GBD": 14.409756095941695,
+      "USD": 1000.0000000000001,
+      "effective": "2026",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3469.871361256545,
+      "granularity": "year",
+      "note": "average of 191 LBMA daily fixes",
+      "points": 191,
+      "price_source": "LBMA",
+      "troy_oz": 0.2881951219188339
+    },
+    "family": "to-date-pinned-year",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026",
+      "from": "USD",
+      "today": "2027-01-02"
+    },
+    "name": "2026 after year end (no YTD note)"
+  },
+  {
+    "expected": {
+      "GB": 288.1951219188339,
+      "GBD": 14.409756095941695,
+      "USD": 1000.0000000000001,
+      "effective": "2026",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3469.871361256545,
+      "granularity": "year",
+      "note": "average of 191 LBMA daily fixes (year to date)",
+      "points": 191,
+      "price_source": "LBMA",
+      "troy_oz": 0.2881951219188339
+    },
+    "family": "to-date-pinned-year",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026",
+      "from": "USD",
+      "today": "2026-09-25"
+    },
+    "name": "2026 year as of 2026-09-25"
+  },
+  {
+    "expected": {
+      "GB": 289.48954446476694,
+      "GBD": 14.474477223238347,
+      "USD": 1000.0000000000001,
+      "effective": "2026-01",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3454.3561904761905,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 0.28948954446476693
+    },
+    "family": "to-date-pinned-year",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-01",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2026-01 month"
+  },
+  {
+    "expected": {
+      "GB": 284.6245801787442,
+      "GBD": 14.23122900893721,
+      "USD": 999.9999999999999,
+      "effective": "2026-09-25",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.2846245801787442
+    },
+    "family": "after-latest-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-09-25",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2026-09-25 latest fix"
+  },
+  {
+    "expected": {
+      "GB": 284.6245801787442,
+      "GBD": 14.23122900893721,
+      "USD": 999.9999999999999,
+      "effective": "2026-09-25",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-09-26 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.2846245801787442
+    },
+    "family": "after-latest-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-09-26",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2026-09-26 Saturday after latest"
+  },
+  {
+    "expected": {
+      "GB": 284.6245801787442,
+      "GBD": 14.23122900893721,
+      "USD": 999.9999999999999,
+      "effective": "2026-09-25",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-09-29 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.2846245801787442
+    },
+    "family": "after-latest-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-09-29",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "2026-09-29 pinned today"
+  },
+  {
+    "expected": {
+      "GB": 284.6245801787442,
+      "GBD": 14.23122900893721,
+      "USD": 999.9999999999999,
+      "effective": "2026-09-25",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "no LBMA fix on 2026-10-04 (non-trading day); used previous fix from 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.2846245801787442
+    },
+    "family": "after-latest-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-10-04",
+      "from": "USD",
+      "today": "2026-10-20"
+    },
+    "name": "2026-10-04 nine days after latest"
+  },
+  {
+    "expected": {
+      "GB": 284.6245801787442,
+      "GBD": 14.23122900893721,
+      "USD": 999.9999999999999,
+      "effective": "2026-09-25",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "requested date is after the latest available fix; used 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.2846245801787442
+    },
+    "family": "after-latest-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-10-05",
+      "from": "USD",
+      "today": "2026-10-20"
+    },
+    "name": "2026-10-05 ten days after latest"
+  },
+  {
+    "expected": {
+      "GB": 284.6245801787442,
+      "GBD": 14.23122900893721,
+      "USD": 999.9999999999999,
+      "effective": "2026-09-25",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3513.4,
+      "granularity": "day",
+      "note": "requested date is after the latest available fix; used 2026-09-25",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.2846245801787442
+    },
+    "family": "after-latest-fix",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2026-10-20",
+      "from": "USD",
+      "today": "2026-10-20"
+    },
+    "name": "2026-10-20 today far after latest"
+  },
+  {
+    "expected": {
+      "GB": 1857.6311487591022,
+      "GBD": 92.88155743795511,
+      "USD": 1000.0,
+      "effective": "1980-01-21",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 538.32,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.8576311487591022
+    },
+    "family": "units-from",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1980-01-21",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1000 USD"
+  },
+  {
+    "expected": {
+      "GB": 1000.0,
+      "GBD": 50.0,
+      "USD": 538.32,
+      "effective": "1980-01-21",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 538.32,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.0
+    },
+    "family": "units-from",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1980-01-21",
+      "from": "GB",
+      "today": "2026-09-29"
+    },
+    "name": "1000 GB"
+  },
+  {
+    "expected": {
+      "GB": 1000.0,
+      "GBD": 50.0,
+      "USD": 538.32,
+      "effective": "1980-01-21",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 538.32,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 1.0
+    },
+    "family": "units-from",
+    "input": {
+      "amount": 50.0,
+      "currency": "USD",
+      "date": "1980-01-21",
+      "from": "GBD",
+      "today": "2026-09-29"
+    },
+    "name": "50 GBD"
+  },
+  {
+    "expected": {
+      "GB": 2500.0,
+      "GBD": 125.0,
+      "USD": 1345.8000000000002,
+      "effective": "1980-01-21",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 538.32,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 2.5
+    },
+    "family": "units-from",
+    "input": {
+      "amount": 2.5,
+      "currency": "USD",
+      "date": "1980-01-21",
+      "from": "OZ",
+      "today": "2026-09-29"
+    },
+    "name": "2.5 OZ"
+  },
+  {
+    "expected": {
+      "GB": 100.0,
+      "GBD": 5.0,
+      "USD": 131.64831578947368,
+      "effective": "2018-12",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 1316.483157894737,
+      "granularity": "month",
+      "note": "average of 19 LBMA daily fixes",
+      "points": 19,
+      "price_source": "LBMA",
+      "troy_oz": 0.1
+    },
+    "family": "units-from",
+    "input": {
+      "amount": 100.0,
+      "currency": "USD",
+      "date": "2018-12",
+      "from": "GB",
+      "today": "2026-09-29"
+    },
+    "name": "100 GB in a month"
+  },
+  {
+    "expected": {
+      "GB": 200.0,
+      "GBD": 10.0,
+      "USD": 6.990000000000001,
+      "effective": "1955",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 34.95,
+      "granularity": "year",
+      "note": "average of 12 monthly values",
+      "points": 12,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 0.2
+    },
+    "family": "units-from",
+    "input": {
+      "amount": 10.0,
+      "currency": "USD",
+      "date": "1955",
+      "from": "GBD",
+      "today": "2026-09-29"
+    },
+    "name": "10 GBD in a year"
+  },
+  {
+    "expected": {
+      "GB": 1000.0,
+      "GBD": 50.0,
+      "USD": 3469.871361256545,
+      "effective": "2026",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 3469.871361256545,
+      "granularity": "year",
+      "note": "average of 191 LBMA daily fixes (year to date)",
+      "points": 191,
+      "price_source": "LBMA",
+      "troy_oz": 1.0
+    },
+    "family": "units-from",
+    "input": {
+      "amount": 1.0,
+      "currency": "USD",
+      "date": "2026",
+      "from": "OZ",
+      "today": "2026-09-29"
+    },
+    "name": "1 OZ in 2026"
+  },
+  {
+    "expected": {
+      "GB": -3797.9976956148716,
+      "GBD": -189.89988478074358,
+      "USD": -5000.0,
+      "effective": "2018-12",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 1316.483157894737,
+      "granularity": "month",
+      "note": "average of 19 LBMA daily fixes",
+      "points": 19,
+      "price_source": "LBMA",
+      "troy_oz": -3.7979976956148715
+    },
+    "family": "negative-and-edge-amounts",
+    "input": {
+      "amount": -5000.0,
+      "currency": "USD",
+      "date": "2018-12",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "-5000 USD"
+  },
+  {
+    "expected": {
+      "GB": -250.0,
+      "GBD": -12.5,
+      "USD": -134.58,
+      "effective": "1980-01-21",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 538.32,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": -0.25
+    },
+    "family": "negative-and-edge-amounts",
+    "input": {
+      "amount": -250.0,
+      "currency": "USD",
+      "date": "1980-01-21",
+      "from": "GB",
+      "today": "2026-09-29"
+    },
+    "name": "-250 GB"
+  },
+  {
+    "expected": {
+      "GB": 0.0,
+      "GBD": 0.0,
+      "USD": 0.0,
+      "effective": "2000",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 283.2591860465116,
+      "granularity": "year",
+      "note": "average of 258 LBMA daily fixes",
+      "points": 258,
+      "price_source": "LBMA",
+      "troy_oz": 0.0
+    },
+    "family": "negative-and-edge-amounts",
+    "input": {
+      "amount": 0.0,
+      "currency": "USD",
+      "date": "2000",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "0 USD"
+  },
+  {
+    "expected": {
+      "GB": 0.28612303290414876,
+      "GBD": 0.014306151645207437,
+      "USD": 0.01,
+      "effective": "1955-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 34.95,
+      "granularity": "month",
+      "note": "monthly series value",
+      "points": 1,
+      "price_source": "Timothy Green / NMA table (annual average)",
+      "troy_oz": 0.00028612303290414875
+    },
+    "family": "negative-and-edge-amounts",
+    "input": {
+      "amount": 0.01,
+      "currency": "USD",
+      "date": "1955-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "0.01 USD"
+  },
+  {
+    "expected": {
+      "GB": 423407400.69561595,
+      "GBD": 21170370.0347808,
+      "USD": 1000000000.0,
+      "effective": "2024-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2361.7915000000003,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 423407.400695616
+    },
+    "family": "negative-and-edge-amounts",
+    "input": {
+      "amount": 1000000000.0,
+      "currency": "USD",
+      "date": "2024-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "1e9 USD"
+  },
+  {
+    "expected": {
+      "GB": -500.0,
+      "GBD": -25.0,
+      "USD": -82.91,
+      "effective": "1975-03-14",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 165.82,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": -0.5
+    },
+    "family": "negative-and-edge-amounts",
+    "input": {
+      "amount": -0.5,
+      "currency": "USD",
+      "date": "1975-03-14",
+      "from": "OZ",
+      "today": "2026-09-29"
+    },
+    "name": "-0.5 OZ"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024-06-03",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "day form 2024-06-03"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "06/03/2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "day form 06/03/2024"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "3 June 2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "day form 3 June 2024"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "3 Jun 2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "day form 3 Jun 2024"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "June 3, 2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "day form June 3, 2024"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "Jun 3, 2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "day form Jun 3, 2024"
+  },
+  {
+    "expected": {
+      "GB": 423.40740069561593,
+      "GBD": 21.1703700347808,
+      "USD": 999.9999999999999,
+      "effective": "2024-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2361.7915000000003,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 0.42340740069561594
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024-06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form 2024-06"
+  },
+  {
+    "expected": {
+      "GB": 423.40740069561593,
+      "GBD": 21.1703700347808,
+      "USD": 999.9999999999999,
+      "effective": "2024-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2361.7915000000003,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 0.42340740069561594
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "06/2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form 06/2024"
+  },
+  {
+    "expected": {
+      "GB": 423.40740069561593,
+      "GBD": 21.1703700347808,
+      "USD": 999.9999999999999,
+      "effective": "2024-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2361.7915000000003,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 0.42340740069561594
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024/06",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form 2024/06"
+  },
+  {
+    "expected": {
+      "GB": 423.40740069561593,
+      "GBD": 21.1703700347808,
+      "USD": 999.9999999999999,
+      "effective": "2024-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2361.7915000000003,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 0.42340740069561594
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "Jun 2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form Jun 2024"
+  },
+  {
+    "expected": {
+      "GB": 423.40740069561593,
+      "GBD": 21.1703700347808,
+      "USD": 999.9999999999999,
+      "effective": "2024-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2361.7915000000003,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 0.42340740069561594
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "June 2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form June 2024"
+  },
+  {
+    "expected": {
+      "GB": 6003.756636295282,
+      "GBD": 300.18783181476414,
+      "USD": 1000.0,
+      "effective": "1975-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 166.56238095238095,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 6.003756636295282
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "Mar 1975",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form Mar 1975"
+  },
+  {
+    "expected": {
+      "GB": 6003.756636295282,
+      "GBD": 300.18783181476414,
+      "USD": 1000.0,
+      "effective": "1975-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 166.56238095238095,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 6.003756636295282
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "March 1975",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form March 1975"
+  },
+  {
+    "expected": {
+      "GB": 6003.756636295282,
+      "GBD": 300.18783181476414,
+      "USD": 1000.0,
+      "effective": "1975-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 166.56238095238095,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 6.003756636295282
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "1975/03",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form 1975/03"
+  },
+  {
+    "expected": {
+      "GB": 6003.756636295282,
+      "GBD": 300.18783181476414,
+      "USD": 1000.0,
+      "effective": "1975-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 166.56238095238095,
+      "granularity": "month",
+      "note": "average of 21 LBMA daily fixes",
+      "points": 21,
+      "price_source": "LBMA",
+      "troy_oz": 6.003756636295282
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "03/1975",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "month form 03/1975"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "2024-6-3",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "lenient 2024-6-3"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "6/3/2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "lenient 6/3/2024"
+  },
+  {
+    "expected": {
+      "GB": 426.30288820206755,
+      "GBD": 21.31514441010338,
+      "USD": 1000.0,
+      "effective": "2024-06-03",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2345.75,
+      "granularity": "day",
+      "note": "LBMA fix on the requested date",
+      "points": 1,
+      "price_source": "LBMA",
+      "troy_oz": 0.4263028882020676
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "JUNE 3, 2024",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "lenient 'JUNE 3, 2024'"
+  },
+  {
+    "expected": {
+      "GB": 423.40740069561593,
+      "GBD": 21.1703700347808,
+      "USD": 999.9999999999999,
+      "effective": "2024-06",
+      "fx_effective": null,
+      "fx_mode": null,
+      "fx_note": null,
+      "fx_rate": null,
+      "gold_usd_per_oz": 2361.7915000000003,
+      "granularity": "month",
+      "note": "average of 20 LBMA daily fixes",
+      "points": 20,
+      "price_source": "LBMA",
+      "troy_oz": 0.42340740069561594
+    },
+    "family": "date-forms",
+    "input": {
+      "amount": 1000.0,
+      "currency": "USD",
+      "date": "  2024-06  ",
+      "from": "USD",
+      "today": "2026-09-29"
+    },
+    "name": "lenient '  2024-06  '"
+  }
+]

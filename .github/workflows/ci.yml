@@ -30,6 +30,11 @@ jobs:
         run: python -m pip install pytest
       - name: pytest
         run: python -m pytest tests/python -q
+      - name: Vector determinism (regenerate fixture, vectors, batch outputs; expect no diff)
+        run: |
+          python test-vectors/regenerate.py
+          git status --porcelain -- test-vectors | tee /tmp/vector-diff
+          test ! -s /tmp/vector-diff
 
   node:
     runs-on: ubuntu-latest

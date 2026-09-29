@@ -1,0 +1,345 @@
+{
+  "accept": [
+    {
+      "anchor": "2024-01-01",
+      "input": "2024",
+      "kind": "year"
+    },
+    {
+      "anchor": "1955-01-01",
+      "input": "1955",
+      "kind": "year"
+    },
+    {
+      "anchor": "0001-01-01",
+      "input": "0001",
+      "kind": "year"
+    },
+    {
+      "anchor": "9999-01-01",
+      "input": "9999",
+      "kind": "year"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "2024-06",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "06/2024",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "2024/06",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "Jun 2024",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "June 2024",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-05-01",
+      "input": "May 2024",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "2024-06-03",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "06/03/2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "3 June 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "3 Jun 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "June 3, 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "Jun 3, 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-05-03",
+      "input": "3 May 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-05-03",
+      "input": "May 3, 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "2024-6-3",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "6/3/2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "2024-6",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "6/2024",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "2024/6",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "3 june 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "JUNE 3, 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-01",
+      "input": "jun 2024",
+      "kind": "month"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "03 Jun 2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "3  June  2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "June  3,  2024",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "  2024-06-03  ",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-02-29",
+      "input": "2024-02-29",
+      "kind": "day"
+    },
+    {
+      "anchor": "1968-01-02",
+      "input": "1968-01-02",
+      "kind": "day"
+    },
+    {
+      "anchor": "1833-01-01",
+      "input": "1833-01",
+      "kind": "month"
+    },
+    {
+      "anchor": "2026-09-29",
+      "input": "2026-09-29",
+      "kind": "day"
+    },
+    {
+      "anchor": "2026-09-30",
+      "input": "2026-09-30",
+      "kind": "day"
+    },
+    {
+      "anchor": "2027-01-01",
+      "input": "2027-01-01",
+      "kind": "day"
+    },
+    {
+      "anchor": "1999-12-31",
+      "input": "12/31/1999",
+      "kind": "day"
+    },
+    {
+      "anchor": "1999-12-31",
+      "input": "31 December 1999",
+      "kind": "day"
+    },
+    {
+      "anchor": "1999-12-31",
+      "input": "December 31, 1999",
+      "kind": "day"
+    },
+    {
+      "anchor": "1999-12-31",
+      "input": "Dec 31, 1999",
+      "kind": "day"
+    },
+    {
+      "anchor": "2020-09-01",
+      "input": "sep 2020",
+      "kind": "month"
+    },
+    {
+      "anchor": "2020-09-01",
+      "input": "SEPTEMBER 2020",
+      "kind": "month"
+    },
+    {
+      "anchor": "2000-01-01",
+      "input": "1/1/2000",
+      "kind": "day"
+    },
+    {
+      "anchor": "2000-01-01",
+      "input": "01/01/2000",
+      "kind": "day"
+    },
+    {
+      "anchor": "2000-01-01",
+      "input": "2000/1",
+      "kind": "month"
+    },
+    {
+      "anchor": "2000-12-01",
+      "input": "12/2000",
+      "kind": "month"
+    },
+    {
+      "anchor": "2000-12-01",
+      "input": "2000-12",
+      "kind": "month"
+    },
+    {
+      "anchor": "2000-01-01",
+      "input": "2000-1-1",
+      "kind": "day"
+    },
+    {
+      "anchor": "2026-09-29",
+      "input": "today",
+      "kind": "day"
+    },
+    {
+      "anchor": "2026-09-29",
+      "input": "now",
+      "kind": "day"
+    },
+    {
+      "anchor": "2026-09-29",
+      "input": "latest",
+      "kind": "day"
+    },
+    {
+      "anchor": "2026-09-29",
+      "input": "TODAY",
+      "kind": "day"
+    },
+    {
+      "anchor": "2026-09-29",
+      "input": " Now ",
+      "kind": "day"
+    },
+    {
+      "anchor": "2026-09-29",
+      "input": "Latest",
+      "kind": "day"
+    },
+    {
+      "anchor": "2024-01-01",
+      "input": "2024\u00a0",
+      "kind": "year"
+    },
+    {
+      "anchor": "2024-01-01",
+      "input": "2024\n",
+      "kind": "year"
+    },
+    {
+      "anchor": "2024-01-01",
+      "input": "\t2024",
+      "kind": "year"
+    },
+    {
+      "anchor": "2024-06-03",
+      "input": "2024-06-03 ",
+      "kind": "day"
+    }
+  ],
+  "reject": [
+    "",
+    "   ",
+    "abc",
+    "24",
+    "12345",
+    "0000",
+    "2024-13",
+    "2024-00",
+    "2024-02-30",
+    "2023-02-29",
+    "2024-06-31",
+    "13/2024",
+    "13/01/2024",
+    "0/2024",
+    "2024.06",
+    "2024.06.03",
+    "20240603",
+    "Sept 2024",
+    "Foo 2024",
+    "31 Feb 2024",
+    "2024-06-03T00:00:00",
+    "2024-06-03 12:00",
+    "yesterday",
+    "tomorrow",
+    "1e3",
+    "2024-06-03-",
+    "-2024",
+    "+2024",
+    "2024 06",
+    "Jun-2024",
+    "2024-Jun",
+    "3rd June 2024",
+    "June 3rd, 2024",
+    "June 3 2024",
+    "3 June, 2024",
+    "Jun. 2024",
+    "32/01/2024",
+    "1/32/2024",
+    "00/00/0000",
+    "1 1 2024",
+    "\uff12\uff10\uff12\uff14",
+    "\u0662\u0660\u0662\u0664",
+    "\u00b2\u2070\u00b2\u2074",
+    "\uff2a\uff55\uff4e 2024",
+    "marzo 2024",
+    "2024-06-03,",
+    "20-06-2024",
+    "2024-6-31"
+  ],
+  "today": "2026-09-29"
+}

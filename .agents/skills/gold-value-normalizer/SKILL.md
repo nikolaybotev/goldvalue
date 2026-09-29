@@ -32,6 +32,7 @@ python3 scripts/goldvalue.py AMOUNT DATE [--from USD|GB|GBD|OZ] [--to GB|GBD|OZ|
 - `--json` for structured output (keys below); `--price-only DATE` prints just the resolved gold price
 - `--fetch-only` prefetches the cache; `--refresh` forces a re-download; `--no-refresh` (or `GOLDVALUE_OFFLINE=1`) never uses the network
 - `--batch FILE` re-denominates a whole time series in one call (see below)
+- `--vectors OUT.json`, `--dates-oracle OUT.json`, `--cases FILE`: repository test tooling that writes golden vectors; not needed for normal use (see [reference.md](reference.md))
 
 Examples:
 
