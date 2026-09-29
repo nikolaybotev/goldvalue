@@ -64,10 +64,11 @@ function Tooltip({
   );
 }
 
-export function Chart() {
+export function Chart({ collapsible = false }: { collapsible?: boolean }) {
   const list = rows.value;
   const res = results.value;
-  const { logScale, nominalOverlay, axisDefault } = settings.value;
+  const { logScale, nominalOverlay, axisDefault, chartCollapsed } = settings.value;
+  const collapsed = collapsible && chartCollapsed;
   const unit = axisUnit.value;
   const wrapRef = useRef<HTMLDivElement>(null);
   const xAxisRef = useRef<SVGGElement>(null);
@@ -160,174 +161,189 @@ export function Chart() {
 
   return (
     <section class="chart-panel" aria-labelledby="chart-heading">
-      <div class="toolbar">
+      <div class="chart-head">
         <h2 id="chart-heading">Chart</h2>
-        <fieldset class="toolbar-toggles">
-          <legend class="sr-only">Y axis unit</legend>
-          {AXIS_UNITS.map((u) => (
-            <button
-              key={u.id}
-              type="button"
-              class="toggle"
-              aria-pressed={unit === u.id}
-              title={u.title}
-              onClick={() => chooseUnit(u.id)}
-            >
-              {u.short}
-            </button>
-          ))}
-        </fieldset>
-        <button
-          type="button"
-          class="btn"
-          disabled={unit === axisDefault}
-          onClick={() => updateSettings({ axisDefault: unit })}
-        >
-          {unit === axisDefault ? "Default axis" : "Save as default"}
-        </button>
-        <fieldset class="toolbar-toggles">
-          <legend class="sr-only">Chart options</legend>
+        {collapsible && (
           <button
             type="button"
-            class="toggle"
-            aria-pressed={nominalOverlay}
-            onClick={() => updateSettings({ nominalOverlay: !nominalOverlay })}
+            class="btn"
+            aria-expanded={!collapsed}
+            aria-controls="chart-body"
+            onClick={() => updateSettings({ chartCollapsed: !chartCollapsed })}
           >
-            Nominal USD
+            {collapsed ? "Show chart" : "Hide chart"}
           </button>
-          {canLog && (
+        )}
+      </div>
+      <div id="chart-body" hidden={collapsed}>
+        <div class="toolbar">
+          <fieldset class="toolbar-toggles">
+            <legend class="sr-only">Y axis unit</legend>
+            {AXIS_UNITS.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                class="toggle"
+                aria-pressed={unit === u.id}
+                title={u.title}
+                onClick={() => chooseUnit(u.id)}
+              >
+                {u.short}
+              </button>
+            ))}
+          </fieldset>
+          <button
+            type="button"
+            class="btn"
+            disabled={unit === axisDefault}
+            onClick={() => updateSettings({ axisDefault: unit })}
+          >
+            {unit === axisDefault ? "Default axis" : "Save as default"}
+          </button>
+          <fieldset class="toolbar-toggles">
+            <legend class="sr-only">Chart options</legend>
             <button
               type="button"
               class="toggle"
-              aria-pressed={logScale}
-              onClick={() => updateSettings({ logScale: !logScale })}
+              aria-pressed={nominalOverlay}
+              onClick={() => updateSettings({ nominalOverlay: !nominalOverlay })}
             >
-              Log scale
+              Nominal USD
             </button>
-          )}
-        </fieldset>
-      </div>
-
-      <div class="chart-wrap" ref={wrapRef}>
-        {layout === null ? (
-          <p class="chart-empty muted" data-testid="chart-empty">
-            Enter an amount and a date in the sheet to see the chart.
-          </p>
-        ) : (
-          <>
-            <svg
-              class="chart"
-              data-testid="chart"
-              data-unit={unit}
-              data-log={layout.log ? "true" : "false"}
-              role="img"
-              aria-label={summary}
-              xmlns="http://www.w3.org/2000/svg"
-              width={layout.width}
-              height={layout.height}
-              viewBox={`0 0 ${layout.width} ${layout.height}`}
-              onPointerMove={onMove}
-              onPointerDown={onMove}
-              onPointerLeave={(event) => {
-                if (event.pointerType === "mouse") setHover(null);
-              }}
-            >
-              <g transform={`translate(${layout.margins.left},${layout.margins.top})`}>
-                <g class="axis axis-y" ref={yAxisRef} />
-                <g
-                  class="axis axis-x"
-                  ref={xAxisRef}
-                  transform={`translate(0,${layout.innerHeight})`}
-                />
-                {layout.y2Scale && (
-                  <g
-                    class="axis axis-y2"
-                    ref={y2AxisRef}
-                    transform={`translate(${layout.innerWidth},0)`}
-                  />
-                )}
-                {layout.zeroY !== null && (
-                  <line
-                    class="zero-line"
-                    x1={0}
-                    x2={layout.innerWidth}
-                    y1={layout.zeroY}
-                    y2={layout.zeroY}
-                  />
-                )}
-                {hover && (
-                  <line
-                    class="guide"
-                    x1={hover.group.cx}
-                    x2={hover.group.cx}
-                    y1={0}
-                    y2={layout.innerHeight}
-                  />
-                )}
-                {layout.overlayPath && <path class="overlay-line" d={layout.overlayPath} />}
-                {layout.y2Scale &&
-                  layout.placed.map(
-                    (p) =>
-                      p.ny !== null && (
-                        <rect
-                          key={`n-${p.point.rowId}`}
-                          class="overlay-mark"
-                          data-testid="nominal-point"
-                          x={p.px - 3}
-                          y={p.ny - 3}
-                          width={6}
-                          height={6}
-                        />
-                      ),
-                  )}
-                {layout.linePath && <path class="series-line" d={layout.linePath} />}
-                {layout.placed.map((p) => (
-                  <circle
-                    key={p.point.rowId}
-                    class={`point${hover?.x === p.point.x ? " is-hover" : ""}`}
-                    data-testid="point"
-                    data-row={p.point.rowNumber}
-                    data-date={p.point.plotted}
-                    data-x={p.px.toFixed(2)}
-                    data-y={p.py.toFixed(2)}
-                    cx={p.px}
-                    cy={p.py}
-                    r={4.5}
-                  />
-                ))}
-              </g>
-              <text
-                class="axis-title"
-                transform={`translate(14,${layout.margins.top + layout.innerHeight / 2}) rotate(-90)`}
-                text-anchor="middle"
+            {canLog && (
+              <button
+                type="button"
+                class="toggle"
+                aria-pressed={logScale}
+                onClick={() => updateSettings({ logScale: !logScale })}
               >
-                {info.short}
-                {layout.log ? " (log)" : ""}
-              </text>
-              {layout.y2Scale && (
+                Log scale
+              </button>
+            )}
+          </fieldset>
+        </div>
+
+        <div class="chart-wrap" ref={wrapRef}>
+          {layout === null ? (
+            <p class="chart-empty muted" data-testid="chart-empty">
+              Enter an amount and a date in the sheet to see the chart.
+            </p>
+          ) : (
+            <>
+              <svg
+                class="chart"
+                data-testid="chart"
+                data-unit={unit}
+                data-log={layout.log ? "true" : "false"}
+                role="img"
+                aria-label={summary}
+                xmlns="http://www.w3.org/2000/svg"
+                width={layout.width}
+                height={layout.height}
+                viewBox={`0 0 ${layout.width} ${layout.height}`}
+                onPointerMove={onMove}
+                onPointerDown={onMove}
+                onPointerLeave={(event) => {
+                  if (event.pointerType === "mouse") setHover(null);
+                }}
+              >
+                <g transform={`translate(${layout.margins.left},${layout.margins.top})`}>
+                  <g class="axis axis-y" ref={yAxisRef} />
+                  <g
+                    class="axis axis-x"
+                    ref={xAxisRef}
+                    transform={`translate(0,${layout.innerHeight})`}
+                  />
+                  {layout.y2Scale && (
+                    <g
+                      class="axis axis-y2"
+                      ref={y2AxisRef}
+                      transform={`translate(${layout.innerWidth},0)`}
+                    />
+                  )}
+                  {layout.zeroY !== null && (
+                    <line
+                      class="zero-line"
+                      x1={0}
+                      x2={layout.innerWidth}
+                      y1={layout.zeroY}
+                      y2={layout.zeroY}
+                    />
+                  )}
+                  {hover && (
+                    <line
+                      class="guide"
+                      x1={hover.group.cx}
+                      x2={hover.group.cx}
+                      y1={0}
+                      y2={layout.innerHeight}
+                    />
+                  )}
+                  {layout.overlayPath && <path class="overlay-line" d={layout.overlayPath} />}
+                  {layout.y2Scale &&
+                    layout.placed.map(
+                      (p) =>
+                        p.ny !== null && (
+                          <rect
+                            key={`n-${p.point.rowId}`}
+                            class="overlay-mark"
+                            data-testid="nominal-point"
+                            x={p.px - 3}
+                            y={p.ny - 3}
+                            width={6}
+                            height={6}
+                          />
+                        ),
+                    )}
+                  {layout.linePath && <path class="series-line" d={layout.linePath} />}
+                  {layout.placed.map((p) => (
+                    <circle
+                      key={p.point.rowId}
+                      class={`point${hover?.x === p.point.x ? " is-hover" : ""}`}
+                      data-testid="point"
+                      data-row={p.point.rowNumber}
+                      data-date={p.point.plotted}
+                      data-x={p.px.toFixed(2)}
+                      data-y={p.py.toFixed(2)}
+                      cx={p.px}
+                      cy={p.py}
+                      r={4.5}
+                    />
+                  ))}
+                </g>
                 <text
                   class="axis-title"
-                  transform={`translate(${layout.width - 12},${layout.margins.top + layout.innerHeight / 2}) rotate(90)`}
+                  transform={`translate(14,${layout.margins.top + layout.innerHeight / 2}) rotate(-90)`}
                   text-anchor="middle"
                 >
-                  USD nominal
+                  {info.short}
+                  {layout.log ? " (log)" : ""}
                 </text>
+                {layout.y2Scale && (
+                  <text
+                    class="axis-title"
+                    transform={`translate(${layout.width - 12},${layout.margins.top + layout.innerHeight / 2}) rotate(90)`}
+                    text-anchor="middle"
+                  >
+                    USD nominal
+                  </text>
+                )}
+              </svg>
+              {hover && (
+                <Tooltip
+                  group={hover.group}
+                  unit={unit}
+                  left={hover.px > layout.width / 2 ? layout.width - hover.px + 12 : hover.px + 12}
+                  top={Math.max(4, Math.min(hover.py - 10, chartHeight(layout.width) - 130))}
+                  flip={hover.px > layout.width / 2}
+                />
               )}
-            </svg>
-            {hover && (
-              <Tooltip
-                group={hover.group}
-                unit={unit}
-                left={hover.px > layout.width / 2 ? layout.width - hover.px + 12 : hover.px + 12}
-                top={Math.max(4, Math.min(hover.py - 10, chartHeight(layout.width) - 130))}
-                flip={hover.px > layout.width / 2}
-              />
-            )}
-            {points.length === 1 && (
-              <p class="chart-note muted">Add another row to draw the line.</p>
-            )}
-          </>
-        )}
+              {points.length === 1 && (
+                <p class="chart-note muted">Add another row to draw the line.</p>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </section>
   );

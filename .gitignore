@@ -20,3 +20,7 @@ apps/web/public/data/
 # Playwright
 test-results/
 playwright-report/
+
+# Lighthouse CI
+apps/web/dist-lh/
+.lighthouseci/

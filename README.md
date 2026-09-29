@@ -30,6 +30,19 @@ python3 .agents/skills/gold-value-normalizer/scripts/goldvalue.py --batch series
 Standard library only (Python 3.9+). Cache lives in `~/.cache/gold-value/`
 (override with `GOLD_PRICE_CACHE_DIR`).
 
+## Web app (in development)
+
+A static single-page app in `apps/web` (Vite, Preact, TypeScript): a sheet of dated
+amounts with live GB / GBD / oz columns and a chart. Daily LBMA prices are fetched by
+your browser and kept in IndexedDB; nothing licensed is stored in this repository.
+
+```bash
+pnpm install
+python3 tools/snapshot/sync_data.py   # monthly series -> apps/web/public/data
+pnpm dev                              # or: pnpm build && pnpm preview
+pnpm test:e2e                         # Playwright against vite preview, LBMA stubbed
+```
+
 ## Using as an agent skill
 
 Inside this repo the skill is discovered automatically from `.agents/skills/`.

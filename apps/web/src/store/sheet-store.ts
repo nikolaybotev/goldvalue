@@ -51,7 +51,14 @@ export interface Settings {
   axisDefault: AxisUnit;
   logScale: boolean;
   nominalOverlay: boolean;
+  /** Width of the sheet as a percentage of the workspace in the wide layout (FR17). */
+  splitPercent: number;
+  /** Chart collapsed in the narrow layout (FR17). */
+  chartCollapsed: boolean;
 }
+
+export const SPLIT_MIN = 30;
+export const SPLIT_MAX = 75;
 
 const DEFAULT_SETTINGS: Settings = {
   showLabel: true,
@@ -60,14 +67,30 @@ const DEFAULT_SETTINGS: Settings = {
   axisDefault: "GB",
   logScale: false,
   nominalOverlay: false,
+  splitPercent: 58,
+  chartCollapsed: false,
 };
 
 function loadSettings(): Settings {
   const stored = readJson(SETTINGS_KEY) as (Partial<Settings> & { v?: number }) | null;
   const settings = { ...DEFAULT_SETTINGS };
   if (stored?.v === 1) {
-    for (const key of ["showLabel", "showGbd", "showOz", "logScale", "nominalOverlay"] as const) {
+    for (const key of [
+      "showLabel",
+      "showGbd",
+      "showOz",
+      "logScale",
+      "nominalOverlay",
+      "chartCollapsed",
+    ] as const) {
       if (typeof stored[key] === "boolean") settings[key] = stored[key];
+    }
+    if (
+      typeof stored.splitPercent === "number" &&
+      stored.splitPercent >= SPLIT_MIN &&
+      stored.splitPercent <= SPLIT_MAX
+    ) {
+      settings.splitPercent = stored.splitPercent;
     }
     if (
       stored.axisDefault === "GB" ||
