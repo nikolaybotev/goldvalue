@@ -13,8 +13,7 @@ committed (D15).
 ## Phase 1 — CLI
 
 Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `tests/python/`,
-`test-vectors/{cases.json or smooth-cases.json, regenerate.py}`, `SKILL.md`,
-`reference.md`.
+`test-vectors/{cases.json or smooth-cases.json, regenerate.py}`.
 
 1. Monthly gold series helper: for each month, the v1 month price (mean of
    daily fixes from 1968, monthly-file value before). Cache it on `GoldTable`.
@@ -26,11 +25,34 @@ Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `tests/pytho
    the first/last month. `--json`, text, and `--batch` (FR26 columns).
 4. Vectors: 2018-12 and a late fixture date at 10y; one year query; 1970 at
    10y (partial); same date at 5y and 20y. Regenerate via `test-vectors/regenerate.py`.
-5. SKILL.md: one short section and a trigger line for "smoothed", "moving
-   average", "long-horizon gold gauge". Keep the description under 1024
-   characters. State that the average is not CPI.
 
 DoD: `pytest tests/python -q` green; vector diff clean.
+
+## Phase 1b — Skill
+
+The skill ships in the same PR as the CLI. It is a first-class surface
+(spec §5a), not a note added after the flag works.
+
+Files: `.agents/skills/gold-value-normalizer/SKILL.md`, `reference.md`,
+`AGENTS.md`.
+
+1. Rewrite `description` so it triggers on both questions: the existing
+   spot comparisons, and the long-horizon ones ("store of value", "smoothed",
+   "moving average", "how does this price measure up over 10/20 years").
+   The description is 1001 characters today; the cap is 1024, so replace
+   phrases rather than append. Count it.
+2. Body: a short "Which question" section. Spot (no flag) answers "what if I
+   had bought gold that day". `--smooth 10y` (or `5y` / `20y`) answers the
+   long-horizon gauge. The agent names the window, reports the averaged price,
+   the months used, and the spot price beside it, and says the average is not
+   CPI. Partial windows are stated (FR27–FR29).
+3. `reference.md`: the equal-month trailing mean, the window end rule, and
+   partial history. `AGENTS.md`: the `--smooth` invocation next to the other
+   CLI commands.
+4. Keep `SKILL.md` under 500 lines.
+
+DoD: description length checked and recorded in the PR; a reader who has only
+the skill can choose spot vs 10y and interpret a partial window.
 
 ## Phase 2 — `packages/core`
 
