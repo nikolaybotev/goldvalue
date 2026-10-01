@@ -16,15 +16,11 @@ did that money buy, using the gold price on that date. That is the right
 answer to "if I had bought gold that day instead of this house, stock, or
 other security, how much gold would I hold, and what is it worth now."
 
-A broader question is also interesting. Taking a gold unit as an imperfect but
-acceptable store-of-value gauge over a long horizon (10–20 years or more), how
-does the security's price measure up at the snapshot dates. Gold does not
-drift smoothly with the cost of living. It can hold a range while purchasing
-power erodes, then reprice in a spike when that range breaks. A one-day or
-one-month fix makes a security look suddenly cheap or expensive because of
-where gold is in that path, not because the security changed. A 200-day moving
-average, the usual trading window, is too short to look past one of those
-spikes.
+The transcript below is a real use of that answer. Read it for the goldback
+column, not the narrative. Spot gold makes the house look as if it collapsed
+in gold terms. We can do better: a long-horizon store-of-value unit that does
+not jump every time gold reprices. The idea is a moving average of the gold
+price. Which interval is a design choice, worked out in the spec, not here.
 
 This is a premise for a tool, not a claim about inflation or monetary history.
 The app must say so.
@@ -130,3 +126,36 @@ the v1.2 prompt was written after. No interpretation in this section.
 > - **2026 ask (~$600k)** ≈ **132k GB** — in goldbacks, the current ask is **well below** the 2019 sale (~306k GB) and even below the 2009 Osbon purchase (~162k GB), because nominal prices rose much faster than the gold price used here.
 >
 > 2004–2005 Chavez-era Greenpoint / Countrywide / Wausau balances weren’t given as dollar figures, so they aren’t converted. If you want those from CRS or a fresh Contra Costa index pull, share amounts and dates and I’ll add GB columns. Same if you want **GBD** (50 per troy oz) or a side-by-side **CPI** table.
+
+## What to notice
+
+The interesting cells are the gold price and the goldbacks, not the dollar
+amounts.
+
+- **2001-10-01.** Sale $235,000 at **$290.60/oz** is **808,672 GB**. The
+  largest gold-weight on the list, on a mid-sized dollar price.
+- **2009-03-10.** Trustee's deed $128,223 at **$901.50/oz** is **142,233 GB**.
+  Dollars fell by about half from 2001; goldbacks fell by more than five
+  times, because gold went from ~$291 to ~$902.
+- **2014 through 2019.** Gold holds a range: **$1,259**, **$1,257**,
+  **$1,269**, then **$1,452**. The 2019 sale, $444,000, is **305,775 GB**,
+  the peak gold-weight among the later sales.
+- **2026 ask.** $599,900 at **$4,548.54/oz** is **131,888 GB**. Dollars are up
+  from 2019. Goldbacks are down by more than half, below even the 2009 Osbon
+  purchase (161,560 GB).
+
+Put in a row, the spot series says the house was enormous in gold in 2001,
+ordinary in 2009, peak again in 2019, and cheap in 2026. That last step is the
+skewed impression. The house did not drop massively. Gold did the opposite of
+a drop: it left a long range around $1,300–$1,450 and repriced to about
+$4,500. The same thing, smaller, is 2001 versus 2009.
+
+Spot is the right unit for "what if I had bought gold that day." It is a poor
+signal for a long-term stable store of value, because a range that holds for
+years and then breaks in one move dominates every comparison that uses the
+print on the day. We need a unit that does not do that.
+
+The idea is a moving average of the gold price, long enough to look past one
+of those breaks. A short trading average (the usual 200-day window) is the
+obvious first try and, as a hunch, not long enough. The samples and the window
+we actually ship are in [spec.md](spec.md).
