@@ -25,6 +25,8 @@ export interface PlacedPoint {
   py: number;
   /** Pixel y of the nominal amount on the right axis (only with the overlay). */
   ny: number | null;
+  /** Pixel y of the spot value on the gauge axis (only with the spot overlay). */
+  sy: number | null;
 }
 
 export interface PlacedGroup {
@@ -47,6 +49,8 @@ export interface ChartLayout {
   placed: PlacedPoint[];
   linePath: string;
   overlayPath: string | null;
+  /** Spot series in the gauge unit. Null when the overlay is off or there is only one point. */
+  spotPath: string | null;
   zeroY: number | null;
 }
 
@@ -56,6 +60,8 @@ export interface LayoutOptions {
   unit: AxisUnit;
   log: boolean;
   overlay: boolean;
+  /** Draw the spot series on the gauge axis (D20). Off unless set. */
+  spotOverlay?: boolean;
 }
 
 export function chartHeight(width: number): number {
@@ -89,6 +95,7 @@ function makeYScale(
 
 export function computeLayout(options: LayoutOptions): ChartLayout {
   const { width, groups, log, overlay } = options;
+  const spotOverlay = options.spotOverlay === true;
   const height = chartHeight(width);
   const margins: Margins = { top: 16, right: overlay ? 64 : 20, bottom: 40, left: 64 };
   const innerWidth = Math.max(40, width - margins.left - margins.right);
@@ -105,7 +112,7 @@ export function computeLayout(options: LayoutOptions): ChartLayout {
     .range([0, innerWidth]);
 
   const yScale = makeYScale(
-    points.map((p) => p.value),
+    spotOverlay ? points.flatMap((p) => [p.value, p.spotValue]) : points.map((p) => p.value),
     log,
     [innerHeight, 0],
   );
@@ -127,6 +134,7 @@ export function computeLayout(options: LayoutOptions): ChartLayout {
         px: cx + (i - (count - 1) / 2) * POINT_SPACING,
         py: yScale(point.value),
         ny: y2Scale ? y2Scale(point.amount) : null,
+        sy: spotOverlay ? yScale(point.spotValue) : null,
       };
       placed.push(member);
       return member;
@@ -140,6 +148,9 @@ export function computeLayout(options: LayoutOptions): ChartLayout {
   const overlayLine = line<PlacedPoint>()
     .x((p) => p.px)
     .y((p) => p.ny ?? 0);
+  const spotLine = line<PlacedPoint>()
+    .x((p) => p.px)
+    .y((p) => p.sy ?? 0);
   const [d0, d1] = yScale.domain();
   const crossesZero = !log && (d0 ?? 0) < 0 && (d1 ?? 0) > 0;
 
@@ -157,6 +168,7 @@ export function computeLayout(options: LayoutOptions): ChartLayout {
     placed,
     linePath: placed.length > 1 ? (path(placed) ?? "") : "",
     overlayPath: overlay && placed.length > 1 ? (overlayLine(placed) ?? "") : null,
+    spotPath: spotOverlay && placed.length > 1 ? (spotLine(placed) ?? "") : null,
     zeroY: crossesZero ? yScale(0) : null,
   };
 }
