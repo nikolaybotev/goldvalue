@@ -16,7 +16,7 @@ import {
 interface Vector {
   name: string;
   family: string;
-  input: { amount: number; date: string; from: string; today: string };
+  input: { amount: number; date: string; from: string; today: string; smooth?: string };
   expected: {
     GB: number;
     GBD: number;
@@ -34,7 +34,7 @@ const vectors = (
       "utf8",
     ),
   ) as Vector[]
-).filter((v) => v.input.from === "USD" && v.input.today === PINNED_TODAY);
+).filter((v) => v.input.from === "USD" && v.input.today === PINNED_TODAY && !v.input.smooth);
 
 const close = (actual: number, expected: number) =>
   Math.abs(actual - expected) <= Math.max(Math.abs(expected) * 1e-9, 1e-12);

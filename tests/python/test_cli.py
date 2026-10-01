@@ -13,6 +13,7 @@ from conftest import write_fx
 JSON_KEYS = {
     "input", "effective", "granularity", "points", "gold_usd_per_oz", "price_source", "note",
     "troy_oz", "GB", "GBD", "USD", "fx_rate", "fx_effective", "fx_mode", "fx_note",
+    "gold_mode", "ma_years", "ma_months", "spot_usd_per_oz",
     "price_note", "price_points",
 }
 
@@ -37,6 +38,9 @@ def test_json_top_level_keys_and_values(gv, capsys, cache_dir):
     assert out["USD"] == pytest.approx(1000.0)
     assert (out["fx_rate"], out["fx_effective"], out["fx_mode"], out["fx_note"]) == (
         None, None, None, None)
+    assert out["gold_mode"] == "spot"
+    assert out["ma_years"] is None and out["ma_months"] is None
+    assert out["spot_usd_per_oz"] == out["gold_usd_per_oz"]
 
 
 def test_json_legacy_aliases_match_new_keys(gv, capsys, cache_dir):
@@ -90,7 +94,9 @@ def test_text_output_shows_granularity_and_note(gv, capsys, cache_dir):
     text = capsys.readouterr().out.splitlines()
     assert text[0] == "$1,000.00 on 1980-01-21 @ $850.00/troy oz [LBMA]"
     assert text[1] == "  granularity: day; note: LBMA fix on the requested date"
-    assert text[2].startswith("  = 1,176.47 GB")
+    assert text[2] == ("  gold_mode: spot; ma_years: ; ma_months: ; "
+                       "spot_usd_per_oz: $850.00")
+    assert text[3].startswith("  = 1,176.47 GB")
     assert any(line.startswith("  = 58.8235 GBD") for line in text)
     assert any(line.startswith("  = 1.1765 troy oz") for line in text)
 
@@ -98,7 +104,7 @@ def test_text_output_shows_granularity_and_note(gv, capsys, cache_dir):
 def test_text_output_single_unit(gv, capsys, cache_dir):
     assert gv.main(["1000", "1980-01-21", "--to", "GBD"]) == 0
     lines = capsys.readouterr().out.splitlines()
-    assert len(lines) == 3 and lines[2].startswith("  = 58.8235 GBD")
+    assert len(lines) == 4 and lines[3].startswith("  = 58.8235 GBD")
 
 
 def test_price_only_text_and_json(gv, capsys, cache_dir):

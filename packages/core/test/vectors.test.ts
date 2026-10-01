@@ -5,7 +5,14 @@ import { loadSnapshotFx, loadSnapshotTable, readJson } from "./support";
 interface Vector {
   name: string;
   family: string;
-  input: { amount: number; date: string; from: string; currency: string; today: string };
+  input: {
+    amount: number;
+    date: string;
+    from: string;
+    currency: string;
+    today: string;
+    smooth?: string;
+  };
   expected: Omit<ConversionResult, "input" | "price_note" | "price_points">;
 }
 
@@ -38,6 +45,7 @@ describe("golden vectors (test-vectors/gold-usd.json)", () => {
       "after-latest-fix",
       "units-from",
       "negative-and-edge-amounts",
+      "smoothed",
     ]) {
       expect(families.has(family), family).toBe(true);
     }
@@ -49,6 +57,7 @@ describe("golden vectors (test-vectors/gold-usd.json)", () => {
       date: vector.input.date,
       from: vector.input.from,
       today: parseIso(vector.input.today),
+      smooth: vector.input.smooth,
     });
     for (const [key, expected] of Object.entries(vector.expected)) {
       const actual = (result as unknown as Record<string, unknown>)[key];
@@ -67,6 +76,7 @@ describe("golden vectors (test-vectors/gold-usd.json)", () => {
         date: v.input.date,
         from: v.input.from,
         today: parseIso(v.input.today),
+        smooth: v.input.smooth,
       });
       expect(r.points, v.name).toBe(v.expected.points);
       expect(r.note, v.name).toBe(v.expected.note);

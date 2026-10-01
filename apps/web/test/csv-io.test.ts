@@ -117,6 +117,31 @@ test("EUR sheet export equals goldvalue.py --batch --currency EUR byte for byte"
   );
 });
 
+test("export appends gold_mode, ma_years, ma_months, and spot_usd_per_oz after fx_note", () => {
+  const { imported, exported } = throughSheet("date,amount\n1980-01-21,850\n");
+  expect(imported.extraColumns).toEqual([]);
+  const [header, row] = exported.csv.trimEnd().split("\n");
+  expect(header?.endsWith("fx_note,gold_mode,ma_years,ma_months,spot_usd_per_oz")).toBe(true);
+  const columns = header?.split(",") ?? [];
+  const fields = row?.split(",") ?? [];
+  expect(fields[columns.indexOf("gold_mode")]).toBe("spot");
+  expect(fields[columns.indexOf("ma_years")]).toBe("");
+  expect(fields[columns.indexOf("ma_months")]).toBe("");
+  expect(fields[columns.indexOf("spot_usd_per_oz")]).toBe(
+    fields[columns.indexOf("gold_usd_per_oz")],
+  );
+});
+
+test("import ignores gold_mode, ma_years, ma_months, and spot_usd_per_oz", () => {
+  const imported = importSheet(
+    "date,amount,gold_mode,ma_years,ma_months,spot_usd_per_oz\n1980-01-21,850,partial,99,1,1\n",
+    today,
+  );
+  expect(imported.extraColumns).toEqual([]);
+  expect(imported.errors).toEqual([]);
+  expect(imported.rows.filter((row) => !isBlank(row)).map((row) => row.amount)).toEqual(["850"]);
+});
+
 test("rows typed by hand pad the passthrough columns of an imported sheet", () => {
   const imported = importSheet("date,amount,Region\n1980-01-21,850,west\n", today);
   const typed = newRow({ amount: "100", date: "2000" });

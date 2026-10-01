@@ -1,4 +1,4 @@
-date,amount,currency,label,Memo,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note
-1975-03-14,1000,USD,,legacy alias header,1975-03-14,165.8200,6.030636,6030.636,301.5318,1000.00,LBMA,day,LBMA fix on the requested date,,,,
-1990,2500,USD,,,1990,385.7726,6.480502,6480.502,324.0251,2500.00,LBMA,year,average of 258 LBMA daily fixes,,,,
-2000-01,-40,USD,,neg,2000-01,292.3348,-0.136829,-136.829,-6.8415,-40.00,LBMA,month,average of 21 LBMA daily fixes,,,,
+date,amount,currency,label,Memo,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note,gold_mode,ma_years,ma_months,spot_usd_per_oz
+1975-03-14,1000,USD,,legacy alias header,1975-03-14,165.8200,6.030636,6030.636,301.5318,1000.00,LBMA,day,LBMA fix on the requested date,,,,,spot,,,165.8200
+1990,2500,USD,,,1990,385.7726,6.480502,6480.502,324.0251,2500.00,LBMA,year,average of 258 LBMA daily fixes,,,,,spot,,,385.7726
+2000-01,-40,USD,,neg,2000-01,292.3348,-0.136829,-136.829,-6.8415,-40.00,LBMA,month,average of 21 LBMA daily fixes,,,,,spot,,,292.3348

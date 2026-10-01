@@ -3,6 +3,7 @@ import { parseAmount } from "./amounts";
 import { type ConversionResult, convert } from "./convert";
 import { type CivilDate, checkNotFuture, type Period, parseDate } from "./dates";
 import type { Currency, FxRates } from "./fx";
+import type { SmoothYears } from "./smooth";
 import type { GoldTable } from "./table";
 import { PriceNotFoundError } from "./table";
 import type { Unit } from "./units";
@@ -25,6 +26,10 @@ export const COMPUTED_COLUMNS = [
   "fx_effective",
   "fx_mode",
   "fx_note",
+  "gold_mode",
+  "ma_years",
+  "ma_months",
+  "spot_usd_per_oz",
 ] as const;
 
 export class CsvFormatError extends Error {
@@ -296,6 +301,10 @@ export function exportCsv(extraColumns: readonly string[], rows: readonly Export
       optionalText(r.fx_effective),
       optionalText(r.fx_mode),
       optionalText(r.fx_note),
+      r.gold_mode,
+      r.ma_years === null ? "" : String(r.ma_years),
+      r.ma_months === null ? "" : String(r.ma_months),
+      formatFixed(r.spot_usd_per_oz, 4),
     ]);
   }
   const text = lines.map((line) => line.map(quoteField).join(",")).join("\n");
@@ -310,6 +319,8 @@ export interface BatchOptions {
   currency?: Currency;
   /** FX tables; required when `currency` is not USD. */
   fx?: FxRates;
+  /** One window for every row. Absent means spot. */
+  smooth?: SmoothYears;
 }
 
 export interface BatchResult {
@@ -339,6 +350,7 @@ export function runBatch(text: string, table: GoldTable, options: BatchOptions):
         options.today,
         currency,
         options.fx,
+        options.smooth,
       );
       out.push({
         date: row.date,
