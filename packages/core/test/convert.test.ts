@@ -28,17 +28,25 @@ describe("convertQuery", () => {
         "fx_mode",
         "fx_note",
         "fx_rate",
+        "gold_mode",
         "gold_usd_per_oz",
         "granularity",
         "input",
+        "ma_months",
+        "ma_years",
         "note",
         "points",
         "price_note",
         "price_points",
         "price_source",
+        "spot_usd_per_oz",
         "troy_oz",
       ].sort(),
     );
+    expect(r.gold_mode).toBe("spot");
+    expect(r.ma_years).toBeNull();
+    expect(r.ma_months).toBeNull();
+    expect(r.spot_usd_per_oz).toBe(r.gold_usd_per_oz);
     expect(r.input).toEqual({
       amount: 1000,
       unit: "USD",

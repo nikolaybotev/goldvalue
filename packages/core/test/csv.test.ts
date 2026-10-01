@@ -69,12 +69,23 @@ describe("batch-fx-eur vector written by goldvalue.py --batch --currency EUR", (
     const [header, ...rows] = expected.trimEnd().split("\n");
     expect(header).toContain(",currency,");
     expect(rows[0]).toContain(",EUR,");
-    expect(header?.endsWith("fx_rate,fx_effective,fx_mode,fx_note")).toBe(true);
+    expect(
+      header?.endsWith(
+        "fx_rate,fx_effective,fx_mode,fx_note,gold_mode,ma_years,ma_months,spot_usd_per_oz",
+      ),
+    ).toBe(true);
   });
 
   test("USD rows keep empty fx columns and a non-USD --from unit still names the currency", () => {
     const usd = runBatch("date,amount\n1980-01-21,850\n", table, { today });
-    expect(usd.csv.trimEnd().endsWith(",,,,")).toBe(true);
+    const usdCols = usd.csv.split("\n")[0]?.split(",") ?? [];
+    const usdFields = usd.csv.trimEnd().split("\n")[1]?.split(",") ?? [];
+    expect(usdFields[usdCols.indexOf("gold_mode")]).toBe("spot");
+    expect(usdFields[usdCols.indexOf("ma_years")]).toBe("");
+    expect(usdFields[usdCols.indexOf("ma_months")]).toBe("");
+    expect(usdFields[usdCols.indexOf("spot_usd_per_oz")]).toBe(
+      usdFields[usdCols.indexOf("gold_usd_per_oz")],
+    );
     const gb = runBatch("date,amount\n1980-01-21,850\n", table, { today, unit: "GB" });
     expect(gb.csv.split("\n")[1]?.split(",")[2]).toBe("GB");
   });
@@ -224,9 +235,15 @@ describe("batchLayout (dedupe rule)", () => {
 
   test("reserved names cover the FR15 schema", () => {
     expect(FIXED_COLUMNS).toEqual(["date", "amount", "currency", "label"]);
-    expect(COMPUTED_COLUMNS).toHaveLength(13);
+    expect(COMPUTED_COLUMNS).toHaveLength(17);
     expect(COMPUTED_COLUMNS[0]).toBe("effective");
-    expect(COMPUTED_COLUMNS.at(-1)).toBe("fx_note");
+    expect(COMPUTED_COLUMNS.at(-5)).toBe("fx_note");
+    expect(COMPUTED_COLUMNS.slice(-4)).toEqual([
+      "gold_mode",
+      "ma_years",
+      "ma_months",
+      "spot_usd_per_oz",
+    ]);
   });
 });
 
