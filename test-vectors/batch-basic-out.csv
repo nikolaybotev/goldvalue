@@ -1,12 +1,12 @@
-date,amount,currency,label,Region,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note
-1980-01-21,"$1,000",USD,house,west,1980-01-21,538.3200,1.857631,1857.631,92.8816,1000.00,LBMA,day,LBMA fix on the requested date,,,,
-2018-12,80000,USD,,south,2018-12,1316.4832,60.767963,60767.963,3038.3982,80000.00,LBMA,month,average of 19 LBMA daily fixes,,,,
-Mar 1975,250.5,USD,"salary, gross",east,1975-03,166.5624,1.503941,1503.941,75.1971,250.50,LBMA,month,average of 21 LBMA daily fixes,,,,
-1955,10000,USD,pre-1960 annual,,1955,34.9500,286.123033,286123.033,14306.1516,10000.00,Timothy Green / NMA table (annual average),year,average of 12 monthly values,,,,
-06/03/2024,-1500.25,USD,debt,north,2024-06-03,2345.7500,-0.639561,-639.561,-31.9780,-1500.25,LBMA,day,LBMA fix on the requested date,,,,
-3 June 2024,1,USD,"say ""hi""",x,2024-06-03,2345.7500,0.000426,0.426,0.0213,1.00,LBMA,day,LBMA fix on the requested date,,,,
-2026,1000,USD,ytd,,2026,3469.8714,0.288195,288.195,14.4098,1000.00,LBMA,year,average of 191 LBMA daily fixes (year to date),,,,
-2026-09-26,500,USD,after latest fix,,2026-09-25,3513.4000,0.142312,142.312,7.1156,500.00,LBMA,day,no LBMA fix on 2026-09-26 (non-trading day); used previous fix from 2026-09-25,,,,
-1968-03-24,100,USD,closure gap,,1968-03,39.3600,2.540650,2540.650,127.0325,100.00,World Bank Pink Sheet (monthly),month,no LBMA fix within 9 days before 1968-03-24; used the monthly price,,,,
-"Jun 3, 2024",0,USD,zero,,2024-06-03,2345.7500,0.000000,0.000,0.0000,0.00,LBMA,day,LBMA fix on the requested date,,,,
-1965-06-15,35,USD,café,ouest,1965-06,35.0800,0.997719,997.719,49.8860,35.00,World Bank Pink Sheet (monthly),month,no daily data before 1968; used the monthly price,,,,
+date,amount,currency,label,Region,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note,gold_mode,ma_years,ma_months,spot_usd_per_oz
+1980-01-21,"$1,000",USD,house,west,1980-01-21,538.3200,1.857631,1857.631,92.8816,1000.00,LBMA,day,LBMA fix on the requested date,,,,,spot,,,538.3200
+2018-12,80000,USD,,south,2018-12,1316.4832,60.767963,60767.963,3038.3982,80000.00,LBMA,month,average of 19 LBMA daily fixes,,,,,spot,,,1316.4832
+Mar 1975,250.5,USD,"salary, gross",east,1975-03,166.5624,1.503941,1503.941,75.1971,250.50,LBMA,month,average of 21 LBMA daily fixes,,,,,spot,,,166.5624
+1955,10000,USD,pre-1960 annual,,1955,34.9500,286.123033,286123.033,14306.1516,10000.00,Timothy Green / NMA table (annual average),year,average of 12 monthly values,,,,,spot,,,34.9500
+06/03/2024,-1500.25,USD,debt,north,2024-06-03,2345.7500,-0.639561,-639.561,-31.9780,-1500.25,LBMA,day,LBMA fix on the requested date,,,,,spot,,,2345.7500
+3 June 2024,1,USD,"say ""hi""",x,2024-06-03,2345.7500,0.000426,0.426,0.0213,1.00,LBMA,day,LBMA fix on the requested date,,,,,spot,,,2345.7500
+2026,1000,USD,ytd,,2026,3469.8714,0.288195,288.195,14.4098,1000.00,LBMA,year,average of 191 LBMA daily fixes (year to date),,,,,spot,,,3469.8714
+2026-09-26,500,USD,after latest fix,,2026-09-25,3513.4000,0.142312,142.312,7.1156,500.00,LBMA,day,no LBMA fix on 2026-09-26 (non-trading day); used previous fix from 2026-09-25,,,,,spot,,,3513.4000
+1968-03-24,100,USD,closure gap,,1968-03,39.3600,2.540650,2540.650,127.0325,100.00,World Bank Pink Sheet (monthly),month,no LBMA fix within 9 days before 1968-03-24; used the monthly price,,,,,spot,,,39.3600
+"Jun 3, 2024",0,USD,zero,,2024-06-03,2345.7500,0.000000,0.000,0.0000,0.00,LBMA,day,LBMA fix on the requested date,,,,,spot,,,2345.7500
+1965-06-15,35,USD,café,ouest,1965-06,35.0800,0.997719,997.719,49.8860,35.00,World Bank Pink Sheet (monthly),month,no daily data before 1968; used the monthly price,,,,,spot,,,35.0800

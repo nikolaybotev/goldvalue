@@ -1,6 +1,6 @@
 import { addDays, type CivilDate, formatIso, formatMonth, type Period, pad } from "./dates";
 import { fmean } from "./fsum";
-import { type GoldTable, LBMA_START, PriceNotFoundError } from "./table";
+import { type GoldTable, LBMA_START, monthlySeriesSource, PriceNotFoundError } from "./table";
 
 export const ROLLBACK_DAYS = 9;
 
@@ -14,12 +14,6 @@ export interface PriceInfo {
 }
 
 const NOT_LOADED = "daily LBMA prices not loaded";
-
-function monthlySource(year: number): string {
-  return year >= 1960
-    ? "World Bank Pink Sheet (monthly)"
-    : "Timothy Green / NMA table (annual average)";
-}
 
 /** Line-for-line port of `GoldTable.price_for_day`. */
 export function priceForDay(table: GoldTable, day: CivilDate): PriceInfo {
@@ -59,7 +53,7 @@ export function priceForDay(table: GoldTable, day: CivilDate): PriceInfo {
       granularity: "month",
       effective: formatMonth(day.year, day.month),
       points: 1,
-      source: monthlySource(day.year),
+      source: monthlySeriesSource(day.year),
       note: `${reason}; used the monthly price`,
     };
   }
@@ -94,7 +88,7 @@ export function priceForMonth(
       granularity: "month",
       effective,
       points: 1,
-      source: monthlySource(year),
+      source: monthlySeriesSource(year),
       note: notLoaded ? `monthly series value; ${NOT_LOADED}` : "monthly series value",
     };
   }
@@ -124,7 +118,7 @@ export function priceForYear(table: GoldTable, year: number, today: CivilDate): 
       granularity: "year",
       effective: pad(year, 4),
       points: months.length,
-      source: monthlySource(year),
+      source: monthlySeriesSource(year),
       note: notLoaded ? `${base}; ${NOT_LOADED}` : base,
     };
   }

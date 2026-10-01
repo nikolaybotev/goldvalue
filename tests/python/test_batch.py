@@ -9,7 +9,8 @@ import pytest
 
 FR15 = ["date", "amount", "currency", "label"]
 COMPUTED = ["effective", "gold_usd_per_oz", "troy_oz", "GB", "GBD", "USD", "price_source",
-            "granularity", "note", "fx_rate", "fx_effective", "fx_mode", "fx_note"]
+            "granularity", "note", "fx_rate", "fx_effective", "fx_mode", "fx_note",
+            "gold_mode", "ma_years", "ma_months", "spot_usd_per_oz"]
 
 
 def run(gv, capsys, tmp_path, text, *extra, name="in.csv", newline="\n", encoding="utf-8"):
@@ -43,6 +44,8 @@ def test_schema_and_order_with_label_and_passthrough(gv, capsys, tmp_path, cache
     assert r["granularity"] == "day"
     assert r["note"] == "LBMA fix on the requested date"
     assert [r[k] for k in ("fx_rate", "fx_effective", "fx_mode", "fx_note")] == ["", "", "", ""]
+    assert r["gold_mode"] == "spot" and r["ma_years"] == "" and r["ma_months"] == ""
+    assert r["spot_usd_per_oz"] == r["gold_usd_per_oz"] == "850.0000"
 
 
 def test_label_column_is_always_present_and_empty_when_absent(gv, capsys, tmp_path, cache_dir):
@@ -101,8 +104,9 @@ def test_non_usd_unit_is_reported_in_currency_column(gv, capsys, tmp_path, cache
 
 def test_computed_columns_in_input_are_ignored(gv, capsys, tmp_path, cache_dir):
     text = ("date,amount,currency,label,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,"
-            "price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note\n"
-            "1980-01-21,850,USD,l,BOGUS,1,2,3,4,999999,S,G,N,1,2,3,4\n")
+            "price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note,"
+            "gold_mode,ma_years,ma_months,spot_usd_per_oz\n"
+            "1980-01-21,850,USD,l,BOGUS,1,2,3,4,999999,S,G,N,1,2,3,4,partial,99,1,1\n")
     out, _ = run(gv, capsys, tmp_path, text)
     header, rows = parse(out)
     assert header == [*FR15, *COMPUTED]
@@ -110,6 +114,8 @@ def test_computed_columns_in_input_are_ignored(gv, capsys, tmp_path, cache_dir):
     assert r["amount"] == "850" and r["label"] == "l"
     assert r["effective"] == "1980-01-21" and r["USD"] == "850.00"
     assert r["price_source"] == "LBMA" and r["fx_rate"] == ""
+    assert r["gold_mode"] == "spot" and r["ma_years"] == "" and r["ma_months"] == ""
+    assert r["spot_usd_per_oz"] == "850.0000"
 
 
 def test_usd_is_amount_alias_unless_header_is_an_export(gv, capsys, tmp_path, cache_dir):

@@ -99,7 +99,15 @@
     {"family": "date-forms", "name": "lenient 2024-6-3", "amount": 1000, "date": "2024-6-3"},
     {"family": "date-forms", "name": "lenient 6/3/2024", "amount": 1000, "date": "6/3/2024"},
     {"family": "date-forms", "name": "lenient 'JUNE 3, 2024'", "amount": 1000, "date": "JUNE 3, 2024"},
-    {"family": "date-forms", "name": "lenient '  2024-06  '", "amount": 1000, "date": "  2024-06  "}
+    {"family": "date-forms", "name": "lenient '  2024-06  '", "amount": 1000, "date": "  2024-06  "},
+    {"family": "smoothed", "name": "2018-12 10y", "amount": 80000, "date": "2018-12", "smooth": "10y"},
+    {"family": "smoothed", "name": "2026-09 10y", "amount": 1000, "date": "2026-09", "smooth": "10y"},
+    {"family": "smoothed", "name": "2018 year 10y", "amount": 80000, "date": "2018", "smooth": "10y"},
+    {"family": "smoothed", "name": "1836 10y partial", "amount": 1000, "date": "1836", "smooth": "10y"},
+    {"family": "smoothed", "name": "2018-12 5y", "amount": 80000, "date": "2018-12", "smooth": "5y"},
+    {"family": "smoothed", "name": "2018-12 20y", "amount": 80000, "date": "2018-12", "smooth": "20y"},
+    {"family": "smoothed", "name": "negative 2018-12 10y", "amount": -5000, "date": "2018-12", "smooth": "10y"},
+    {"family": "smoothed", "name": "1968-12 10y mixed", "amount": 1000, "date": "1968-12", "smooth": "10y"}
   ],
   "dates": [
     "2024",
