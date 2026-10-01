@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Implements | [spec.md](spec.md) Draft 1 |
-| Status | Draft 1 — for approval with the spec. Do not start until Q1–Q3 are answered. |
+| Implements | [spec.md](spec.md) Draft 2 |
+| Status | Draft 2 — aligned to the spec review; plan review still to come |
 | Stage | 2 · Design |
 
 Each phase is one PR onto `main`. Spec wins over this plan. Python stays the
@@ -17,14 +17,17 @@ Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `tests/pytho
 
 1. Monthly gold series helper: for each month, the v1 month price (mean of
    daily fixes from 1968, monthly-file value before). Cache it on `GoldTable`.
-2. `--smooth 5y|10y|20y`. Window is N×12 months ending at the requested
-   period's last month (D17). Mean of those monthly prices. Partial history
-   uses what exists and says so (D18).
+2. `--smooth 5y|10y|20y`, valid only with `--from USD` (error otherwise).
+   Window is N×12 months ending at the snapshot month (D17). Full months
+   except the last, which clips to the snapshot day. Skip missing months;
+   `gold_mode=partial` when fewer than N×12 months are priced (before
+   1842-12 for 10y). `--price-only` prints the mean and the note.
 3. Output: `gold_mode`, `ma_years`, `ma_months`, `spot_usd_per_oz`; when
    smoothing, `gold_usd_per_oz` is the average and `note` names the window and
    the first/last month. `--json`, text, and `--batch` (FR26 columns).
-4. Vectors: 2018-12 and a late fixture date at 10y; one year query; 1970 at
-   10y (partial); same date at 5y and 20y. Regenerate via `test-vectors/regenerate.py`.
+4. Vectors: 2018-12 and a late fixture date at 10y; one year query; 1836 at
+   10y (partial); same date at 5y and 20y; one negative amount. Regenerate
+   via `test-vectors/regenerate.py`.
 
 DoD: `pytest tests/python -q` green; vector diff clean.
 
@@ -36,11 +39,9 @@ The skill ships in the same PR as the CLI. It is a first-class surface
 Files: `.agents/skills/gold-value-normalizer/SKILL.md`, `reference.md`,
 `AGENTS.md`.
 
-1. Rewrite `description` so it triggers on both questions: the existing
-   spot comparisons, and the long-horizon ones ("store of value", "smoothed",
-   "moving average", "how does this price measure up over 10/20 years").
-   The description is 1001 characters today; the cap is 1024, so replace
-   phrases rather than append. Count it.
+1. Replace `description` with the 494-character text in spec FR29. Do not
+   edit it further without rechecking the count. The current value is 1001
+   characters; the cap is 1024.
 2. Body: a short "Which question" section. Spot (no flag) answers "what if I
    had bought gold that day". `--smooth 10y` (or `5y` / `20y`) answers the
    long-horizon gauge. The agent names the window, reports the averaged price,
