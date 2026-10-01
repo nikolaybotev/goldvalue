@@ -1,4 +1,4 @@
-date,amount,currency,label,Region,Extra,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note
-2018-12,100,USD,,north,x,2018-12,1316.4832,0.075960,75.960,3.7980,100.00,LBMA,month,average of 19 LBMA daily fixes,,,,
+date,amount,currency,label,Region,Extra,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note,gold_mode,ma_years,ma_months,spot_usd_per_oz
+2018-12,100,USD,,north,x,2018-12,1316.4832,0.075960,75.960,3.7980,100.00,LBMA,month,average of 19 LBMA daily fixes,,,,,spot,,,1316.4832
 1975,"2,500.50",USD,,,"multi
-line",1975,153.0403,16.338828,16338.828,816.9414,2500.50,LBMA,year,average of 258 LBMA daily fixes,,,,
+line",1975,153.0403,16.338828,16338.828,816.9414,2500.50,LBMA,year,average of 258 LBMA daily fixes,,,,,spot,,,153.0403

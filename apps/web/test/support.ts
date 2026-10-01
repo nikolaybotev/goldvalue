@@ -20,7 +20,14 @@ export function fixtureTable(daily = true): GoldTable {
 export interface Vector {
   name: string;
   family: string;
-  input: { amount: number; currency: string; date: string; from: string; today: string };
+  input: {
+    amount: number;
+    currency: string;
+    date: string;
+    from: string;
+    today: string;
+    smooth?: string;
+  };
   expected: {
     effective: string;
     granularity: string;

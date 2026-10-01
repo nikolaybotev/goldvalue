@@ -21,6 +21,10 @@ Non-USD amounts convert to USD first (USD-routing tenet), then to gold. Before a
 currency's first BIS observation a Bretton Woods parity table applies; every FX value
 that is not a daily observation carries an fx_mode flag and an explanatory fx_note.
 
+`--smooth 5y|10y|20y` (only with `--from USD`, with or without `--currency`) replaces
+the gold price with a trailing equal-month mean. FX stays the spot rate for the period.
+`gold_mode` is `spot`, `smoothed`, or `partial`.
+
 Only the Python standard library is required.
 
 Test hooks (environment)
@@ -72,9 +76,11 @@ FX_STALE_DAYS = 3
 FX_MAX_GZ_BYTES = 110_000
 
 FX_KEYS = ("fx_rate", "fx_effective", "fx_mode", "fx_note")
-# Computed export columns (spec FR15). Ignored when found in a batch input file.
+# Appended after fx_note (spec FR26). Empty ma_* in spot mode. Ignored on import.
+GAUGE_KEYS = ("gold_mode", "ma_years", "ma_months", "spot_usd_per_oz")
+# Computed export columns (spec FR15 + FR26). Ignored when found in a batch input file.
 COMPUTED_COLUMNS = ("effective", "gold_usd_per_oz", "troy_oz", "GB", "GBD", "USD",
-                    "price_source", "granularity", "note", *FX_KEYS)
+                    "price_source", "granularity", "note", *FX_KEYS, *GAUGE_KEYS)
 BATCH_FIXED_COLUMNS = ("date", "amount", "currency", "label")
 
 UNIT_ALIASES = {
@@ -270,7 +276,25 @@ class GoldTable:
         self.lbma_path, self.monthly_path = lbma_path, monthly_path
         self.daily: dict[dt.date, float] = {}
         self.monthly: dict[tuple[int, int], float] = {}
+        # Full-month means, separate from `monthly`. A clipped last month is computed
+        # per query and is never stored here as that month's only price.
+        self.month_price: dict[tuple[int, int], tuple[float, str]] = {}
+        self.series_start: tuple[int, int] | None = None
         self._load()
+
+    @classmethod
+    def from_entries(cls, daily: dict[dt.date, float],
+                     monthly: dict[tuple[int, int], float]) -> GoldTable:
+        """Build a table from in-memory prices (tests). Does not read the fixture."""
+        self = cls.__new__(cls)
+        self.lbma_path = None
+        self.monthly_path = None
+        self.daily = dict(daily)
+        self.monthly = dict(monthly)
+        self.month_price = {}
+        self.series_start = None
+        self._index_month_prices()
+        return self
 
     def _load(self) -> None:
         self.daily.clear()
@@ -284,6 +308,24 @@ class GoldTable:
             for r in csv.DictReader(fh):
                 y, m = r["month"].split("-")
                 self.monthly[(int(y), int(m))] = float(r["usd"])
+        self._index_month_prices()
+
+    def _index_month_prices(self) -> None:
+        """Full-month means: daily fmean when the month has fixes, else the file value.
+
+        Does not write into `self.monthly`.
+        """
+        buckets: dict[tuple[int, int], list[float]] = {}
+        for day in sorted(self.daily):
+            buckets.setdefault((day.year, day.month), []).append(self.daily[day])
+        prices: dict[tuple[int, int], tuple[float, str]] = {}
+        for key, values in buckets.items():
+            prices[key] = (statistics.fmean(values), "LBMA")
+        for key, price in self.monthly.items():
+            if key not in prices:
+                prices[key] = (price, self._monthly_source(key[0]))
+        self.month_price = prices
+        self.series_start = min(prices) if prices else None
 
     @property
     def last_daily(self) -> dt.date:
@@ -669,6 +711,13 @@ def parse_currency(text: str) -> str:
     return key
 
 
+def parse_smooth(text: str) -> int:
+    match = re.fullmatch(r"(5|10|20)y", text.strip(), re.IGNORECASE)
+    if not match:
+        raise argparse.ArgumentTypeError("--smooth must be 5y, 10y, or 20y")
+    return int(match.group(1))
+
+
 def parse_unit(text: str) -> str:
     key = text.strip().lower().replace(" ", "")
     if key not in UNIT_ALIASES:
@@ -698,16 +747,126 @@ def resolve(table: GoldTable, kind: str, anchor: dt.date,
     return table.price_for_year(anchor.year, today)
 
 
+def _shift_month(year: int, month: int, delta: int) -> tuple[int, int]:
+    index = year * 12 + (month - 1) + delta
+    return index // 12, index % 12 + 1
+
+
+def _fmt_month(year: int, month: int) -> str:
+    return f"{year}-{month:02d}"
+
+
+def window_end_month(kind: str, anchor: dt.date, today: dt.date) -> tuple[int, int]:
+    """Month that closes the trailing window (D17).
+
+    A day uses that day's month. A month uses that month. A completed year uses
+    December. A year still in progress uses the current month.
+    """
+    if kind == "year":
+        if anchor.year == today.year:
+            return today.year, today.month
+        return anchor.year, 12
+    return anchor.year, anchor.month
+
+
+def _month_for_window(table: GoldTable, key: tuple[int, int],
+                      cutoff: dt.date | None) -> tuple[float, str, bool] | None:
+    """Price for one window month: (price, source, clipped) or None if missing.
+
+    `cutoff` is set only for the last month, and only when the snapshot day falls
+    in that month. The clipped mean is computed here and not stored on the table.
+    """
+    if cutoff is not None:
+        fixes = sorted((d, p) for d, p in table.daily.items()
+                       if (d.year, d.month) == key)
+        on_or_before = [p for d, p in fixes if d <= cutoff]
+        if on_or_before:
+            return statistics.fmean(on_or_before), "LBMA", len(on_or_before) < len(fixes)
+        if fixes:
+            # Later fixes exist, but none on or before the snapshot day. Using the
+            # full month would let a price after the snapshot into the mean.
+            return None
+    quote = table.month_price.get(key)
+    if quote is None:
+        return None
+    return quote[0], quote[1], False
+
+
+def trailing_average(table: GoldTable, kind: str, anchor: dt.date, today: dt.date,
+                     years: int) -> dict:
+    """Equal-month trailing mean of N×12 months ending at the snapshot's month.
+
+    Missing months are skipped. Zero priced months is an error. Python does not
+    append "daily LBMA prices not loaded" (the daily file is always present).
+    Does not mutate `table.monthly` or `table.month_price`.
+    """
+    if years not in (5, 10, 20):
+        raise ValueError("--smooth must be 5y, 10y, or 20y")
+    end = window_end_month(kind, anchor, today)
+    count = years * 12
+    start = _shift_month(end[0], end[1], -(count - 1))
+    snapshot = anchor if kind == "day" else None
+    clip = snapshot is not None and (snapshot.year, snapshot.month) == end
+    cutoff = min(snapshot, today) if clip and snapshot is not None else None
+
+    used: list[tuple[tuple[int, int], float, str]] = []
+    missing: list[tuple[int, int]] = []
+    clipped = False
+    year, month = start
+    for _ in range(count):
+        key = (year, month)
+        got = _month_for_window(table, key, cutoff if key == end else None)
+        if got is None:
+            if table.series_start is not None and key >= table.series_start:
+                missing.append(key)
+        else:
+            price, source, was_clipped = got
+            used.append((key, price, source))
+            clipped = clipped or was_clipped
+        year, month = _shift_month(year, month, 1)
+
+    if not used:
+        raise LookupError(
+            f"no gold price data for the {years}-year span ending {_fmt_month(*end)}")
+
+    mean = statistics.fmean([price for _, price, _ in used])
+    sources = {source for _, _, source in used}
+    source = sources.pop() if len(sources) == 1 else "mixed"
+    unit = "month" if len(used) == 1 else "months"
+    note = (f"{years}-year average; {len(used)} {unit}, "
+            f"{_fmt_month(*used[0][0])} to {_fmt_month(*used[-1][0])}")
+    if clipped:
+        note += " (month to date)"
+    if table.series_start is not None and start < table.series_start:
+        note += f"; series starts {_fmt_month(*table.series_start)}"
+    if missing:
+        note += "; missing " + ", ".join(_fmt_month(*key) for key in missing)
+    # Partial when fewer than N×12 months had a price: series start (5y before
+    # 1837-12, 10y before 1842-12, 20y before 1852-12) or a hole.
+    mode = "smoothed" if len(used) == count else "partial"
+    return {"price": mean, "source": source, "note": note, "gold_mode": mode,
+            "ma_years": years, "ma_months": len(used)}
+
+
 def convert(table: GoldTable, amount: float, src_unit: str, kind: str, anchor: dt.date,
             today: dt.date | None = None, currency: str = "USD",
-            fx: FxRates | None = None) -> dict:
+            fx: FxRates | None = None, smooth: int | None = None) -> dict:
     """Resolve the price (and FX) and convert; the result is the `--json` payload.
 
     A non-USD `currency` (only with src_unit USD) is converted to USD at the FX rate
-    for the same period first (USD-routing tenet), then to gold.
+    for the same period first (USD-routing tenet), then to gold. `smooth` (5, 10, or
+    20) divides by the trailing monthly mean instead of the spot price. FX is not
+    averaged. Negative amounts keep their sign. `effective`, `granularity`, and
+    `points` stay the spot resolution.
     """
+    today = today or today_date()
+    if smooth and src_unit != "USD":
+        raise ValueError("--smooth is only valid with --from USD")
+    gauge = trailing_average(table, kind, anchor, today, smooth) if smooth else None
     info = resolve(table, kind, anchor, today)
-    price = info["price"]
+    price = gauge["price"] if gauge else info["price"]
+    note = gauge["note"] if gauge else info["note"]
+    source = gauge["source"] if gauge else info["source"]
     fx_out = {k: None for k in FX_KEYS}
     usd_amount = amount
     if currency != "USD":
@@ -726,10 +885,14 @@ def convert(table: GoldTable, amount: float, src_unit: str, kind: str, anchor: d
                   "period": info["effective"], "granularity": info["granularity"]},
         "effective": info["effective"], "granularity": info["granularity"],
         "points": info["points"], "gold_usd_per_oz": price,
-        "price_source": info["source"], "note": info["note"],
+        "price_source": source, "note": note,
         "troy_oz": oz, "GB": out["GB"], "GBD": out["GBD"], "USD": out["USD"],
         **fx_out,
-        "price_note": info["note"], "price_points": info["points"],
+        "gold_mode": gauge["gold_mode"] if gauge else "spot",
+        "ma_years": gauge["ma_years"] if gauge else None,
+        "ma_months": gauge["ma_months"] if gauge else None,
+        "spot_usd_per_oz": info["price"],
+        "price_note": note, "price_points": info["points"],
     }
 
 
@@ -794,7 +957,8 @@ def _field(row: list[str], idx: int | None) -> str:
 
 
 def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path,
-              currency: str = "USD", fx: FxRates | None = None) -> int:
+              currency: str = "USD", fx: FxRates | None = None,
+              smooth: int | None = None) -> int:
     """Read CSV rows of date,amount and emit one CSV row per input (spec FR15 schema)."""
     try:
         fh = (sys.stdin if path == "-"
@@ -836,7 +1000,7 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path,
     w.writerow([*BATCH_FIXED_COLUMNS, *(name for name, _ in extra), *COMPUTED_COLUMNS])
     for (kind, anchor), amount, r in parsed:
         try:
-            res = convert(table, amount, src_unit, kind, anchor, today, currency, fx)
+            res = convert(table, amount, src_unit, kind, anchor, today, currency, fx, smooth)
         except LookupError as exc:
             print(f"warning: {exc}; row skipped", file=sys.stderr)
             continue
@@ -851,6 +1015,10 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path,
             "" if res["fx_rate"] is None else fixed(res["fx_rate"], 6),
             *[("" if res[k] is None else res[k])
               for k in ("fx_effective", "fx_mode", "fx_note")],
+            res["gold_mode"],
+            "" if res["ma_years"] is None else str(res["ma_years"]),
+            "" if res["ma_months"] is None else str(res["ma_months"]),
+            fixed(res["spot_usd_per_oz"], 4),
         ])
     return 0
 
@@ -859,7 +1027,7 @@ def run_batch(path: str, src_unit: str, lbma_path: Path, monthly_path: Path,
 
 VECTOR_DEFAULTS = {"from": "USD", "currency": "USD"}
 VECTOR_FIELDS = ("effective", "granularity", "points", "gold_usd_per_oz", "price_source",
-                 "note", "troy_oz", "GB", "GBD", "USD", *FX_KEYS)
+                 "note", "troy_oz", "GB", "GBD", "USD", *FX_KEYS, *GAUGE_KEYS)
 
 
 def _case_today(case: dict, defaults: dict) -> dt.date:
@@ -909,14 +1077,19 @@ def run_vectors(cases_path: str, vectors_out: str | None, dates_out: str | None,
                 amount = parse_amount(str(case["amount"]))
                 kind, anchor = parse_period(case["date"], today)
                 check_not_future(anchor, case["date"], today)
-                res = convert(table, amount, unit, kind, anchor, today, currency, fx)
+                smooth_text = case.get("smooth")
+                smooth = parse_smooth(str(smooth_text)) if smooth_text else None
+                res = convert(table, amount, unit, kind, anchor, today, currency, fx, smooth)
             except (argparse.ArgumentTypeError, LookupError, KeyError, ValueError) as exc:
                 sys.exit(f"error: vector {name!r}: {exc}")
+            recorded = {"amount": amount, "date": case["date"], "from": unit,
+                        "currency": currency, "today": str(today)}
+            if smooth is not None:
+                recorded["smooth"] = f"{smooth}y"
             vectors.append({
                 "name": name,
                 "family": case.get("family", ""),
-                "input": {"amount": amount, "date": case["date"], "from": unit,
-                          "currency": currency, "today": str(today)},
+                "input": recorded,
                 "expected": {k: res[k] for k in VECTOR_FIELDS},
             })
         write_json(vectors_out, vectors)
@@ -956,6 +1129,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="currency of AMOUNT (and of --batch rows): USD (default), EUR, GBP, "
                          "CHF, DEM; converted to USD at the historical FX rate first "
                          "(needs --from USD)")
+    ap.add_argument("--smooth", type=parse_smooth, default=None, metavar="Ny",
+                    help="trailing mean of monthly gold prices over 5y, 10y, or 20y "
+                         "(only with --from USD; FX stays the spot rate; applies to "
+                         "one query and to every --batch row)")
     ap.add_argument("--to", dest="dst_unit", type=parse_unit, default=None,
                     help="restrict output to one unit (GB, GBD, USD, OZ)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
@@ -985,6 +1162,8 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("--currency EUR|GBP|CHF|DEM is only valid with --from USD")
     if args.currency != "USD" and args.price_only:
         ap.error("--currency does not apply to --price-only")
+    if args.smooth is not None and args.src_unit != "USD":
+        ap.error("--smooth is only valid with --from USD")
 
     lbma_path, monthly_path = ensure_cache(force=args.refresh, quiet=args.json)
     if generating:
@@ -997,7 +1176,7 @@ def main(argv: list[str] | None = None) -> int:
     fx = FxRates(fx_paths) if args.currency != "USD" else None
     if args.batch:
         return run_batch(args.batch, args.src_unit, lbma_path, monthly_path,
-                         args.currency, fx)
+                         args.currency, fx, args.smooth)
     today = today_date()
     try:
         if args.price_only:
@@ -1022,14 +1201,32 @@ def main(argv: list[str] | None = None) -> int:
         fx.ensure_covers(anchor)
     try:
         if args.price_only:
+            gauge = (trailing_average(table, kind, anchor, today, args.smooth)
+                     if args.smooth else None)
             info = resolve(table, kind, anchor, today)
         else:
             res = convert(table, args.amount, args.src_unit, kind, anchor, today,
-                          args.currency, fx)
+                          args.currency, fx, args.smooth)
     except LookupError as exc:
         sys.exit(f"error: {exc}")
 
     if args.price_only:
+        if gauge:
+            price = gauge["price"]
+            if args.json:
+                print(json.dumps({
+                    "gold_usd_per_oz": price, "price_source": gauge["source"],
+                    "price": price, "source": gauge["source"],
+                    "granularity": info["granularity"], "effective": info["effective"],
+                    "points": info["points"], "note": gauge["note"],
+                    "gold_mode": gauge["gold_mode"], "ma_years": gauge["ma_years"],
+                    "ma_months": gauge["ma_months"], "spot_usd_per_oz": info["price"],
+                }, indent=2))
+            else:
+                print(f"Gold price for {info['effective']}: ${fmt_money(price)}/troy oz "
+                      f"[{gauge['source']}; gold_mode: {gauge['gold_mode']}; "
+                      f"granularity: {info['granularity']}; {gauge['note']}]")
+            return 0
         price = info["price"]
         if args.json:
             print(json.dumps({"gold_usd_per_oz": price, "price_source": info["source"],
@@ -1052,6 +1249,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{src_label[args.src_unit]} on {res['effective']} "
           f"@ ${fmt_money(price)}/troy oz [{res['price_source']}]")
     print(f"  granularity: {res['granularity']}; note: {res['note']}")
+    ma_years = "" if res["ma_years"] is None else str(res["ma_years"])
+    ma_months = "" if res["ma_months"] is None else str(res["ma_months"])
+    print(f"  gold_mode: {res['gold_mode']}; ma_years: {ma_years}; ma_months: {ma_months}; "
+          f"spot_usd_per_oz: ${fmt_money(res['spot_usd_per_oz'])}")
     if res["fx_mode"] is not None:
         print(f"  fx: 1 {args.currency} = ${res['fx_rate']:.6f} USD "
               f"(effective {res['fx_effective']}; fx_mode: {res['fx_mode']})")

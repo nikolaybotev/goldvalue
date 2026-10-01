@@ -21,11 +21,11 @@ REQUIRED_FAMILIES = {
     "annual-pre1960", "monthly-pre1968", "am-only-1968", "london-closure-boundary",
     "weekend-holiday-rollback", "month-and-year-means", "to-date-pinned-year",
     "after-latest-fix", "units-from", "negative-and-edge-amounts", "date-forms",
-    "missing-single-fix",
+    "missing-single-fix", "smoothed",
 }
 EXPECTED_KEYS = {"effective", "granularity", "points", "gold_usd_per_oz", "price_source",
                  "note", "troy_oz", "GB", "GBD", "USD", "fx_rate", "fx_effective", "fx_mode",
-                 "fx_note"}
+                 "fx_note", "gold_mode", "ma_years", "ma_months", "spot_usd_per_oz"}
 
 
 def load_module(path: Path, name: str):
@@ -124,12 +124,22 @@ def test_vector_file_format():
     assert text == json.dumps(vectors, sort_keys=True, indent=2) + "\n"
     assert {v["family"] for v in vectors} >= REQUIRED_FAMILIES
     for v in vectors:
-        assert set(v["input"]) == {"amount", "date", "from", "currency", "today"}
+        assert set(v["input"]) <= {"amount", "date", "from", "currency", "today", "smooth"}
+        assert {"amount", "date", "from", "currency", "today"} <= set(v["input"])
         assert v["input"]["currency"] == "USD"
         assert v["input"]["from"] in ("USD", "GB", "GBD", "OZ")
         assert set(v["expected"]) == EXPECTED_KEYS
         assert v["input"]["date"].strip().lower() not in ("today", "now", "latest")
         assert v["expected"]["fx_rate"] is None and v["expected"]["fx_mode"] is None
+        if v["family"] == "smoothed":
+            assert v["input"]["smooth"] in ("5y", "10y", "20y")
+            assert v["expected"]["gold_mode"] in ("smoothed", "partial")
+            assert v["expected"]["ma_years"] in (5, 10, 20)
+        else:
+            assert "smooth" not in v["input"]
+            assert v["expected"]["gold_mode"] == "spot"
+            assert v["expected"]["ma_years"] is None and v["expected"]["ma_months"] is None
+            assert v["expected"]["spot_usd_per_oz"] == v["expected"]["gold_usd_per_oz"]
 
 
 def test_vectors_cover_spec_families_and_boundaries():
@@ -148,6 +158,21 @@ def test_vectors_cover_spec_families_and_boundaries():
     assert by_name["1955 year"]["granularity"] == "year"
     assert by_name["1965-06 month"]["granularity"] == "month"
     assert by_name["-5000 USD"]["GB"] < 0
+    assert by_name["2018-12 10y"]["note"] == "10-year average; 120 months, 2009-01 to 2018-12"
+    assert by_name["2018-12 10y"]["gold_mode"] == "smoothed"
+    assert by_name["2026-09 10y"]["note"] == "10-year average; 120 months, 2016-10 to 2026-09"
+    assert by_name["1836 10y partial"]["gold_mode"] == "partial"
+    assert by_name["1836 10y partial"]["note"] == (
+        "10-year average; 48 months, 1833-01 to 1836-12; series starts 1833-01")
+    assert by_name["1836 10y partial"]["ma_years"] == 10
+    assert by_name["1836 10y partial"]["ma_months"] == 48
+    assert by_name["2018-12 5y"]["ma_years"] == 5 and by_name["2018-12 20y"]["ma_years"] == 20
+    assert by_name["2018-12 5y"]["gold_mode"] == "smoothed"
+    assert by_name["2018-12 20y"]["gold_mode"] == "smoothed"
+    assert by_name["negative 2018-12 10y"]["GB"] < 0
+    assert by_name["negative 2018-12 10y"]["ma_months"] == 120
+    assert by_name["1968-12 10y mixed"]["price_source"] == "mixed"
+    assert by_name["1968-12 10y mixed"]["gold_mode"] == "smoothed"
 
 
 def test_vectors_units_are_consistent():
@@ -223,6 +248,9 @@ def test_fx_vector_file_format():
     for v in vectors:
         assert set(v["input"]) == {"amount", "date", "from", "currency", "today"}
         assert v["input"]["from"] == "USD"
+        assert v["expected"]["gold_mode"] == "spot"
+        assert v["expected"]["ma_years"] is None and v["expected"]["ma_months"] is None
+        assert v["expected"]["spot_usd_per_oz"] == v["expected"]["gold_usd_per_oz"]
         assert v["input"]["currency"] in ("EUR", "GBP", "CHF", "DEM")
         assert set(v["expected"]) == EXPECTED_KEYS
         e = v["expected"]

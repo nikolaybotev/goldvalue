@@ -8,5 +8,6 @@ export * from "./fx";
 export * from "./lbma";
 export * from "./parity";
 export * from "./resolve";
+export * from "./smooth";
 export * from "./table";
 export * from "./units";

@@ -1,11 +1,29 @@
 ---
 name: gold-value-normalizer
-description: Compare or normalize US dollar amounts from different dates by converting them into gold-denominated real-value units - goldbacks (GB, 1/1000 troy oz) or gold-backed dollars (GBD, fixed at 50 GBD per troy oz) - using the historical USD gold price for that day, month, or year. Also converts GB/GBD/oz back to USD. Use whenever the user compares dollar figures across time ("how does $80K in 2018 compare to $200K today?", "what is $X from YEAR worth now?", "is $Y today more than $Z was in YEAR?"), asks about real value, purchasing power, or inflation-adjusted equivalents of a dated dollar amount, wants a time series, table, or chart of dollar prices, wages, or amounts re-denominated in gold (or "inflation-adjusted" via gold) over time, or mentions goldbacks, GB, GBD, gold-backed dollars, "in gold terms", or "priced in gold". Also converts EUR, GBP, CHF, and DEM amounts via USD using historical BIS FX. Sources: LBMA (daily, 1968+), World Bank / NMA (monthly), BIS (FX), cached locally as CSV.
+description: Compare dated amounts in gold units (GB = 1/1000 troy oz, GBD = 50 per oz). Spot (no --smooth) answers 'what if I had bought gold that day' and 'convert this timeline to goldbacks'. Use --smooth 10y (or 5y/20y) for 'how does $80K in 2018 compare to $200K today?', how a price measures up over 10-20 years, a store of value, or a moving average; name the window and say it is not CPI. Also converts EUR, GBP, CHF, and DEM via historical USD FX. Sources: LBMA, World Bank/NMA, BIS; cached as CSV.
 ---
 
 # Gold Value Normalizer
 
 Convert dated USD amounts into gold units so values from different eras are comparable.
+
+## Which question
+
+Classify the question before choosing a flag. Name the window when you smooth. Do not switch to the average for a spot question.
+
+Spot (no `--smooth`):
+
+- "What if I had bought gold that day"
+- "convert this timeline to goldbacks"
+
+`--smooth 10y` (or `5y` / `20y` when the user names that window):
+
+- "Store of value"
+- "moving average"
+- "how does this price measure up over 10–20 years"
+- "how does $80K in 2018 compare to $200K today?"
+
+The average is not a consumer-price index and not a claim that gold tracks inflation.
 
 ## Units
 
@@ -22,13 +40,14 @@ Convert dated USD amounts into gold units so values from different eras are comp
 Execute `scripts/goldvalue.py` (Python 3.9+, standard library only). First run downloads and caches the price tables; later runs are offline.
 
 ```bash
-python3 scripts/goldvalue.py AMOUNT DATE [--from USD|GB|GBD|OZ] [--currency USD|EUR|GBP|CHF|DEM] [--to GB|GBD|OZ|USD] [--json]
+python3 scripts/goldvalue.py AMOUNT DATE [--from USD|GB|GBD|OZ] [--currency USD|EUR|GBP|CHF|DEM] [--smooth 5y|10y|20y] [--to GB|GBD|OZ|USD] [--json]
 ```
 
 - `AMOUNT`: plain decimals such as `1500`, `$1,500`, `1,500.50`, `2.5`; negative is allowed (put `--` before it if it contains a comma or `$`, e.g. `-- -1,500`). Exponent forms (`1e3`), `nan`, and `inf` are rejected.
 - `DATE`: year `1975`; month `1975-03`, `03/1975`, `1975/03`, `"Mar 1975"`, `"March 1975"`; day `1975-03-14`, `03/14/1975`, `"14 March 1975"`, `"14 Mar 1975"`, `"March 14, 1975"`, `"Mar 14, 1975"`; or `today` / `now` / `latest`. A period that starts after today is rejected ("date is in the future").
 - `--from` defaults to `USD`; use `--from GB` / `--from GBD` to convert back to dollars
 - `--currency` is the currency of `AMOUNT` (default `USD`; `EUR`, `GBP`, `CHF`, `DEM`, case-insensitive). It is converted to USD at the historical FX rate first, then to gold; it needs `--from USD` (an error otherwise) and does not apply to `--price-only`. See "Other currencies" below
+- `--smooth 5y|10y|20y` divides by a trailing average of monthly gold prices (default is spot, no flag). It is valid only with `--from USD`. `--currency` is still allowed; FX stays the spot rate for that period, not an average. One flag covers a whole `--batch`. `--price-only --smooth 10y DATE` prints the mean and the window note
 - `--to` limits output to one unit; omit to print GB, GBD, and oz together
 - `--json` for structured output (keys below); `--price-only DATE` prints just the resolved gold price
 - `--fetch-only` prefetches the gold and FX caches; `--refresh` forces a re-download; `--no-refresh` (or `GOLDVALUE_OFFLINE=1`) never uses the network
@@ -44,6 +63,8 @@ python3 scripts/goldvalue.py 250000 2000 --to GBD  # only GBD
 python3 scripts/goldvalue.py 100 2024-06-03 --from GB   # 100 goldbacks -> USD
 python3 scripts/goldvalue.py 250000 2005-06 --currency EUR   # euros -> USD -> gold
 python3 scripts/goldvalue.py 1000 1950-06 --currency GBP     # pre-1953: flagged parity rate
+python3 scripts/goldvalue.py 80000 2018-12 --smooth 10y      # 10-year gold gauge
+python3 scripts/goldvalue.py 1000 1836 --smooth 10y          # partial: series starts 1833-01
 ```
 
 ## JSON output
@@ -59,6 +80,9 @@ python3 scripts/goldvalue.py 1000 1950-06 --currency GBP     # pre-1953: flagged
 | `price_source`, `note` | Source label and the human-readable resolution note |
 | `troy_oz`, `GB`, `GBD`, `USD` | The converted amount in every unit |
 | `fx_rate`, `fx_effective`, `fx_mode`, `fx_note` | USD per one unit of `--currency`, the date or period it came from, how it was obtained (`daily`, `synthetic`, `parity`, `extrapolated`), and the explanation (empty when nothing needs saying). All `null` for USD amounts |
+| `gold_mode` | `spot`, `smoothed` (a full N×12 window), or `partial` (fewer priced months) |
+| `ma_years`, `ma_months` | `5`, `10`, or `20`, and how many months entered the mean. Both `null` in spot mode |
+| `spot_usd_per_oz` | The v1 spot price. In spot mode it equals `gold_usd_per_oz`. When smoothing, `gold_usd_per_oz` is the mean and this stays the spot price |
 
 `input` (amount, unit, currency, period, granularity), `price_note`, and `price_points` are older aliases kept for compatibility.
 
@@ -72,7 +96,7 @@ python3 scripts/goldvalue.py --batch series.csv > series_gold.csv   # or --batch
 
 Input header detection is case-insensitive: the date column is the first of `date`, `period`, `month`, `year`; the amount column is the first of `amount`, `usd`, `value`, `price`. A `label` column is optional. Columns produced by the batch output (`effective`, `troy_oz`, `GB`, ...) and `currency` are ignored on input, so an output file can be fed back in unchanged. If a header name repeats (case-insensitively) the first column wins; passthrough columns named like an output column are dropped.
 
-Output columns, in order: `date, amount, currency, label, <passthrough...>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`. `amount` echoes the input text; `currency` is `USD` (or the `--from` unit code, or the `--currency` code such as `EUR`); `label` is empty when the input has none; `fx_*` are empty for USD rows. `fx_rate` has 6 decimals. `--currency` applies to every row of the file (an imported `currency` column is ignored and regenerated). Numbers are fixed-point (GB 3 decimals, GBD 4, oz 6, USD 2, price 4), output uses LF line endings. Plot or tabulate `GB` or `GBD` against `date` for the gold-denominated view; keep `amount` alongside if the user wants nominal vs gold.
+Output columns, in order: `date, amount, currency, label, <passthrough...>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note, gold_mode, ma_years, ma_months, spot_usd_per_oz`. `amount` echoes the input text; `currency` is `USD` (or the `--from` unit code, or the `--currency` code such as `EUR`); `label` is empty when the input has none; `fx_*` are empty for USD rows. `fx_rate` has 6 decimals. In spot mode `ma_years` and `ma_months` are empty and `spot_usd_per_oz` matches `gold_usd_per_oz`. `--currency` applies to every row of the file (an imported `currency` column is ignored and regenerated). The four gauge columns are ignored on import. Numbers are fixed-point (GB 3 decimals, GBD 4, oz 6, USD 2, price 4, including `spot_usd_per_oz`), output uses LF line endings. Plot or tabulate `GB` or `GBD` against `date` for the gold-denominated view; keep `amount` alongside if the user wants nominal vs gold.
 
 The batch stops at the first bad line (unparsable date or amount, or a future date) and names the line number. A row with no price data is skipped with a warning.
 
@@ -101,14 +125,21 @@ The script applies these automatically; state which one applied when reporting r
 | Day, before 1968 | Monthly series value for that month (no daily data exists). |
 | Month | Average of all LBMA daily fixes in the month; pre-1968 uses the monthly series value. The current month is month-to-date. |
 | Year | Average of all LBMA daily fixes in the year; pre-1968 averages the 12 monthly values. The current year is year-to-date. |
+| `--smooth Ny` | Trailing mean of N×12 monthly gold prices ending at the snapshot's month. A day uses that month; a month uses that month; a completed year uses December; a year still in progress uses the current month. Every month except the last is the full month. The last month uses fixes on or before the snapshot day only when that day falls in the month, and the note then says "(month to date)". `effective`, `granularity`, and `points` stay the spot resolution. |
 
 Pre-1960 monthly values are annual averages repeated for each month. Before 1971 the dollar was pegged near $35/oz, so early-era conversions are close to fixed ratios.
+
+A full window note is `10-year average; 120 months, 2016-10 to 2026-09`. A partial window (the series starts at 1833-01, or a month is missing) names the months actually used: `10-year average; 48 months, 1833-01 to 1836-12; series starts 1833-01`. `gold_mode` is `partial` then; `ma_years` stays the requested width. `price_source` is the one shared source, or `mixed` when months differ. 5 years is partial before 1837-12, 10 years before 1842-12, 20 years before 1852-12.
 
 ## Reporting results
 
 **State the method up front.** When the user asked about purchasing power, real value, or inflation adjustment without naming gold, say in one sentence that the comparison is denominated in gold (goldbacks / GBD via the historical gold price), not CPI or another price index, and that gold-based and CPI-based answers can differ substantially. Offer a CPI comparison as an alternative if it would be useful; do not silently present gold terms as "inflation-adjusted dollars".
 
-Always include: the amount, the effective date/period, the gold price used, the source, and any granularity note (e.g. "used previous fix from 1980-01-18", "average of 252 LBMA daily fixes"). Example:
+Always include: the amount, the effective date/period, the gold price used, the source, and any granularity note (e.g. "used previous fix from 1980-01-18", "average of 252 LBMA daily fixes").
+
+When `--smooth` is set, report the averaged price, the window, the months used (the count and the first and last month in the note), and the spot price beside it. State a partial window; do not hide it. Say the average is not CPI and not a claim that gold tracks inflation.
+
+Example:
 
 ```
 $1,000.00 in 1980-01-21 @ $850.00/troy oz (LBMA PM fix)

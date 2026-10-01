@@ -49,6 +49,24 @@
 
 Averages are simple (unweighted) means of trading-day fixes, which matches how LBMA and the World Bank publish their own monthly averages.
 
+## Equal-month trailing mean (`--smooth`)
+
+`--smooth 5y|10y|20y` replaces the gold price with the unweighted mean of the monthly gold prices in the N×12 calendar months ending at the snapshot's month, inclusive. Each month is the v1 month resolution: the mean of LBMA daily fixes when that month has any, otherwise the monthly-file value. Those full-month means live in a cache beside the monthly file (`month_price` / `monthQuote`). The file series itself is not overwritten. A year and a volatile year then weigh the same, because every month counts once.
+
+The window closes on the snapshot's month. A day uses that day's month. A month uses that month. A completed year uses December. A year still in progress uses the current month. Every month except the last is the full-month price. The last month uses LBMA fixes on or before `min(snapshot day, today)` only when the snapshot day falls in that month; otherwise the full month. That clipped mean is computed for the query and is not stored as the month's only price. The note gains `(month to date)` only when the last month is clipped. No price after the snapshot day enters the mean. `effective`, `granularity`, and `points` stay the v1 spot resolution. Chart x stays the v1 midpoint.
+
+A month with no price is skipped and the mean divides by the months that had a price. `gold_mode` is `smoothed` when that count is N×12 and `partial` when it is smaller. `ma_years` is the requested width (5, 10, or 20). `ma_months` is the count in the mean. In spot mode both are empty and `spot_usd_per_oz` equals `gold_usd_per_oz`. When smoothing, `gold_usd_per_oz` is the mean and `spot_usd_per_oz` is the v1 spot price. FX is never averaged.
+
+On this series a window that starts before 1833-01 is partial: 5 years before 1837-12, 10 years before 1842-12, 20 years before 1852-12. A hole is partial too. Zero priced months is an error on a single query and a skipped batch row. The note names the requested window, the months used, and why it is short:
+
+- Full: `10-year average; 120 months, 2016-10 to 2026-09`
+- Series start: `10-year average; 48 months, 1833-01 to 1836-12; series starts 1833-01`
+- Interior hole: `5-year average; 59 months, 2010-01 to 2014-12; missing 2012-06`
+
+`price_source` is the single source when every month shares one (LBMA, World Bank Pink Sheet, or Timothy Green / NMA), and `mixed` when they do not. Negative amounts keep their sign. `--smooth` is valid only with `--from USD`; `--currency` is still allowed.
+
+When the TypeScript daily table is empty and the window includes a month on or after 1968-01, the note appends `daily LBMA prices not loaded` once. Python always has `lbma_daily.csv` or it errors, so Python does not emit that phrase. The value may change when the daily table arrives.
+
 ## Currency conversion (USD routing)
 
 **Tenet.** A non-USD amount is converted to USD at the historical exchange rate for the same period, and that USD amount is converted to gold at the USD benchmark. Gold prices in other currencies (LBMA GBP/EUR fixes, local dealer prices) are never used, so every currency is normalised to one bullion price. Curated currencies: USD, EUR, GBP, CHF, DEM. `--currency` needs `--from USD`.
@@ -130,14 +148,14 @@ Delete the directory or run with `--refresh` to rebuild. A query with `--currenc
 
 ## Output contract
 
-`--json` object (top-level keys): `input` (`amount`, `unit`, `currency`, `period`, `granularity`; legacy), `effective`, `granularity`, `points`, `gold_usd_per_oz` (unrounded), `price_source`, `note`, `troy_oz`, `GB`, `GBD`, `USD`, `fx_rate` (USD per unit, unrounded), `fx_effective`, `fx_mode`, `fx_note` (all four `null` for USD amounts; `fx_note` is `""` for a clean daily rate), and the legacy aliases `price_note`, `price_points`. `--price-only --json` returns `gold_usd_per_oz`, `price_source`, `price`, `source`, `granularity`, `effective`, `points`, `note`.
+`--json` object (top-level keys): `input` (`amount`, `unit`, `currency`, `period`, `granularity`; legacy), `effective`, `granularity`, `points`, `gold_usd_per_oz` (unrounded), `price_source`, `note`, `troy_oz`, `GB`, `GBD`, `USD`, `fx_rate` (USD per unit, unrounded), `fx_effective`, `fx_mode`, `fx_note` (all four `null` for USD amounts; `fx_note` is `""` for a clean daily rate), `gold_mode` (`spot`, `smoothed`, or `partial`), `ma_years` and `ma_months` (`null` in spot mode), `spot_usd_per_oz` (unrounded; the v1 spot price), and the legacy aliases `price_note`, `price_points`. `--price-only --json` returns `gold_usd_per_oz`, `price_source`, `price`, `source`, `granularity`, `effective`, `points`, `note`. With `--smooth` it also returns `gold_mode`, `ma_years`, `ma_months`, and `spot_usd_per_oz`, and `gold_usd_per_oz` / `note` are the mean and the window note.
 
-`--batch` CSV (spec FR15), in order: `date, amount, currency, label, <passthrough columns>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note`.
+`--batch` CSV (spec FR15 + FR26), in order: `date, amount, currency, label, <passthrough columns>, effective, gold_usd_per_oz, troy_oz, GB, GBD, USD, price_source, granularity, note, fx_rate, fx_effective, fx_mode, fx_note, gold_mode, ma_years, ma_months, spot_usd_per_oz`.
 
 - Input: date column = first of `date`, `period`, `month`, `year`; amount column = first of `amount`, `usd`, `value`, `price` (case-insensitive). Computed columns above and `currency` are dropped on input. `USD` is both an amount alias and a computed column, so it is treated as computed only when the header also contains `troy_oz` or `gold_usd_per_oz` (an exported file). A `label` column is optional and always emitted. If a header name repeats (trimmed, case-insensitive) the first column wins and later ones are dropped. Passthrough columns whose names equal any output column name (fixed or computed, case-insensitive) are dropped so the output header never repeats a name (the "dedupe rule"; the spec does not define it, this is the project's reading).
 - `amount` echoes the input token; `date` echoes the input date token; `currency` is `USD`, the `--currency` code (`EUR`, `GBP`, `CHF`, `DEM`), or the `--from` unit code (`GB`, `GBD`, `OZ`) because the amount is denominated in that unit. `--currency` applies to the whole file.
 - `fx_rate` is fixed-point with 6 decimals and empty for USD rows; `fx_effective`, `fx_mode`, `fx_note` are text (`fx_note` may contain non-ASCII characters; output is UTF-8).
-- Fixed-point formatting: `gold_usd_per_oz` 4 decimals, `troy_oz` 6, `GB` 3, `GBD` 4, `USD` 2. LF line endings. UTF-8 BOM and CRLF input accepted.
+- Fixed-point formatting: `gold_usd_per_oz` and `spot_usd_per_oz` 4 decimals, `troy_oz` 6, `GB` 3, `GBD` 4, `USD` 2. `ma_years` and `ma_months` are integers, empty in spot mode. LF line endings. UTF-8 BOM and CRLF input accepted. The four gauge columns are ignored on import.
 - Errors abort with the line number (unparsable date or amount, future date, missing columns). Rows without price data are skipped with a warning on stderr.
 
 ## Test hooks

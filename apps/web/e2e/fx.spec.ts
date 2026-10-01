@@ -197,7 +197,7 @@ test.describe("v1.1 currency and FX", () => {
     const csv = await exportText(page);
     const lines = csv.trimEnd().split("\n");
     expect(lines[0]).toBe(
-      "date,amount,currency,label,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note",
+      "date,amount,currency,label,effective,gold_usd_per_oz,troy_oz,GB,GBD,USD,price_source,granularity,note,fx_rate,fx_effective,fx_mode,fx_note,gold_mode,ma_years,ma_months,spot_usd_per_oz",
     );
     expect(lines).toHaveLength(3);
     expect(csv).toContain("1900-01,1000,GBP");
