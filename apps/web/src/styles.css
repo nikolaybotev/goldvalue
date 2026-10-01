@@ -421,8 +421,47 @@ button {
 
 .price {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px;
+  gap: 4px 8px;
+}
+
+.price-window {
+  flex-basis: 100%;
+  font-size: 0.75rem;
+}
+
+.mode-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 0.875rem;
+}
+
+.mode-field [role="radiogroup"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mode-field label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mode-field select {
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  font: inherit;
+}
+
+.mode-field select:disabled {
+  opacity: 0.55;
 }
 
 .badge {
@@ -647,6 +686,14 @@ button {
   fill: none;
   stroke: var(--accent);
   stroke-width: 1.75;
+  stroke-linejoin: round;
+}
+
+.chart .spot-line {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-opacity: 0.55;
   stroke-linejoin: round;
 }
 

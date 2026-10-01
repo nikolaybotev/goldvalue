@@ -39,6 +39,10 @@ export interface Vector {
     GB: number;
     GBD: number;
     USD: number;
+    gold_mode: "spot" | "smoothed" | "partial";
+    ma_years: 5 | 10 | 20 | null;
+    ma_months: number | null;
+    spot_usd_per_oz: number;
   };
 }
 

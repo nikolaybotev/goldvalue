@@ -1,4 +1,4 @@
-import { type Currency, FxRates } from "@goldvalue/core";
+import { type Currency, FxRates, parseSmooth } from "@goldvalue/core";
 import { expect, test } from "vitest";
 import { computeRow, FUTURE_DATE_MESSAGE } from "../src/store/compute";
 import { newRow } from "../src/store/rows-logic";
@@ -13,18 +13,30 @@ test("sheet rows reproduce every USD golden vector", () => {
   const table = fixtureTable();
   let checked = 0;
   for (const vector of vectors()) {
-    if (vector.input.from !== "USD" || vector.input.smooth) continue;
-    const { amount, date, today } = vector.input;
-    const result = computeRow(newRow({ amount: String(amount), date }), table, day(today));
+    if (vector.input.from !== "USD") continue;
+    const { amount, date, today, smooth } = vector.input;
+    const result = computeRow(
+      newRow({ amount: String(amount), date }),
+      table,
+      day(today),
+      "USD",
+      undefined,
+      smooth === undefined ? undefined : parseSmooth(smooth),
+    );
     expect(result.status, vector.name).toBe("ok");
     if (result.status !== "ok") continue;
     const { conversion } = result;
     expect(conversion.effective, vector.name).toBe(vector.expected.effective);
     expect(conversion.note, vector.name).toBe(vector.expected.note);
     expect(conversion.price_source, vector.name).toBe(vector.expected.price_source);
+    expect(conversion.gold_mode, vector.name).toBe(vector.expected.gold_mode);
+    expect(conversion.ma_years, vector.name).toBe(vector.expected.ma_years);
+    expect(conversion.ma_months, vector.name).toBe(vector.expected.ma_months);
     close(conversion.GB, vector.expected.GB);
     close(conversion.GBD, vector.expected.GBD);
     close(conversion.troy_oz, vector.expected.troy_oz);
+    close(conversion.gold_usd_per_oz, vector.expected.gold_usd_per_oz);
+    close(conversion.spot_usd_per_oz, vector.expected.spot_usd_per_oz);
     checked++;
   }
   expect(checked).toBeGreaterThan(60);
@@ -132,6 +144,30 @@ test("sheet rows reproduce every FX golden vector", () => {
     close(conversion.troy_oz, vector.expected.troy_oz);
     close(conversion.USD, vector.expected.USD);
   }
+});
+
+test("a non-USD row uses the spot FX rate and the averaged gold price", () => {
+  const table = fixtureTable();
+  const fx = FxRates.fromCsv({ GBP: readVectorFile("snapshot", "fx_gbp.csv") });
+  const result = computeRow(
+    newRow({ amount: "1000", date: "1836" }),
+    table,
+    day("2026-09-29"),
+    "GBP",
+    fx,
+    10,
+  );
+  expect(result.status).toBe("ok");
+  if (result.status !== "ok") return;
+  const { conversion } = result;
+  expect(conversion.gold_mode).toBe("partial");
+  expect(conversion.note).toBe(
+    "10-year average; 48 months, 1833-01 to 1836-12; series starts 1833-01",
+  );
+  expect(conversion.fx_mode).toBe("extrapolated");
+  expect(conversion.fx_note).toContain("parity");
+  expect(conversion.gold_usd_per_oz).toBe(20.67);
+  expect(conversion.GB).toBeGreaterThan(100_000);
 });
 
 test("negative amounts compute", () => {
