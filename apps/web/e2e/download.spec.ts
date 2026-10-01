@@ -171,6 +171,37 @@ test.describe("AC4: SVG download", () => {
   });
 });
 
+test.describe("AC18: spot overlay in the download", () => {
+  test("the SVG contains the gauge and the spot series, and the PNG is that chart", async ({
+    page,
+  }) => {
+    await fillSheet(page);
+    await page.getByRole("radio", { name: "Smoothed" }).check();
+    await expect(page.getByTestId("spot-series")).toHaveCount(0);
+    await page.getByRole("button", { name: "Spot overlay" }).click();
+    await expect(page.getByTestId("spot-series")).toHaveCount(1);
+    await expect(page.locator(".series-line")).toHaveCount(1);
+
+    const text = (await download(page, "Download SVG", "goldvalue-chart.svg")).toString("utf8");
+    expect(text).toContain('class="series-line"');
+    expect(text).toContain('class="spot-line"');
+    const styles = await page.evaluate((exported) => {
+      const parsed = new DOMParser().parseFromString(exported, "image/svg+xml");
+      const style = (selector: string) =>
+        parsed.querySelector(selector)?.getAttribute("style") ?? "";
+      return { series: style(".series-line"), spot: style(".spot-line") };
+    }, text);
+    expect(styles.series).toContain("stroke-width:1.75px");
+    expect(styles.spot).toMatch(/stroke-width:1px/);
+    expect(styles.spot).toMatch(/stroke-opacity:0\.55/);
+    expect(styles.spot).toMatch(/stroke:/);
+
+    const png = await download(page, "Download PNG", "goldvalue-chart.png");
+    const size = await chartSize(page);
+    expect(pngHeader(png)).toEqual({ width: size.width * 2, height: size.height * 2 });
+  });
+});
+
 test.describe("FR13: pixel dimensions are shown before download", () => {
   test("the label states the SVG and the 2x PNG size and follows a resize", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });

@@ -32,6 +32,7 @@ function Tooltip({
   left,
   top,
   flip,
+  showSpot,
 }: {
   group: PlacedGroup;
   unit: AxisUnit;
@@ -39,6 +40,7 @@ function Tooltip({
   left: number;
   top: number;
   flip: boolean;
+  showSpot: boolean;
 }) {
   const short = unitInfo(unit).short;
   return (
@@ -64,9 +66,19 @@ function Tooltip({
               {formatMoney(point.amount, money)} = <strong>{formatUnit(point.value)}</strong>{" "}
               {short}
             </div>
+            {showSpot && (
+              <div data-testid="chart-spot-value">
+                spot <strong>{formatUnit(point.spotValue)}</strong> {short}
+              </div>
+            )}
             <div class="muted">
               {formatPrice(point.price)}/oz, {sourceBadge(point.source).short}, {point.granularity}
             </div>
+            {point.goldMode !== "spot" && (
+              <div class="muted" data-testid="chart-price-note">
+                {point.note}
+              </div>
+            )}
             {point.fxNote !== "" && (
               <div
                 class={fxWarns(point.fxMode) ? "tip-fx" : "muted"}
@@ -86,10 +98,12 @@ function Tooltip({
 export function Chart({ collapsible = false }: { collapsible?: boolean }) {
   const list = rows.value;
   const res = results.value;
-  const { logScale, nominalOverlay, axisDefault, chartCollapsed } = settings.value;
+  const { logScale, nominalOverlay, axisDefault, chartCollapsed, goldMode, spotOverlay } =
+    settings.value;
   const collapsed = collapsible && chartCollapsed;
   const unit = axisUnit.value;
   const ccy = currency.value;
+  const showSpot = goldMode === "smoothed" && spotOverlay;
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [exportState, setExportState] = useState<{ busy: boolean; error: string | null }>({
@@ -109,10 +123,17 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
 
   const points = buildPoints(list, res, unit);
   const groups = groupByX(points);
-  const canLog = logAvailable(points, nominalOverlay);
+  const canLog = logAvailable(points, nominalOverlay, showSpot);
   const layout =
     points.length > 0
-      ? computeLayout({ width, groups, unit, log: logScale && canLog, overlay: nominalOverlay })
+      ? computeLayout({
+          width,
+          groups,
+          unit,
+          log: logScale && canLog,
+          overlay: nominalOverlay,
+          spotOverlay: showSpot,
+        })
       : null;
 
   useLayoutEffect(() => {
@@ -256,6 +277,16 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
             >
               {`Nominal ${ccy}`}
             </button>
+            {goldMode === "smoothed" && (
+              <button
+                type="button"
+                class="toggle"
+                aria-pressed={spotOverlay}
+                onClick={() => updateSettings({ spotOverlay: !spotOverlay })}
+              >
+                Spot overlay
+              </button>
+            )}
             {canLog && (
               <button
                 type="button"
@@ -326,6 +357,9 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
                       y2={layout.innerHeight}
                     />
                   )}
+                  {layout.spotPath && (
+                    <path class="spot-line" data-testid="spot-series" d={layout.spotPath} />
+                  )}
                   {layout.overlayPath && <path class="overlay-line" d={layout.overlayPath} />}
                   {layout.y2Scale &&
                     layout.placed.map(
@@ -384,6 +418,7 @@ export function Chart({ collapsible = false }: { collapsible?: boolean }) {
                   group={hover.group}
                   unit={unit}
                   money={ccy}
+                  showSpot={showSpot}
                   left={hover.px > layout.width / 2 ? layout.width - hover.px + 12 : hover.px + 12}
                   top={Math.max(4, Math.min(hover.py - 10, chartHeight(layout.width) - 130))}
                   flip={hover.px > layout.width / 2}

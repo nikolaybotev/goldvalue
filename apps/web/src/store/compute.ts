@@ -13,6 +13,7 @@ import {
   PriceNotFoundError,
   parseAmount,
   parseDate,
+  type SmoothYears,
 } from "@goldvalue/core";
 import type { Row } from "./rows-logic";
 
@@ -44,6 +45,7 @@ export function computeRow(
   today: CivilDate,
   sheetCurrency: Currency = "USD",
   fx?: FxRates,
+  smooth?: SmoothYears,
 ): RowResult {
   const amountText = row.amount.trim();
   const dateText = row.date.trim();
@@ -79,13 +81,13 @@ export function computeRow(
   try {
     return {
       status: "ok",
-      conversion: convert(table, amount, "USD", period, today, sheetCurrency, fx),
+      conversion: convert(table, amount, "USD", period, today, sheetCurrency, fx, smooth),
       period,
       amount,
     };
   } catch (error) {
     if (error instanceof PriceNotFoundError) {
-      return { status: "error", errors: { date: "no gold price data for this date" } };
+      return { status: "error", errors: { date: error.message } };
     }
     throw error;
   }
