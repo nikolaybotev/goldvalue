@@ -3,87 +3,104 @@
 | | |
 |---|---|
 | Implements | [spec.md](spec.md) Draft 2 |
-| Status | Draft 2 — aligned to the spec review; plan review still to come |
-| Stage | 2 · Design |
+| Status | Draft 3 — plan review applied. Two PRs, then the tag. |
+| Stage | 3 · Build |
 
-Each phase is one PR onto `main`. Spec wins over this plan. Python stays the
-stdlib reference; vectors stay on the synthetic fixture; no LBMA data is
-committed (D15).
+Spec wins. Python stays stdlib. Vectors stay on the synthetic fixture. No LBMA
+file is committed (D15). Python and TypeScript schema changes land in the
+**same PR**, because CI regenerates vectors and then runs `pnpm test`.
 
-## Phase 1 — CLI
+## PR A — CLI, core, skill, CSV contract
 
-Files: `.agents/skills/gold-value-normalizer/scripts/goldvalue.py`, `tests/python/`,
-`test-vectors/{cases.json or smooth-cases.json, regenerate.py}`.
+Files: `goldvalue.py`, `tests/python/`, `packages/core/src/{table,smooth,convert,csv}.ts`,
+`packages/core/test/`, `test-vectors/` (cases, regenerate, gold vectors, batch
+outputs), `SKILL.md`, `reference.md`, `AGENTS.md`, `apps/web/test/csv-io.test.ts`.
 
-1. Monthly gold series helper: for each month, the v1 month price (mean of
-   daily fixes from 1968, monthly-file value before). Cache it on `GoldTable`.
-2. `--smooth 5y|10y|20y`, valid only with `--from USD` (error otherwise).
-   Window is N×12 months ending at the snapshot month (D17). Full months
-   except the last, which clips to the snapshot day. Skip missing months;
-   `gold_mode=partial` when fewer than N×12 months are priced (before
-   1842-12 for 10y). `--price-only` prints the mean and the note.
-3. Output: `gold_mode`, `ma_years`, `ma_months`, `spot_usd_per_oz`; when
-   smoothing, `gold_usd_per_oz` is the average and `note` names the window and
-   the first/last month. `--json`, text, and `--batch` (FR26 columns).
-4. Vectors: 2018-12 and a late fixture date at 10y; one year query; 1836 at
-   10y (partial); same date at 5y and 20y; one negative amount. Regenerate
-   via `test-vectors/regenerate.py`.
+1. **Month prices, separate from the file series.** On `GoldTable`, a
+   `month_price` map of full-month means: daily `fmean` when the month has
+   LBMA fixes, else the monthly-file value. Fill it in `_load` / the
+   TypeScript constructor. Do not write into `monthly` / `monthlyByMonth`.
+   The clipped last month is computed per query from daily fixes, not stored
+   as that month's only price.
+2. **`--smooth 5y\|10y\|20y`.** Valid only with `--from USD` (error otherwise),
+   with or without `--currency`. FX stays the spot rate for the period (FR22).
+   Applies to one query and to every `--batch` row. `--price-only --smooth 10y DATE`
+   prints the mean and the note.
+3. **Window (D17).** N×12 months ending at the snapshot's month. A day uses
+   that day's month; a month uses that month; a completed year uses December;
+   a year still in progress uses the current month. Every month except the
+   last is the full month price. The last month uses fixes on or before
+   `min(snapshot day, today)` only when the snapshot falls in that month;
+   otherwise the full month. Note gains `(month to date)` only when clipped.
+4. **Mode.** `gold_mode` is `spot`, `smoothed`, or `partial`. `partial` when
+   fewer than N×12 months had a price: series start (5y before 1837-12, 10y
+   before 1842-12, 20y before 1852-12) or a hole. Skip missing months and
+   divide by the months that had a price. Zero months: error on a single
+   query, skip the batch row with a warning. `ma_years` is 5, 10, or 20.
+   `ma_months` is the count in the mean. In spot mode both are empty and
+   `spot_usd_per_oz` equals `gold_usd_per_oz`.
+5. **Notes, exact.** Full window: `10-year average; 120 months, 2016-10 to 2026-09`.
+   Partial on this fixture: `10-year average; 48 months, 1833-01 to 1836-12; series starts 1833-01`.
+   `price_source` is the one shared source, or `mixed` when months differ
+   (LBMA vs World Bank vs Timothy Green / NMA). `effective`, `granularity`,
+   and `points` stay the v1 spot resolution.
+6. **CSV.** Append after `fx_note`, in order: `gold_mode`, `ma_years`,
+   `ma_months`, `spot_usd_per_oz`. Prices at 4 decimal places. Import ignores
+   the four columns. Update `COMPUTED_COLUMNS` and `exportCsv` together.
+7. **Vectors.** 2018-12 and a late fixture date at 10y; one year query; 1836
+   at 10y only (the partial); the 5y/20y pair on 2018-12 (full history); one
+   negative amount; one window that crosses 1960 or 1968 and expects
+   `mixed`. Regenerate with `python3 test-vectors/regenerate.py`.
+8. **Hole test.** A Python test and a core test build a tiny table with an
+   interior hole and a fully empty window. Do not use the fixture for this.
+   Lock the hole note there.
+9. **Not-loaded path (TypeScript only).** When the daily table is empty and
+   the window includes a month on or after 1968-01, append
+   `daily LBMA prices not loaded` once. A core test covers it. Python always
+   has `lbma_daily.csv` or it errors, so Python does not emit that phrase.
+10. **Skill, after the flag works.** Description is the FR29 text, byte for
+    byte (494 characters). Body: "Which question" with the FR27 phrases,
+    including "convert this timeline to goldbacks" for spot and the
+    inflation disclaimer. Update "Reporting results", "Price resolution
+    rules", the batch column list, and the examples. `reference.md` documents
+    the mean. `AGENTS.md` updates the CLI line, the batch schema, the
+    regenerate invocation, the `convert` keys, and the CSV-export line, and
+    states that this schema change is one PR.
+11. Negative amounts keep their sign.
 
-DoD: `pytest tests/python -q` green; vector diff clean.
+DoD, all green: `python3 -m pytest tests/python -q`; `python3 test-vectors/regenerate.py` with a clean diff; `pnpm --filter @goldvalue/core test`; `pnpm --filter @goldvalue/web test`; `pnpm typecheck`.
 
-## Phase 1b — Skill
+## PR B — Sheet, chart, copy
 
-The skill ships in the same PR as the CLI. It is a first-class surface
-(spec §5a), not a note added after the flag works.
+Files: `apps/web/src/**`, `apps/web/e2e/smooth.spec.ts`, `apps/web/e2e/download.spec.ts`.
 
-Files: `.agents/skills/gold-value-normalizer/SKILL.md`, `reference.md`,
-`AGENTS.md`.
+1. Header control (FR21): Spot | Smoothed, window 5/10/20 enabled only while
+   Smoothed is on. Default Spot and 10 (D19, D16). Persist in the settings
+   blob, versioned the way `loadSettings` already versions `v`.
+2. `results` in `sheet-store.ts` includes mode and window in the cache key.
+   A currency-only key will not recompute. Non-USD rows stay enabled: spot FX,
+   then the averaged gold price (FR22).
+3. `Price used` shows the window, the span, and the month count (FR23).
+   Partial does not add or remove amber.
+4. Chart y is the gauge. Do not change `midpoint`. Spot overlay off by
+   default (D20), thinner muted line, current Y-axis unit. Reuse
+   `INLINED_PROPERTIES` in `apps/web/src/export/chart-image.ts` (`stroke`,
+   `stroke-width`, `stroke-opacity`, `opacity`). Tooltip lists spot only
+   while the overlay is on.
+5. Method panel shows the FR25 sentence and the historical-notes link
+   whenever the mode control is on screen (AC17).
+6. `e2e/smooth.spec.ts`, with the existing clock pin and LBMA stubs:
+   - AC14: a 10y row's GB equals the CLI vector.
+   - AC15: spot round-trip byte for byte, as specified.
+   - AC16: USD `1000` / `1836` at 10y is partial, shows the D18 note, no amber.
+     GBP `1000` / `1836` at 10y is partial and still amber, with the parity tooltip.
+   - AC18: overlay off by default; on adds a second series; tooltip includes
+     spot; SVG download contains both (`download.spec.ts`). A `2019` point has
+     `data-date=2019-07-02` and a `2019-11-12` point has `data-date=2019-11-12`.
 
-1. Replace `description` with the 494-character text in spec FR29. Do not
-   edit it further without rechecking the count. The current value is 1001
-   characters; the cap is 1024.
-2. Body: a short "Which question" section. Spot (no flag) answers "what if I
-   had bought gold that day". `--smooth 10y` (or `5y` / `20y`) answers the
-   long-horizon gauge. The agent names the window, reports the averaged price,
-   the months used, and the spot price beside it, and says the average is not
-   CPI. Partial windows are stated (FR27–FR29).
-3. `reference.md`: the equal-month trailing mean, the window end rule, and
-   partial history. `AGENTS.md`: the `--smooth` invocation next to the other
-   CLI commands.
-4. Keep `SKILL.md` under 500 lines.
-
-DoD: description length checked and recorded in the PR; a reader who has only
-the skill can choose spot vs 10y and interpret a partial window.
-
-## Phase 2 — `packages/core`
-
-Files: `packages/core/src/{table,resolve,convert,csv}.ts` (or a small
-`smooth.ts`), tests.
-
-1. Port the monthly series and the trailing mean. Same note text as Python.
-2. `convert` gains an optional `smooth: 5 | 10 | 20`. Result keys match the CLI.
-3. `exportCsv` / `importCsv` grow the FR26 columns; import ignores them.
-4. Vitest loads the new vectors (1e-9 relative, exact notes).
-
-DoD: `pnpm --filter @goldvalue/core test` green.
-
-## Phase 3 — Sheet, chart, copy
-
-Files: `apps/web/src/**`, `apps/web/e2e/smooth.spec.ts`, `plan.md` deviations.
-
-1. Header control (FR21). Persisted next to the currency setting. Off by
-   default (D19). Changing it recomputes every row.
-2. `Price used` shows window, span, and month count (FR23). Partial rows are
-   not amber.
-3. Chart uses the gauge values. Spot overlay toggle, off by default (D20),
-   thinner muted line, shared tooltip. Downloads include the visible series
-   (FR24); add any new SVG presentation attributes to `INLINED_PROPERTIES`.
-4. Method panel: the FR25 sentence. Do not say the gauge measures inflation.
-5. Playwright: AC14–AC18 against the synthetic fixture and stubbed LBMA.
-
-DoD: `pnpm test:e2e` green; initial bundle still under 250 kB gzipped (no new
-data files). Deploy is the existing push-to-main workflow. Tag `v1.2.0` after
-the production deploy has the control.
+DoD: `pnpm test:e2e` and `pnpm size` green. Push to `main` runs
+`deploy-pages.yml`. Tag `v1.2.0` only after that deploy is serving the
+control. Confirm with `curl` of the page and a production smoke load.
 
 ## Out of scope
 
