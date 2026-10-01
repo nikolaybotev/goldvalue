@@ -70,3 +70,62 @@ change it. Spot remains available, including as a comparison on the chart.
 > To answer that broader question it seems to me like we could lean on the Moving Average approach... the question becomes - what MA interval do we pick? 200 is not enough - looking back 20 years, gold prices do not just move up or down, but also jump in price in these spikey fashions - they hold price while inflation gradually accrues and just eventually when resistance collapses they catch up to inflation in one fell swoop - yes, that is just one way to look at it, not proven, not saying this is accurate - just a premise on which we can build a functioning tool without getting buried in a heated discussion on a complex topic that could consume years of time of an Economics PhD student.
 >
 > Let's restart the cycle - treat this as my intent.md prompt for a v1.2 and kick off drafts of a spec.md and plan.md for us to build this.
+
+## Source transcript (verbatim)
+
+Chat `600b6d01-b9cc-4204-a8cc-630eb188224c`, agent request
+`c3c74dfc-7e0b-491a-8365-71a62d8a622d`, 2026-09-30 17:41 PDT. The user asked
+for a goldback conversion of one property timeline. The answer below is what
+the v1.2 prompt was written after. No interpretation in this section.
+
+### User
+
+> Convert the following dollar amounts in timeline to goldbacks
+>
+> the property — ownership / deed / mortgage timeline (from Bank N Property Report + Bank J prelim in the disclosure package; APN the property)
+>
+> 2000-04-18 — Intrafamily transfer: Person A & Person B (doc 2000-077659). Related mortgage ~$70k Bank G (2000-077660).
+>
+> 2001-10-01 — Sale $235,000 → Person C from Person A and Person B (2001-294323). Purchase loan ~$231k Bank H (2001-294324). Later Person C-era loans: 2004–2005 Bank F / Bank E / Bank H (sizes in Bank N mortgage history).
+>
+> 2009-03-10 — Trustees deed $128,223 → Bank A from Person C (2009-049335) — foreclosure path.
+>
+> 2009-04-23 — Sale $145,000 → Person D & Person E from Bank A (2009-089510).
+>
+> 2014-02-07 — Sale $170,000 → Person F from Person D and Person E (2014-020079). Purchase loan ~$138k Bank B (2014-020080). Later Person F loans: 2017 ~$240k Person I; 2018 ~$292k Bank C.
+>
+> 2019-11-12 — Sale $444,000 → Person G & Person H (JT) from Person F (Grant Deed 2019-201462). Same day: Bank D / Bank L DOT $435,958 (2019-201463) — still the active first lien on the prelim.
+>
+> 2021-05-04 — Bank M mortgage $10,571.52 recorded (2021-133259; Bank N also ties Bank I). Junior / federal assistance–style lien; title needs a separate Bank M payoff demand.
+>
+> Bank N note: No foreclosure found on this parcel after the 2009 trustees deed. Current listing ask ~$599,900 (2026).
+>
+> If you want the same chain pulled fresh from the Bank K recorder index (not just Bank N/prelim), say the word and I’ll run that search.
+
+### Answer
+
+> **the property** — same ownership chain, with nominal dollars converted to **goldbacks (GB)** using the historical **LBMA** USD gold price on each event date (daily fix where available; **2017**, **2018**, and **2026** listing use the **calendar-year average** of daily fixes). One GB = 1/1000 troy oz of gold. This is a **gold-denominated** comparison, not CPI “inflation-adjusted dollars”; gold and CPI can diverge a lot. Approximate loan figures (~$70k, ~$231k, etc.) use the rounded nominal amounts you gave.
+>
+> | Date | Event (nominal USD) | Gold @ conversion | GB |
+> |------|---------------------|-------------------|-----|
+> | **2000-04-18** | Intrafamily transfer; mortgage **~$70,000** | $281.10/oz (day) | **249,022 GB** |
+> | **2001-10-01** | Sale **$235,000** → Person C | $290.60/oz | **808,672 GB** |
+> | **2001-10-01** | Purchase loan **~$231,000** (Bank H) | $290.60/oz | **794,907 GB** |
+> | **2009-03-10** | Trustees deed **$128,223** → Bank A | $901.50/oz | **142,233 GB** |
+> | **2009-04-23** | Sale **$145,000** → Person D and Person E | $897.50/oz | **161,560 GB** |
+> | **2014-02-07** | Sale **$170,000** → Person F | $1,259.25/oz | **135,001 GB** |
+> | **2014-02-07** | Purchase loan **~$138,000** (Bank B) | $1,259.25/oz | **109,589 GB** |
+> | **2017** | Loan **~$240,000** (Person I) | $1,257.34/oz (yr avg) | **190,878 GB** |
+> | **2018** | Loan **~$292,000** (Bank C) | $1,268.51/oz (yr avg) | **230,191 GB** |
+> | **2019-11-12** | Sale **$444,000** → Person G / Person H | $1,452.05/oz | **305,775 GB** |
+> | **2019-11-12** | Bank D / Bank L DOT **$435,958** | $1,452.05/oz | **300,236 GB** |
+> | **2021-05-04** | Bank M mortgage **$10,571.52** recorded | $1,797.75/oz | **5,880 GB** |
+> | **2026** | Listing ask **~$599,900** | $4,548.54/oz (YTD 2026 avg) | **131,888 GB** |
+>
+> ### Reading it in gold terms
+>
+> - **Peak nominal sale (2019, $444k)** ≈ **306k GB** — the highest gold-weight on this list.
+> - **Foreclosure-era trustees deed (2009, $128k)** ≈ **142k GB** — not the bottom in gold; the **2001 Person C purchase (~809k GB)** and **~$231k loan (~795k GB)** were far larger in gold because gold was ~$290/oz.
+> - **2026 ask (~$600k)** ≈ **132k GB** — in goldbacks, the current ask is **well below** the 2019 sale (~306k GB) and even below the 2009 Person D purchase (~162k GB), because nominal prices rose much faster than the gold price used here.
+>
+> 2004–2005 Person C-era Bank F / Bank E / Bank H balances weren’t given as dollar figures, so they aren’t converted. If you want those from Bank N or a fresh Bank K index pull, share amounts and dates and I’ll add GB columns. Same if you want **GBD** (50 per troy oz) or a side-by-side **CPI** table.
