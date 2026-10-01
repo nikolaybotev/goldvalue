@@ -73,7 +73,7 @@ DoD, all green: `python3 -m pytest tests/python -q`; `python3 test-vectors/regen
 ### Deviations
 
 - `apps/web/e2e/fx.spec.ts` asserts the export header byte for byte. PR A appends `gold_mode`, `ma_years`, `ma_months`, `spot_usd_per_oz` to every export, including spot, and CI runs Playwright, so that assertion lists the four columns. No smooth UI (that is PR B).
-- `apps/web/test/compute.test.ts` replays every USD golden vector through the spot sheet. Smoothed cases are skipped there until PR B passes the window into `computeRow`.
+- `apps/web/test/compute.test.ts` and `apps/web/e2e/ac1.spec.ts` replay every USD golden vector through the spot sheet. Smoothed cases are skipped there until PR B passes the window into the sheet.
 - An empty smoothed window errors with `no gold price data for the N-year span ending YYYY-MM`. The word is `span` because `packages/core` source is scanned for the DOM global `window`. Python uses the same sentence.
 
 ## PR B — Sheet, chart, copy
