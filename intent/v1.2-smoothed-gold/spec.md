@@ -115,6 +115,27 @@ synthetic fixture.
 `packages/core` exposes the same function and passes the same vectors at 1e-9
 relative on numbers and exact on the note text.
 
+## 5a. Agent skill
+
+`.agents/skills/gold-value-normalizer/` is the agent-facing frontend, on par
+with the CLI and the SPA. A v1.2 PR that ships `--smooth` without teaching the
+skill when to use it is incomplete.
+
+- FR27. The skill distinguishes the two questions in §2 and tells the agent
+  which flag answers which. "What if I had bought gold that day" stays spot
+  (no `--smooth`). "How does this price measure up over a long horizon",
+  "store of value", "smoothed", or "moving average" uses `--smooth`, default
+  10y, and the agent says the window in the answer. The agent does not switch
+  to the average unless the question is the long-horizon one.
+- FR28. The answer reports the averaged price, the window, the months used,
+  and the spot price beside it. A partial window is stated, not hidden. The
+  answer says the average is not CPI and not a claim that gold tracks inflation.
+- FR29. `description` in `SKILL.md` triggers on the long-horizon wording as
+  well as the existing spot wording. It is under 1024 characters; it is
+  rewritten to fit, not appended to. The body stays under 500 lines.
+  `reference.md` documents the equal-month trailing mean. `AGENTS.md` gains
+  the `--smooth` command.
+
 ## 6. Acceptance criteria
 
 - AC14. With Smoothed / 10 years, a row's GB equals `goldvalue.py AMOUNT DATE --smooth 10y` on the synthetic fixture.
@@ -122,6 +143,7 @@ relative on numbers and exact on the note text.
 - AC16. A row whose window starts before the fixture's first month shows `gold_mode=partial` behavior: a value, the D18 note, and no amber FX marker (use a USD row).
 - AC17. The Method panel contains the FR25 statement whenever Smoothed is available.
 - AC18. With the spot overlay on, the chart has two series and the SVG download contains both. With it off, one series.
+- AC19. `SKILL.md` `description` is under 1024 characters and names the long-horizon gauge; the body tells the agent to use spot for the "bought gold that day" question and `--smooth` for the gauge, and to say the average is not CPI.
 
 ## 7. Non-goals
 
