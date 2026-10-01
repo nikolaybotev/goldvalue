@@ -33,60 +33,46 @@ does not replace it.
 
 **D16 — Window presets, default 10 calendar years.** Offered windows: **5, 10,
 and 20 years**. Default when smoothed mode is on: **10**. No 200-day option.
-A 200-day average is a trading tool; on the 2024–2026 gold run it sits on the
-spike, which is the reading this gauge exists to look past.
 
-#### Why 10 years: the Duffy Way table
+#### Samples
 
-The source is the transcript in [intent.md](intent.md). Spot conversion of
-1240 Duffy Way makes the 2026 ask look cheap in gold: **$599,900 → 131,888 GB**
-at the 2026 year-to-date average of **$4,548.54/oz**, against **305,775 GB**
-for the 2019 sale of $444,000 at **$1,452.05** and **161,560 GB** for the 2009
-sale of $145,000 at **$897.50**. The write-up reads that as the ask sitting
-well below both earlier sales.
+All averages are trailing and use only prices up to the end date. The 200-day
+figure is the mean of the last 200 LBMA fixes. The year figures are means of
+monthly gold prices (the v1 month resolution). Computed from the local LBMA
+cache on 2026-09-30. The $599,900 ask is the 2026 listing in the transcript;
+131,888 GB is that transcript's own spot conversion at the 2026 year-to-date
+daily average ($4,548.54). The 2019 sale is 305,775 GB at $1,452.05.
 
-The gold column is two hold-then-reprice moves, not a steadily richer or
-cheaper house. Gold sits near **$291** in 2001 (the $235,000 sale is
-**808,672 GB**), then **$900** in 2009. It then holds roughly **$1,260–$1,450**
-from 2014 through 2019, and the 2026 figure is **$4,549**. Over 2019–2026 the
-house went from $444,000 to $599,900 (**1.35×**). Gold went from $1,452 to
-$4,549 (**3.1×**). The drop from 306k GB to 132k GB is that jump. The same
-shape, earlier, turns the 2001 purchase into 809k GB and the 2009 trustee's
-deed into 142k GB.
-
-A one-year trailing average does not look past the jump. Monthly means from
-the LBMA cache on 2026-09-30, window ending 2026-09, put the 1-year average at
-**$4,453**, already above the 2026-09-22 spot of $4,330. A 200-day average
-would sit in that same place. Repricing the $599,900 ask at the longer
-trailing monthly averages:
-
-| Gauge ending 2026-09 | Gold price | $599,900 in GB | Against the 2019 sale (305,775 GB) |
+| Sample | Gold price | $599,900 in GB | Versus the 2019 sale (305,775 GB) |
 |---|---|---|---|
-| Spot, as in the transcript (2026 YTD daily average) | $4,548.54 | 131,888 | about half |
-| 5-year monthly average | $2,686 | ~223,000 | still cheaper, no longer half |
-| 10-year monthly average | $2,078 | ~289,000 | in line with 2019 |
-| 20-year monthly average | $1,636 | ~367,000 | richer than 2019 |
+| Spot, as published in the transcript | $4,548.54 | 131,888 | about half. This is the skewed reading. |
+| 200-day average, ending 2026-09-22 | $4,535 | ~132,000 | unchanged. The trading window sits on the spike (spot that day was $4,330). |
+| 1-year monthly average, ending 2026-09 | $4,453 | ~135,000 | still the spike. |
+| 5-year monthly average | $2,686 | ~223,000 | still cheaper than 2019, no longer half. |
+| 10-year monthly average | $2,078 | ~289,000 | in line with 2019. |
+| 20-year monthly average | $1,636 | ~367,000 | richer than 2019. |
 
-Ten years is the window that stops treating the 2026 ask as a collapse
-relative to 2019 without swinging the other way and calling it a richer sale.
-Five and twenty stay one click away. The same windows ending 2018-12, when
-gold had been range-bound and spot was $1,282, sit on spot except the 20-year
-($879). The gauge only pulls away from spot after a reprice, which is the
-point.
+The same windows in December 2018, when gold had been range-bound (spot
+$1,282 on 2018-12-31): 200-day **$1,252**, 1-year **$1,269**, 5-year
+**$1,240**, 10-year **$1,305**, 20-year **$879**. Everything except 20 years
+agrees with spot. The gauge pulls away only after a reprice.
 
-Measured from the local LBMA cache on 2026-09-30 (monthly means, trailing,
-inclusive). Spot on 2026-09-22 was $4,330; spot on 2018-12-31 was $1,282.
+#### Choice
 
-| Window ending | 1 year | 5 years | 10 years | 20 years |
-|---|---|---|---|---|
-| 2018-12 (gold had been range-bound) | $1,269 | $1,240 | $1,305 | $879 |
-| 2026-09 (after the spike) | $4,453 | $2,686 | $2,078 | $1,636 |
+200 days and 1 year reproduce the skewed impression, so they are not offered.
+Five years dampens it and still leaves the 2026 ask looking substantially
+cheaper than 2019. Twenty years swings the other way and calls the ask a
+richer sale than 2019. **Ten years is the one that removes the collapse
+without inventing a new peak.** Five and twenty stay as presets so a reader
+can see that sensitivity. The default when smoothed mode is on is 10.
 
-In a flat stretch the short windows match spot. After the spike, 1 year is
-already above spot, 5 years is still 62% of spot, 10 years is 48%, 20 years is
-38%. Ten years is long enough to dilute one catch-up move and short enough
-that a 20-year chart still has a moving gauge. Five and twenty are one click
-away for a tighter or looser reading.
+The skewed impression those samples are answering is written up in
+[intent.md](intent.md) ("What to notice"). The arithmetic behind it: from the
+2019 sale to the 2026 ask the house went from $444,000 to $599,900 (**1.35×**)
+while gold went from $1,452 to $4,549 (**3.1×**). The drop from 306k GB to
+132k GB is the gold move. An earlier move of the same shape, $291 in 2001 to
+$902 in 2009, is what turns the $235,000 sale into 809k GB and the $128,223
+trustee's deed into 142k GB.
 
 **D17 — Equal-month simple average, trailing.** The price at a snapshot is the
 unweighted mean of the monthly gold prices in the N×12 months ending with the
