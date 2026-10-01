@@ -12,6 +12,11 @@ export function Method() {
         consumer price index would call the same purchasing power. Gold-based and CPI-based answers
         can differ substantially.
       </p>
+      <p data-testid="smoothed-copy">
+        {
+          "Smoothed mode divides by a trailing average of monthly gold prices over the selected window. It is a store-of-value gauge for comparing snapshots across long horizons. It is not a consumer-price index and not a claim that gold tracks inflation."
+        }
+      </p>
 
       <h3>Units</h3>
       <ul>

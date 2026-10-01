@@ -3,6 +3,7 @@ import {
   type FxMode,
   formatIso,
   fromDayNumber,
+  type GoldMode,
   toDayNumber,
 } from "@goldvalue/core";
 import { midpoint } from "../lib/period";
@@ -21,14 +22,25 @@ export function unitValue(conversion: ConversionResult, unit: AxisUnit): number 
   return unit === "GB" ? conversion.GB : unit === "GBD" ? conversion.GBD : conversion.troy_oz;
 }
 
+/** The same row priced at the v1 spot gold price, in the current Y-axis unit (D20). */
+export function spotUnitValue(conversion: ConversionResult, unit: AxisUnit): number {
+  const spot = conversion.spot_usd_per_oz;
+  const oz =
+    spot === 0 ? conversion.troy_oz : (conversion.troy_oz * conversion.gold_usd_per_oz) / spot;
+  return unit === "GB" ? oz * 1000 : unit === "GBD" ? oz * 50 : oz;
+}
+
 export interface ChartPoint {
   rowId: string;
   rowNumber: number;
   label: string;
   requested: string;
   amount: number;
-  /** Gold value in the axis unit. */
+  /** Gold value in the axis unit (the selected gauge). */
   value: number;
+  /** Spot gold value in the same unit. Equals `value` in spot mode. */
+  spotValue: number;
+  goldMode: GoldMode;
   /** Day number (days since 1970-01-01) of the chart position (FR12). */
   x: number;
   plotted: string;
@@ -76,6 +88,8 @@ export function buildPoints(
       requested: row.date.trim(),
       amount,
       value: unitValue(conversion, unit),
+      spotValue: spotUnitValue(conversion, unit),
+      goldMode: conversion.gold_mode,
       x,
       plotted: formatIso(fromDayNumber(x)),
       effective: conversion.effective,
@@ -102,6 +116,15 @@ export function groupByX(points: readonly ChartPoint[]): PointGroup[] {
 }
 
 /** The log toggle is offered only while every plotted value is positive (FR10). */
-export function logAvailable(points: readonly ChartPoint[], overlay: boolean): boolean {
-  return points.length > 0 && points.every((p) => p.value > 0 && (!overlay || p.amount > 0));
+export function logAvailable(
+  points: readonly ChartPoint[],
+  overlay: boolean,
+  spotOverlay = false,
+): boolean {
+  return (
+    points.length > 0 &&
+    points.every(
+      (p) => p.value > 0 && (!overlay || p.amount > 0) && (!spotOverlay || p.spotValue > 0),
+    )
+  );
 }

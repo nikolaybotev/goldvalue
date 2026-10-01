@@ -196,8 +196,9 @@ function PriceCell({ result, rowId }: { result: RowResult; rowId: string }) {
       const { conversion } = result;
       const badge = sourceBadge(conversion.price_source);
       const warn = fxWarns(conversion.fx_mode);
+      const smoothed = conversion.gold_mode !== "spot";
       return (
-        <span class="price" data-note={conversion.note}>
+        <span class="price" data-note={conversion.note} data-gold-mode={conversion.gold_mode}>
           {warn && (
             <span
               class={`fx-marker${fxStrong(conversion.fx_mode) ? " is-strong" : ""}`}
@@ -213,7 +214,11 @@ function PriceCell({ result, rowId }: { result: RowResult; rowId: string }) {
           <span class="badge" title={badge.full}>
             {badge.short}
           </span>
-          <span class="sr-only">{`, ${conversion.note}`}</span>
+          {smoothed ? (
+            <span class="price-window">{conversion.note}</span>
+          ) : (
+            <span class="sr-only">{`, ${conversion.note}`}</span>
+          )}
         </span>
       );
     }
@@ -398,6 +403,55 @@ function RowView({ row, index, result }: { row: Row; index: number; result: RowR
   );
 }
 
+function GoldPriceControl() {
+  const { goldMode, smoothYears } = settings.value;
+  const smoothed = goldMode === "smoothed";
+  const chooseYears = (value: string) => {
+    const years = Number(value);
+    if (years === 5 || years === 10 || years === 20) updateSettings({ smoothYears: years });
+  };
+  return (
+    <div class="mode-field">
+      <span id="gold-price-label">Gold price</span>
+      <div role="radiogroup" aria-labelledby="gold-price-label">
+        <label>
+          <input
+            type="radio"
+            name="gold-price"
+            value="spot"
+            checked={goldMode === "spot"}
+            onChange={() => updateSettings({ goldMode: "spot" })}
+          />
+          Spot
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="gold-price"
+            value="smoothed"
+            checked={smoothed}
+            onChange={() => updateSettings({ goldMode: "smoothed" })}
+          />
+          Smoothed
+        </label>
+      </div>
+      <label>
+        Window
+        <select
+          data-testid="smooth-window"
+          value={String(smoothYears)}
+          disabled={!smoothed}
+          onChange={(event) => chooseYears((event.currentTarget as HTMLSelectElement).value)}
+        >
+          <option value="5">5 years</option>
+          <option value="10">10 years</option>
+          <option value="20">20 years</option>
+        </select>
+      </label>
+    </div>
+  );
+}
+
 function ColumnToggle({
   label,
   pressed,
@@ -470,6 +524,7 @@ export function Sheet() {
     >
       <div class="toolbar">
         <h2 id="sheet-heading">Sheet</h2>
+        <GoldPriceControl />
         <label class="currency-field">
           Currency
           <select

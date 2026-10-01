@@ -24,17 +24,21 @@ interface Vector {
     note: string;
     effective: string;
     gold_usd_per_oz: number;
+    gold_mode: string;
   };
 }
 
-const vectors = (
-  JSON.parse(
-    readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "../../../test-vectors/gold-usd.json"),
-      "utf8",
-    ),
-  ) as Vector[]
-).filter((v) => v.input.from === "USD" && v.input.today === PINNED_TODAY && !v.input.smooth);
+const allVectors = JSON.parse(
+  readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), "../../../test-vectors/gold-usd.json"),
+    "utf8",
+  ),
+) as Vector[];
+
+const pinned = allVectors.filter((v) => v.input.from === "USD" && v.input.today === PINNED_TODAY);
+// One sheet has one window, so the spot paste cannot include smoothed vectors.
+const vectors = pinned.filter((v) => !v.input.smooth);
+const smoothedVectors = pinned.filter((v) => v.input.smooth);
 
 const close = (actual: number, expected: number) =>
   Math.abs(actual - expected) <= Math.max(Math.abs(expected) * 1e-9, 1e-12);
@@ -108,6 +112,32 @@ test.describe("AC1: fixture values through the sheet", () => {
       "data-note",
       "average of 12 monthly values",
     );
+  });
+});
+
+test.describe("smoothed golden vectors through the sheet", () => {
+  test("each window's rows match the CLI GB, note, and gold mode", async ({ page }) => {
+    await openApp(page);
+    await page.getByRole("radio", { name: "Smoothed" }).check();
+    for (const years of ["5", "10", "20"]) {
+      const group = smoothedVectors.filter((v) => v.input.smooth === `${years}y`);
+      expect(group.length).toBeGreaterThan(0);
+      await page.getByTestId("smooth-window").selectOption(years);
+      await page.getByRole("button", { name: "Clear" }).click();
+      await cell(page, 0, "amount").focus();
+      await pasteText(page, group.map((v) => `${v.input.amount}\t${v.input.date}`).join("\n"));
+      await expect(cell(page, group.length - 1, "gb")).toHaveAttribute("data-value", /./);
+      for (const [row, vector] of group.entries()) {
+        const label = `${vector.name} (row ${row + 1})`;
+        const gb = Number(await cell(page, row, "gb").getAttribute("data-value"));
+        expect(close(gb, vector.expected.GB), `${label} GB ${gb} vs ${vector.expected.GB}`).toBe(
+          true,
+        );
+        const price = cell(page, row, "price").locator(".price");
+        await expect(price, label).toHaveAttribute("data-note", vector.expected.note);
+        await expect(price, label).toHaveAttribute("data-gold-mode", vector.expected.gold_mode);
+      }
+    }
   });
 });
 

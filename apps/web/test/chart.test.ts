@@ -14,6 +14,41 @@ function pointsFor(entries: [string, string, string?][], unit: "GB" | "GBD" | "O
   return buildPoints(rows, results, unit);
 }
 
+test("smoothed rows keep the requested midpoint and carry a separate spot value", () => {
+  const rows = [
+    newRow({ amount: "1000", date: "2019" }),
+    newRow({ amount: "1000", date: "2019-11-12" }),
+  ];
+  const results = rows.map((row) => computeRow(row, table, today, "USD", undefined, 10));
+  const points = buildPoints(rows, results, "GB");
+  const spotPoints = buildPoints(
+    rows,
+    rows.map((row) => computeRow(row, table, today)),
+    "GB",
+  );
+  expect(points.map((p) => p.plotted)).toEqual(["2019-07-02", "2019-11-12"]);
+  expect(points.every((p) => p.goldMode === "smoothed")).toBe(true);
+  expect(points[0]?.spotValue).toBeCloseTo(spotPoints[0]?.value ?? Number.NaN);
+  expect(points[1]?.spotValue).toBeCloseTo(spotPoints[1]?.value ?? Number.NaN);
+  const groups = groupByX(points);
+  const off = computeLayout({ width: 640, groups, unit: "GB", log: false, overlay: false });
+  expect(off.spotPath).toBeNull();
+  const on = computeLayout({
+    width: 640,
+    groups,
+    unit: "GB",
+    log: false,
+    overlay: false,
+    spotOverlay: true,
+  });
+  expect(on.linePath).toMatch(/^M/);
+  expect(on.spotPath).toMatch(/^M/);
+  const [lo, hi] = on.yScale.domain();
+  const values = points.flatMap((p) => [p.value, p.spotValue]);
+  expect(lo).toBeLessThanOrEqual(Math.min(...values));
+  expect(hi).toBeGreaterThanOrEqual(Math.max(...values));
+});
+
 test("x is the middle of the requested period, not the resolved date (FR12)", () => {
   const points = pointsFor([
     ["1000", "1975"],

@@ -108,6 +108,15 @@ DoD: `pnpm test:e2e` and `pnpm size` green. Push to `main` runs
 `deploy-pages.yml`. Tag `v1.2.0` only after that deploy is serving the
 control. Confirm with `curl` of the page and a production smoke load.
 
+### Deviations
+
+- `compute.test.ts` passes each vector's `smooth` into `computeRow` and checks `gold_mode`, `ma_years`, `ma_months`, `gold_usd_per_oz`, and `spot_usd_per_oz`. It no longer skips smoothed vectors.
+- `ac1.spec.ts` still pastes only spot vectors in one sheet. Smoothed vectors run in a second test, one window at a time, because the sheet has a single window.
+- Settings stay at `v: 1`. `goldMode`, `smoothYears`, and `spotOverlay` are added to that blob. A missing or invalid field keeps the default (spot, 10, overlay off).
+- The spot-overlay toggle is in the chart toolbar and is shown while Smoothed is selected. The second series is on the gauge Y axis (no second axis). `download.spec.ts` asserts both series in the SVG, including inlined `stroke`, `stroke-width`, and `stroke-opacity`. The PNG is the raster of that SVG (`downloadPng` calls `serializeChart`); the test checks the PNG is 2× that chart.
+- A missing price shows the core message (`no gold price data for …`), including an empty smoothed span. Partial still does not add amber.
+- `v1.2.0` is not tagged here. That waits until the `main` deploy is serving the control.
+
 ## Out of scope
 
 200-day averages, EMA, centered windows, smoothed FX, CPI.
