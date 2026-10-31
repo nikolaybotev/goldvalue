@@ -38,7 +38,7 @@ problems: list[str] = []
 
 
 def github_repository_slug() -> str:
-    if slug := os.environ.get("GITHUB_REPOSITORY"):
+    if slug := os.environ.get("GOLDVALUE_REPOSITORY"):
         return slug
     try:
         url = subprocess.check_output(

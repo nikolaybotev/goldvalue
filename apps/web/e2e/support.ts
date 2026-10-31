@@ -8,7 +8,7 @@ import { expect, type Page } from "@playwright/test";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
 function githubRepositorySlug(root: string): string {
-  if (process.env.GITHUB_REPOSITORY) return process.env.GITHUB_REPOSITORY;
+  if (process.env.GOLDVALUE_REPOSITORY) return process.env.GOLDVALUE_REPOSITORY;
   try {
     const url = execSync("git remote get-url origin", { cwd: root, encoding: "utf8" }).trim();
     const match = url.match(/github\.com[:/]([^/]+\/[^/]+?)(?:\.git)?$/);
