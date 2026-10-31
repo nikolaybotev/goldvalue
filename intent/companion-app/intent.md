@@ -2,7 +2,6 @@
 
 | | |
 |---|---|
-| Author | Nikolay Botev |
 | Captured | 2026-09-28 22:54 PDT |
 | Status | Draft — awaiting product-owner acceptance |
 | Stage | 1 · Plan |
@@ -46,7 +45,7 @@ CHF at minimum) routed to gold **via USD** using cached historical FX rates.
   Dec 2018 and Sep 2026 and judged close enough.
 - Deployment must be possible on classic shared web hosting (static files
   and/or PHP) and, optionally, GCP Cloud Run.
-- Public repository on GitHub under `nikolaybotev`.
+- Public repository on GitHub.
 
 ## Open questions (carried into spec.md)
 
@@ -74,7 +73,7 @@ CHF at minimum) routed to gold **via USD** using cached historical FX rates.
 >
 > Then the app should talk to a web server backend JSON-RPC end-point that in turn should leverage our backend python script.
 >
-> The web server backend should have two implementations - one php one -for easy deployment on my classic shared web hosting provider, and one in node.js for easy deployment as a cloud run service or similar on GCP... I think... or would a single PHP implementation be enough?
+> The web server backend should have two implementations - one php one -for easy deployment on a classic shared web hosting provider, and one in node.js for easy deployment as a cloud run service or similar on GCP... I think... or would a single PHP implementation be enough?
 >
 > Or can the SPA now with modern web browser technologies directly talk to the online sources (via cross-site request config or response headers if the static html is hosted on a web server?) and cache locally in a browser cache via browser storage apis?
 >
@@ -84,12 +83,12 @@ CHF at minimum) routed to gold **via USD** using cached historical FX rates.
 >
 > Write this all out following the AI-native SLDC playbook by Claude, namely:
 >
-> 1) record my prompt in an intent.md
-> 2) write a proper spec.md draft from my intent prompt
+> 1) record this prompt in an intent.md
+> 2) write a proper spec.md draft from this intent prompt
 > 3) write a draft plan.md (implementation plan)
-> 4) I am kind of optimistically asking you to jump ahead, as my prompt includes a mixture of the raw intent and the first set of design spec questions for discussion, so provide feedback on those and we can iterate on the spec and plan concurrently is my idea
+> 4) I am kind of optimistically asking you to jump ahead, as this prompt includes a mixture of the raw intent and the first set of design spec questions for discussion, so provide feedback on those and we can iterate on the spec and plan concurrently is the idea
 >
-> 5) to facilitate all the above, create a new repo in this workspace, initialize it, set it up on github.com as well using gh (as a public repo on my account that is authed in gh) and place the SDLC doc files in that repo, move the script and the skill to the repo as well. commit the first draft. make the .agents/skills/gold-value-normalizer folder a symlink to the new repo location of the skill. place the repo in its right place here under the github.com/nikolaybotev folder
+> 5) to facilitate all the above, create a new repo in this workspace, initialize it, set it up on github.com as well using gh (as a public repo) and place the SDLC doc files in that repo, move the script and the skill to the repo as well. commit the first draft. make the .agents/skills/gold-value-normalizer folder a symlink to the new repo location of the skill.
 >
 > Thanks and happy inferencing!
 

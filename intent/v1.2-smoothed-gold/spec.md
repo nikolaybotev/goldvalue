@@ -36,64 +36,15 @@ and 20 years**. Default when smoothed mode is on: **10**. No 200-day option.
 
 #### Samples
 
-All averages are trailing and use only prices up to the end date. The 200-day
-figure is the mean of the last 200 LBMA fixes. The year figures are means of
-monthly gold prices (the v1 month resolution). Computed from the local LBMA
-cache on 2026-09-30. The $599,900 ask is the 2026 listing in the transcript;
-131,888 GB is that transcript's own spot conversion at the 2026 year-to-date
-daily average ($4,548.54). The 2019 sale is 305,775 GB at $1,452.05.
+Window length was checked by converting the same dated amounts with spot and with trailing averages, and comparing a later reading with an earlier one on one gauge. A 200-day average and a 1-year average stayed with the spot spike. A 5-year average moved part of the way. A 10-year average brought the later reading closest to the earlier one without crossing it. A 20-year average also narrowed the gap, and did more for an older break, but barely moves inside a 20-year chart.
 
-| Sample | Gold price | $599,900 in GB | Versus the 2019 sale (305,775 GB) |
-|---|---|---|---|
-| Spot, as published in the transcript | $4,548.54 | 131,888 | about half. This is the skewed reading. |
-| 200-day average, ending 2026-09-22 | $4,535 | ~132,000 | unchanged. The trading window sits on the spike (spot that day was $4,330). |
-| 1-year monthly average, ending 2026-09 | $4,453 | ~135,000 | still the spike. |
-| 5-year monthly average | $2,686 | ~223,000 | still cheaper than 2019, no longer half. |
-| 10-year monthly average | $2,078 | ~289,000 | in line with 2019. |
-| 20-year monthly average | $1,636 | ~367,000 | richer than 2019. |
-
-The same windows in December 2018, when gold had been range-bound (spot
-$1,282 on 2018-12-31): 200-day **$1,252**, 1-year **$1,269**, 5-year
-**$1,240**, 10-year **$1,305**, 20-year **$879**. Everything except 20 years
-agrees with spot. The gauge pulls away only after a reprice.
+The same windows in December 2018, when gold had been range-bound (spot $1,282 on 2018-12-31): 200-day **$1,252**, 1-year **$1,269**, 5-year **$1,240**, 10-year **$1,305**, 20-year **$879**. Everything except 20 years agrees with spot. The gauge pulls away only after a reprice.
 
 #### Choice
 
-Both dates of a comparison use the same window. Holding 2019 at its spot
-goldbacks and only smoothing 2026 is not a comparison. Same-gauge goldbacks,
-trailing monthly means, from the LBMA cache on 2026-09-30:
+Both dates of a comparison use the same window. Holding the earlier date at its spot gold weight and only smoothing the later date is not a comparison.
 
-| Window | 2019-11 sale $444,000 | 2026-09 ask $599,900 | Ask as a fraction of the sale |
-|---|---|---|---|
-| Spot (the transcript) | 305,775 GB | 131,888 GB | 0.43 |
-| 5 years | 352,141 GB | 223,315 GB | 0.63 |
-| 10 years | 330,436 GB | 288,747 GB | 0.87 |
-| 20 years | 477,683 GB | 366,762 GB | 0.77 |
-
-The earlier break, same way:
-
-| Window | 2001-10 sale $235,000 | 2009-03 deed $128,223 | Deed as a fraction of the sale |
-|---|---|---|---|
-| Spot | 808,672 GB | 142,233 GB | 0.18 |
-| 5 years | 799,148 GB | 203,382 GB | 0.25 |
-| 10 years | 706,214 GB | 273,680 GB | 0.39 |
-| 20 years | 653,526 GB | 310,087 GB | 0.47 |
-
-200 days and 1 year reproduce the 2026 reading (about 132,000 GB), so they are
-not offered. On the comparison that prompted this version, the 2026 ask versus
-the 2019 sale, **10 years leaves the ask closest to the sale (0.87) without
-crossing it**. Five years still leaves a large gap (0.63). Twenty years also
-narrows the gap (0.77) and does more for the 2001-versus-2009 break (0.47
-versus 0.39), at the cost of a gauge that barely moves inside a 20-year chart.
-Default when smoothed mode is on: **10 years**. Presets: 5, 10, 20.
-
-The skewed impression those samples are answering is written up in
-[intent.md](intent.md) ("What to notice"). From the 2019 sale to the 2026 ask
-the house went from $444,000 to $599,900 (**1.35×**) while gold went from
-$1,452 to $4,549 (**3.1×**). The drop from 306k GB to 132k GB is the gold
-move. An earlier move of the same shape, $291 in 2001 to $902 in 2009, is what
-turns the $235,000 sale into 809k GB and the $128,223 trustee's deed into
-142k GB.
+200 days and 1 year are not offered. On the comparison that prompted this version, **10 years** leaves the later reading closest to the earlier one without crossing it. Five years still leaves a large gap. Twenty years also narrows the gap, at the cost of a gauge that barely moves inside a 20-year chart. Default when smoothed mode is on: **10 years**. Presets: 5, 10, 20.
 
 **D17 — Equal-month simple average, trailing.** The price at a snapshot is the
 unweighted mean of the monthly gold prices in the N×12 months ending with the
