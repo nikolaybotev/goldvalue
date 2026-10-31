@@ -3,8 +3,15 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, type Page } from "@playwright/test";
+import { githubRepositorySlug } from "../../../scripts/git-repo.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+
+/** Matches `LINKS` in the built app when `VITE_GITHUB_REPOSITORY` is set from origin. */
+export const skillDocUrl = (file: "historical-notes.md" | "reference.md"): string => {
+  const slug = githubRepositorySlug(ROOT);
+  return `https://github.com/${slug}/blob/main/.agents/skills/gold-value-normalizer/${file}`;
+};
 const SNAPSHOT = join(ROOT, "test-vectors", "snapshot");
 
 /** The synthetic fixture's latest fix (a Friday); the pinned clock is the Tuesday after. */

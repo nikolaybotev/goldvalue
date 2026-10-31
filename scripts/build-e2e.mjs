@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { githubRepositorySlug } from "./git-repo.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const web = join(root, "apps", "web");
@@ -33,4 +34,8 @@ run("python3", [
 ]);
 
 delete process.env.VITE_LBMA_BASE;
-run("vite", ["build", "--outDir", "dist-e2e", "--emptyOutDir"], { GV_PUBLIC_DIR: ".e2e-public" });
+const repoSlug = githubRepositorySlug(root);
+run("vite", ["build", "--outDir", "dist-e2e", "--emptyOutDir"], {
+  GV_PUBLIC_DIR: ".e2e-public",
+  ...(repoSlug ? { VITE_GITHUB_REPOSITORY: repoSlug } : {}),
+});

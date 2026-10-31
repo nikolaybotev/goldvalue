@@ -12,7 +12,7 @@ The BIS FX series (v1.1) are checked the same way: CSV columns, first valid date
 (GBP 1953-08-10, CHF and EUR 1953-09-01, the coverage boundaries the fixture copies),
 per-USD quoting, CORS, freshness, and the ECB cross-check for EUR from 1999.
 
-Exit status 1 means drift; the workflow reports it without failing the build.
+Exit status 1 means drift; the weekly-drift workflow is non-blocking.
 Standard library only.
 """
 
@@ -22,6 +22,9 @@ import csv
 import datetime as dt
 import importlib.util
 import json
+import os
+import re
+import subprocess
 import sys
 import tempfile
 import urllib.request
@@ -34,6 +37,36 @@ CLI = ROOT / ".agents/skills/gold-value-normalizer/scripts/goldvalue.py"
 problems: list[str] = []
 
 
+def github_repository_slug() -> str:
+    if slug := os.environ.get("GITHUB_REPOSITORY"):
+        return slug
+    try:
+        url = subprocess.check_output(
+            ["git", "remote", "get-url", "origin"],
+            cwd=ROOT,
+            text=True,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return ""
+    match = re.search(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?$", url)
+    return match.group(1) if match else ""
+
+
+def pages_origin() -> str:
+    if origin := os.environ.get("PAGES_ORIGIN"):
+        return origin.rstrip("/")
+    slug = github_repository_slug()
+    if not slug or "/" not in slug:
+        return ""
+    owner, name = slug.split("/", 1)
+    return f"https://{owner}.github.io/{name}"
+
+
+def cors_origins() -> tuple[str, ...]:
+    origin = pages_origin()
+    return ("*", origin) if origin else ("*",)
+
+
 def check(ok: bool, message: str) -> None:
     print(("ok    " if ok else "DRIFT ") + message)
     if not ok:
@@ -41,8 +74,11 @@ def check(ok: bool, message: str) -> None:
 
 
 def get(url: str) -> tuple[bytes, dict]:
-    req = urllib.request.Request(url, headers={"User-Agent": "goldvalue-drift/1.0",
-                                               "Origin": "https://nikolaybotev.github.io"})
+    origin = pages_origin()
+    headers = {"User-Agent": "goldvalue-drift/1.0"}
+    if origin:
+        headers["Origin"] = origin
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=60) as resp:
         return resp.read(), {k.lower(): v for k, v in resp.headers.items()}
 
@@ -65,7 +101,7 @@ def check_lbma(cli) -> None:
         body, headers = get(url)
         live = json.loads(body)
         fixture = json.loads((FIXTURE / f"gold_{name}.json").read_text(encoding="utf-8"))
-        check(headers.get("access-control-allow-origin") in ("*", "https://nikolaybotev.github.io"),
+        check(headers.get("access-control-allow-origin") in cors_origins(),
               f"gold_{name}.json sends a permissive Access-Control-Allow-Origin")
         check(isinstance(live, list) and live and set(live[0]) == set(fixture[0]),
               f"gold_{name}.json rows have keys {sorted(fixture[0])}")
@@ -98,7 +134,7 @@ def check_monthly(cli) -> None:
     body, headers = get(cli.MONTHLY_URL)
     lines = body.decode("utf-8").splitlines()
     check(lines[0].strip() == "Date,Price", f"monthly.csv header is Date,Price (got {lines[0]!r})")
-    check(headers.get("access-control-allow-origin") in ("*", "https://nikolaybotev.github.io"),
+    check(headers.get("access-control-allow-origin") in cors_origins(),
           "monthly.csv sends a permissive Access-Control-Allow-Origin")
     last = lines[-1].split(",")[0]
     year, month = (int(x) for x in last.split("-"))
@@ -114,7 +150,7 @@ def check_bis(cli) -> None:
         reader = csv.DictReader(body.decode("utf-8").splitlines())
         check({"TIME_PERIOD", "OBS_VALUE"} <= set(reader.fieldnames or []),
               f"BIS {source} CSV has TIME_PERIOD and OBS_VALUE columns")
-        check(headers.get("access-control-allow-origin") in ("*", "https://nikolaybotev.github.io"),
+        check(headers.get("access-control-allow-origin") in cors_origins(),
               f"BIS {source} sends a permissive Access-Control-Allow-Origin")
         rows = cli.parse_bis_csv(body.decode("utf-8"))
         check(rows[0][0] == first, f"BIS {source} starts {first} (got {rows[0][0]})")

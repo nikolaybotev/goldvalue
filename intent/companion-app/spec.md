@@ -235,7 +235,7 @@ Display precision: stored values are full doubles; the UI formats like the CLI
 | Storage | `idb-keyval` over IndexedDB; `localStorage` for small state | Simple, well-supported |
 | Tests | Vitest for TS; pytest for Python; golden vectors shared | Parity guarantee (G8) |
 | Lint/format | Biome | One tool, fast |
-| Hosting | GitHub Pages at `nikolaybotev.github.io/goldvalue` (D12); `dist/` copy for shared hosting; optional Cloud Run static container | All static |
+| Hosting | GitHub Pages for this repo (D12); `dist/` copy for shared hosting; optional Cloud Run static container | All static |
 | License | MIT (D13); data sources keep their own terms, stated in the app footer | |
 
 ## 9. Non-functional requirements
@@ -354,7 +354,7 @@ USD rate; see `historical-notes.md`).
 choice as their default (FR10). Nominal amount available as a secondary toggle,
 off by default.
 
-**D12 — Hosting: GitHub Pages first,** at `nikolaybotev.github.io/goldvalue`.
+**D12 — Hosting: GitHub Pages first,** at the default project URL for this repository.
 Custom domain later if wanted; nothing in the build depends on the path beyond
 Vite's `base`.
 

@@ -1,8 +1,8 @@
 name: live-check
 
-# AC1 live check (spec 12): the reference CLI against the real LBMA feed must still report
-# 80000 / 2018-12 = 63,979.53 GB. Non-blocking, and nothing is stored: the price cache lives
-# in the runner's temp directory and is never uploaded or committed (spec D15).
+# AC1 live check (spec 12): the reference CLI against the real LBMA feed must still match
+# the AC1 spot case. Non-blocking; the price cache lives in the runner temp directory only
+# (spec D15).
 on:
   schedule:
     - cron: "43 6 * * 1"
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: 80000 2018-12 is 63,979.53 GB against live LBMA data
+      - name: AC1 live LBMA check
         env:
           GOLD_PRICE_CACHE_DIR: ${{ runner.temp }}/goldvalue-live-cache
         run: |
