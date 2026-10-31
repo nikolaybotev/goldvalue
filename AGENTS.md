@@ -69,3 +69,9 @@ planned (see `intent/companion-app/`).
 - Data CSVs (`apps/web/public/data/*.csv`, `test-vectors/snapshot/*.csv`) are never re-encoded or reformatted; `.gitattributes` marks them `-text` so line endings stay byte-exact. Biome ignores them.
 - `packages/core` must not use DOM types or globals (`lib: ES2022`, no `dom`); `apps/web` is the only package with DOM.
 - **Never commit or publish LBMA price data** (spec D15: licensed by ICE Benchmark Administration). Tests use the synthetic fixture in `test-vectors/snapshot/`; the browser fetches LBMA itself; `sync_data.py` must never copy `lbma_daily.csv`.
+
+## Personal data
+
+- Scan every addition to this repo — intents, specs, plans, examples, test fixtures, docs, commit messages, and pull-request text — for Nikolay's personal data, and replace what you find with a neutral placeholder. Do this even when he supplied the value himself or it arrived in a brief.
+- Treat as personal data: street names and addresses, parcel numbers (APNs), loan, account, and other financial figures, employer details, family and contact details, and any IP, key, or hostname tied to his home.
+- If a real value has to be kept, put it only in an untracked local file or a secret.
