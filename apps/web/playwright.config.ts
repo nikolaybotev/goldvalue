@@ -4,7 +4,7 @@ const PORT = 4173;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 
 // BASE_URL points the suite at an already deployed site instead of the local preview build,
-// e.g. BASE_URL=https://nikolaybotev.github.io/goldvalue/ pnpm test:e2e (a trailing slash is added).
+// e.g. BASE_URL=<GitHub Pages URL for this repo> pnpm test:e2e (a trailing slash is added).
 // Data and LBMA are still stubbed with page.route/context.route, so the run needs no data
 // files of its own and never reaches the real LBMA; only the deployed shell is under test.
 const remote = process.env.BASE_URL ? process.env.BASE_URL.replace(/\/*$/, "/") : null;

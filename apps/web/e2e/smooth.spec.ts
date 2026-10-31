@@ -2,10 +2,9 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, type Page, test } from "@playwright/test";
-import { cell, openApp, PINNED_TODAY, stubFx, typeRow } from "./support";
+import { cell, openApp, PINNED_TODAY, skillDocUrl, stubFx, typeRow } from "./support";
 
-const NOTES =
-  "https://github.com/nikolaybotev/goldvalue/blob/main/.agents/skills/gold-value-normalizer/historical-notes.md";
+const NOTES = skillDocUrl("historical-notes.md");
 
 const SMOOTHED_COPY =
   "Smoothed mode divides by a trailing average of monthly gold prices over the selected window. It is a store-of-value gauge for comparing snapshots across long horizons. It is not a consumer-price index and not a claim that gold tracks inflation.";

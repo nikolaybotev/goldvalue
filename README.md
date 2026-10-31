@@ -32,7 +32,7 @@ Standard library only (Python 3.9+). Cache lives in `~/.cache/gold-value/`
 
 ## Web app
 
-**Live: <https://nikolaybotev.github.io/goldvalue/>**
+**Live:** the GitHub Pages site for this repo (see repository **Settings → Pages** or the latest `deploy-pages` run).
 
 A static single-page app in `apps/web` (Vite, Preact, TypeScript): a sheet of dated
 amounts with live GB / GBD / oz columns, a chart you can download as SVG or PNG, CSV

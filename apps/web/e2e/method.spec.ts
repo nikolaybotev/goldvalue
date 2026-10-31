@@ -1,13 +1,11 @@
 import { SYNTHETIC_DEM_NOTE, SYNTHETIC_EUR_NOTE } from "@goldvalue/core";
 import { expect, test } from "@playwright/test";
-import { openApp } from "./support";
+import { openApp, skillDocUrl } from "./support";
 
 const LBMA_TEXT =
   "Daily gold prices are fetched from the LBMA (administered by ICE Benchmark Administration) by your browser for personal, non-commercial use and are not redistributed by this site.";
-const NOTES =
-  "https://github.com/nikolaybotev/goldvalue/blob/main/.agents/skills/gold-value-normalizer/historical-notes.md";
-const REFERENCE =
-  "https://github.com/nikolaybotev/goldvalue/blob/main/.agents/skills/gold-value-normalizer/reference.md";
+const NOTES = skillDocUrl("historical-notes.md");
+const REFERENCE = skillDocUrl("reference.md");
 
 test.describe("AC6 and FR19: the Method panel", () => {
   test("is visible on load and states gold-denominated, not CPI", async ({ page }) => {

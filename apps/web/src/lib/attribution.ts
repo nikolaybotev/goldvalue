@@ -8,8 +8,9 @@ export const MONTHLY_ATTRIBUTION =
 export const BIS_ATTRIBUTION =
   "Foreign-exchange rates come from the Bank for International Settlements (BIS) statistics, which are free to use with attribution.";
 
-const REPO = "https://github.com/nikolaybotev/goldvalue";
-const SKILL = `${REPO}/blob/main/.agents/skills/gold-value-normalizer`;
+const repoSlug = import.meta.env.VITE_GITHUB_REPOSITORY;
+const REPO = repoSlug ? `https://github.com/${repoSlug}` : "";
+const SKILL = REPO ? `${REPO}/blob/main/.agents/skills/gold-value-normalizer` : "";
 
 export const LINKS = {
   repo: REPO,
