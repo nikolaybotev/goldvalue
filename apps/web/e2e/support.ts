@@ -1,11 +1,22 @@
 import { createHash } from "node:crypto";
+import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, type Page } from "@playwright/test";
-import { githubRepositorySlug } from "../../../scripts/git-repo.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+
+function githubRepositorySlug(root: string): string {
+  if (process.env.GITHUB_REPOSITORY) return process.env.GITHUB_REPOSITORY;
+  try {
+    const url = execSync("git remote get-url origin", { cwd: root, encoding: "utf8" }).trim();
+    const match = url.match(/github\.com[:/]([^/]+\/[^/]+?)(?:\.git)?$/);
+    return match ? match[1] : "";
+  } catch {
+    return "";
+  }
+}
 
 /** Matches `LINKS` in the built app when `VITE_GITHUB_REPOSITORY` is set from origin. */
 export const skillDocUrl = (file: "historical-notes.md" | "reference.md"): string => {
