@@ -74,4 +74,6 @@ planned (see `intent/companion-app/`).
 
 - Scan every addition to this repo — intents, specs, plans, examples, test fixtures, docs, commit messages, and pull-request text — for Nikolay's personal data, and replace what you find with a neutral placeholder. Do this even when he supplied the value himself or it arrived in a brief.
 - Treat as personal data: street names and addresses, parcel numbers (APNs), loan, account, and other financial figures, employer details, family and contact details, and any IP, key, or hostname tied to his home.
+- Names of people, lenders, banks, and other institutions tied to his own dealings (a loan officer, a bank that made him an offer) are personal data. Replace them with neutral placeholders such as "Lender A" or "Bank B". Made-up example names stay.
+- For mortgage and home-purchase work, dollar amounts, rates, percentages, fees, down-payment scenarios, house prices, closing-cost worksheets, and lender offers are not private. Leave them as they are.
 - If a real value has to be kept, put it only in an untracked local file or a secret.
