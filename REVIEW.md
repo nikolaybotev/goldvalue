@@ -26,4 +26,4 @@ Check each pull request for:
 
 - **No self-references:** do not hardcode this repo's owner, name, or URL; in prose say "this repo"; in scripts and workflows derive it (`git remote`, `GITHUB_REPOSITORY`, `${{ github.repository }}`, `${{ github.repository_owner }}`). References to other repos are fine. Keep the copyright name in `LICENSE`.
 - **No values of variable config:** do not copy the current value of a setting into docs, tests, or workflows; name the env var, secret, or config key. Tests assert behavior against the configured value, not a literal. Product definitions are not settings.
-- **Don't state the obvious:** drop notes a competent reader already knows.
+- **Don't state the obvious (human-facing docs only):** in README, user docs, and setup docs, drop notes a competent reader already knows (for example "(healthy: exit 0)"). Agent-facing files (`AGENTS.md`, `REVIEW.md`, skills, and intents written for agents) keep explicit expectations; do not strip those notes there.

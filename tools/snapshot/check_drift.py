@@ -12,7 +12,7 @@ The BIS FX series (v1.1) are checked the same way: CSV columns, first valid date
 (GBP 1953-08-10, CHF and EUR 1953-09-01, the coverage boundaries the fixture copies),
 per-USD quoting, CORS, freshness, and the ECB cross-check for EUR from 1999.
 
-Exit status 1 means drift; the weekly-drift workflow is non-blocking.
+Exit status 1 means drift; the workflow reports it without failing the build.
 Standard library only.
 """
 
