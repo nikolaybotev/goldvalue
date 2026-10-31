@@ -76,4 +76,5 @@ planned (see `intent/companion-app/`).
 - Treat as personal data: street names and addresses, parcel numbers (APNs), loan, account, and other financial figures, employer details, family and contact details, and any IP, key, or hostname tied to his home.
 - Names of people, lenders, banks, and other institutions tied to his own dealings (a loan officer, a bank that made him an offer) are personal data. Replace them with neutral placeholders such as "Lender A" or "Bank B". Made-up example names stay.
 - For mortgage and home-purchase work, dollar amounts, rates, percentages, fees, down-payment scenarios, house prices, closing-cost worksheets, and lender offers are not private. Leave them as they are.
+- His managed public identity (his name, his picture, his GitHub account, and his name in open-source license files) is not personal data and stays. His name and GitHub username get no placeholder. Names of other people, lenders, banks, and institutions tied to his dealings still do.
 - If a real value has to be kept, put it only in an untracked local file or a secret.
