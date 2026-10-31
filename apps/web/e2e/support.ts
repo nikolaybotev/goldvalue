@@ -12,7 +12,7 @@ function githubRepositorySlug(root: string): string {
   try {
     const url = execSync("git remote get-url origin", { cwd: root, encoding: "utf8" }).trim();
     const match = url.match(/github\.com[:/]([^/]+\/[^/]+?)(?:\.git)?$/);
-    return match ? match[1] : "";
+    return match?.[1] ?? "";
   } catch {
     return "";
   }
